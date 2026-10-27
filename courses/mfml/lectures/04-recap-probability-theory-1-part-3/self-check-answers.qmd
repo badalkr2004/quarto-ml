@@ -1,0 +1,12 @@
+---
+title: "Lecture 4 — Self-check answers"
+sidebar: mfml
+---
+
+1. The measure on (Borel) subsets of the range obtained by pushing $P$ through $X$ via inverse images; the distribution / law of $X$.
+2. $P_{X}(x)=P(X^{-1}((-\infty,x]))=P(\{\omega:X(\omega)\le x\})$.
+3. They generate the Borel $\sigma$-algebra; RVs are set up so those inverse images are events we can assign $P$ to.
+4. The unbounded rectangle of points with first coordinate $\le x_1$ and second $\le x_2$ (“southwest” of $(x_1,x_2)$).
+5. Nature / labelers assign the underlying measure; we estimate distributions from samples in the range of RVs.
+6. Probability is a measure of **sets**; a density value at one point is not $P$ of a singleton in continuous models.
+7. One joint experiment vs two correlated experiments (disease process vs imaging/labeling process) — modeler’s choice.

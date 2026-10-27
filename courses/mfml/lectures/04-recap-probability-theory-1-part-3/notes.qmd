@@ -1,0 +1,203 @@
+---
+title: "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+subtitle: "Pushforward measures and distribution functions"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 04 — Recap of Probability Theory - 1, Part 3](https://www.youtube.com/watch?v=0R6Agp4tqSU)
+
+---
+
+## 1. Setup from Lectures 2–3
+
+We have the probability triplet $(\Omega, \mathcal{F}, P)$ and a random variable
+
+$$
+X : \Omega \to \mathbb{R}
+$$
+
+(or later $X : \Omega \to \mathbb{R}^{d}$).
+
+**Question of this lecture:** what happens to the measure $P$ when we pass to the range of $X$?
+
+---
+
+## 2. Which subsets of $\mathbb{R}$ do we use? Borel sets
+
+Not every subset of $\mathbb{R}$ is treated as an “event” in the range. We use a standard family: the **Borel $\sigma$-algebra** $\mathcal{B}(\mathbb{R})$.
+
+Intuition used in class: building blocks are half-lines of the form
+
+$$
+(-\infty,\ x]
+$$
+
+(and the $\sigma$-algebra they generate). In $\mathbb{R}^{d}$, the analogous building blocks are **Cartesian products** of such half-lines (rectangles unbounded toward $-\infty$ in each coordinate).
+
+Random variables are defined so that inverse images of these Borel sets land back in $\mathcal{F}$ (measurability) — so probabilities remain well-defined.
+
+---
+
+## 3. Pushforward measure = distribution of $X$
+
+$X$ maps outcomes in $\Omega$ to numbers in $\mathbb{R}$. Subsets of $\Omega$ map (via inverse images) to subsets of $\mathbb{R}$.
+
+Because $P$ lives on events in $\Omega$, there is an **induced** measure on (Borel) subsets of $\mathbb{R}$. That induced measure is called:
+
+| Name used in class | Same idea |
+|--------------------|-----------|
+| Pushforward measure | $P$ “pushed” through $X$ |
+| Distribution of $X$ | law of $X$ |
+| Distribution function / CDF | common 1-D encoding of that law |
+
+**Picture:** one measurable space $(\Omega,\mathcal{F},P)$ + a map $X$ $\Rightarrow$ a new measure space on the range side.
+
+### Course notation
+
+Script / calligraphic $P$ with a mark for $X$ means **the distribution of the random variable $X$**. In these notes we write $P_{X}$.
+
+---
+
+## 4. Definition in one dimension (CDF view)
+
+For $X : \Omega \to \mathbb{R}$ and a real number $x$,
+
+$$
+P_{X}(x) \;=\; P\bigl( X^{-1}((-\infty,\ x]) \bigr) \;=\; P\bigl(\{\omega \in \Omega : X(\omega) \le x\}\bigr).
+$$
+
+In words:
+
+1. Build the Borel set $(-\infty,\ x]$ in $\mathbb{R}$.
+2. Take its **inverse image** under $X$ (a subset of $\Omega$).
+3. Evaluate the original probability measure $P$ on that event.
+
+That value is the **distribution function** (CDF) at $x$.
+
+Endpoint convention: the interval is typically **closed at $x$** and open toward $-\infty$, i.e. $(-\infty,\ x]$.
+
+> Probability is always assigned to a **set** (an event). Evaluating the distribution at $x$ is still “probability of a set” — the set $\{\omega : X(\omega)\le x\}$.
+
+---
+
+## 5. How is $P$ “assigned” in the real world?
+
+Class answer: **nature / the labeling process** assigns the underlying measure. A radiologist’s intuition is hard to put into equations — we treat it as given by the problem.
+
+**Our engineering job (central theme of the course):**
+
+> Given samples from the range of random variables, **estimate** the underlying distribution / measure.
+
+That is the probabilistic formulation of ML that the next lectures will connect to function approximation.
+
+---
+
+## 6. The working triplet from now on
+
+Pushing forward gives a new triplet on the observation side, schematically
+
+$$
+\bigl(\mathbb{R},\ \mathcal{B}(\mathbb{R}),\ P_{X}\bigr).
+$$
+
+Once data are vectors from sensors, we mostly **talk and compute in this pushforward world**, while remembering that an underlying $(\Omega,\mathcal{F},P)$ and map $X$ sit behind it.
+
+That is why random variables were invented: not decoration — the device that moves us from abstract $\Omega$ to numbers with a well-defined distribution.
+
+---
+
+## 7. Vector-valued random variables
+
+In ML, usually
+
+$$
+X : \Omega \to \mathbb{R}^{d}.
+$$
+
+(“Vector-valued RV” just means: the **range** consists of vectors in $\mathbb{R}^{d}$.)
+
+### Borel building blocks in $\mathbb{R}^{d}$
+
+Cartesian products of half-lines, e.g. in $\mathbb{R}^{2}$:
+
+$$
+(-\infty,\ x_1] \times (-\infty,\ x_2].
+$$
+
+Geometrically: everything “southwest” of the point $(x_1,x_2)$ in the plane (with the usual closed/open conventions on edges).
+
+### Distribution at a vector $x \in \mathbb{R}^{d}$
+
+Input to $P_{X}$ is an element of the **range** of $X$. For vector $X$,
+
+$$
+P_{X}(x) \;=\; P\Bigl( X^{-1}\bigl( (-\infty,x_1]\times\cdots\times(-\infty,x_d] \bigr) \Bigr).
+$$
+
+Again: inverse image under $X$, then apply $P$.
+
+Notation clash warning (from class): capital $X$ for the RV vs small/bold $x$ for a point in $\mathbb{R}^{d}$ — same letter family, different objects.
+
+---
+
+## 8. Distribution vs density (preview)
+
+- The **distribution function / pushforward** is a **valid probability measure** (on Borel sets).
+- A **density** (when it exists) is **not** itself a probability: evaluating a density at a single point does **not** give $P(X=x)$ in continuous models.
+
+Formal density discussion continues later; do not confuse “PDF value at a point” with “probability of an event.”
+
+---
+
+## 9. Multiple random variables (setup for next class)
+
+There can be **several** random variables (hence possibly several experiments / sample spaces, or one joint experiment — **your modeling choice**).
+
+### X-ray + disease (two views)
+
+| View | Meaning |
+|------|---------|
+| One experiment | “Get disease and get imaged” as a single process $\to$ one $\Omega$, maybe vector-valued $X$ |
+| Two experiments | Disease outcome vs imaging outcome as separate RVs that may be **correlated** |
+
+Both are allowed; random experiments are chosen by the modeler.
+
+### Vector RV vs many scalars
+
+A Gaussian vector in $\mathbb{R}^{d}$ can be seen as:
+
+- **one** RV with range $\mathbb{R}^{d}$, or  
+- **$d$ correlated scalar** RVs (covariance / correlation matrix).
+
+Same mathematics, two stories.
+
+### Discriminative vs generative (preview)
+
+In this worldview they can look unified: the **label** is simply another coordinate of a vector-valued random variable; **conditioning** corresponds to restricting to appropriate events (set operations on the underlying spaces).
+
+Next lectures: joint / conditional distributions more carefully, then **ML as learning distributions** (linked back to function approximation).
+
+---
+
+## 10. What to refresh before next class
+
+- Joint distributions of several RVs  
+- Conditional distributions (ask: *which events* am I conditioning on?)  
+- Discrete vs continuous RVs  
+- Always relate formulas back to **sets in $\Omega$** and inverse images under $X$
+
+---
+
+## 11. Self-check
+
+1. What is a pushforward measure in one sentence?
+2. Write the 1-D formula for $P_{X}(x)$ using an inverse image.
+3. Why do we care about Borel half-lines $(-\infty,x]$?
+4. In $\mathbb{R}^{2}$, what geometric region does $(-\infty,x_1]\times(-\infty,x_2]$ describe?
+5. Who “assigns” $P$ in applications, and what do ML engineers estimate?
+6. Why is evaluating a continuous density at a point not a probability?
+7. Give two modeling views of “disease + X-ray” as random experiments.
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
