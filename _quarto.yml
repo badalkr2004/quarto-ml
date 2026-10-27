@@ -65,7 +65,10 @@ website:
             - courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.qmd
             - courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.ipynb
             - courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.qmd
-            # - courses/mfml/lectures/03-.../notes.qmd
+            - courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.qmd
+            - courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.ipynb
+            - courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.qmd
+            # - courses/mfml/lectures/04-.../notes.qmd
         - courses/mfml/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID

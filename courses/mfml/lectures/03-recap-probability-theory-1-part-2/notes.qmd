@@ -1,0 +1,176 @@
+---
+title: "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+subtitle: "Probability triplet and random variables"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 03 — Recap of Probability Theory - 1, Part 2](https://www.youtube.com/watch?v=DaBw9qBpt2s)
+
+---
+
+## 1. Where we left off
+
+Lecture 2 gave us:
+
+- Sample space $\Omega$
+- Events $\mathcal{F}$ (suitable subsets of $\Omega$)
+- Probability measure $P : \mathcal{F} \to [0,1]$
+
+Question for ML: **where does this fit**, and what do we do next?
+
+---
+
+## 2. The probability triplet
+
+The package
+
+$$
+(\Omega,\ \mathcal{F},\ P)
+$$
+
+is the **probability triplet** (probability space).
+
+### Useful analogy
+
+| Abstract probability | Concrete geometry on the line |
+|----------------------|-------------------------------|
+| $\Omega$ | $\mathbb{R}$ |
+| events $\mathcal{F}$ | (nice) subsets of $\mathbb{R}$ |
+| $P$ | length (Lebesgue) measure |
+
+Same *pattern*: a ground set, a family of subsets, a measure on those subsets.
+
+---
+
+## 3. Why we cannot stop at the triplet
+
+$\Omega$ is often **abstract and non-numeric** (heads/tails; “someone got imaged and labeled”).
+
+Engineers need **numbers** — we add, subtract, run algorithms, store arrays.
+
+Slogan from class: **think abstract, act concrete.**
+
+- Thinking: probability space / experiment
+- Acting: concrete observations (vectors on a computer)
+
+So we need a bridge from abstraction $\to$ something we can compute with.
+
+### Sensors / observations (X-ray story)
+
+Part of $\Omega$: the whole story (nodule develops, person visits, imaging happens, …).
+
+What we actually store: an **X-ray image** $\to$ a **vector** on disk.
+
+We work with vectors; we *started* from an abstract sample space. **What connects them?**
+
+---
+
+## 4. Random variable = the bridge
+
+A **random variable** is a function
+
+$$
+X : \Omega \to \mathbb{R}
+$$
+
+(or, more useful for ML, $X : \Omega \to \mathbb{R}^{d}$).
+
+It maps each abstract outcome $\omega \in \Omega$ to a number (or vector) we can manipulate.
+
+### Why we need it
+
+| Without $X$ | With $X$ |
+|-------------|----------|
+| Only abstract outcomes (H/T, “process happened”) | Concrete numbers / vectors |
+| Hard to do algebra / ML | Can compute, fit models, store data |
+
+You **cannot stop at $\Omega$** if you want engineering work. The extra map $X$ is not optional decoration — it is *why* RVs were defined.
+
+### Famous misnomer
+
+> A random variable is **neither random nor a variable**.  
+> It is a **deterministic function** $\Omega \to \mathbb{R}$ (or $\mathbb{R}^{d}$).
+
+(Name is historical; treat it as a function.)
+
+### Range need not be all of $\mathbb{R}$
+
+- Can be integers, a finite set, etc.
+- In practice for images / features: range is $\mathbb{R}^{d}$
+- Lecture generalizes: think **$X : \Omega \to \mathbb{R}^{d}$**
+
+---
+
+## 5. What is a data point? (two layers of truth)
+
+### Deterministic language (Lecture 1)
+
+An image is a point / vector in $\mathbb{R}^{d}$.
+
+### Probabilistic language (this lecture)
+
+Still a point in $\mathbb{R}^{d}$, **but** that $\mathbb{R}^{d}$ is the **range** of a random variable $X$ defined on an underlying sample space $\Omega$ from a random experiment we do not fully observe.
+
+**Mental checklist whenever you see a datapoint $x \in \mathbb{R}^{d}$:**
+
+```text
+random experiment
+      |
+      v
+sample space Omega
+      |
+      v
+random variable X : Omega -> R^d
+      |
+      v
+observed vector x  (element of the range of X)
+```
+
+Folder of images = many such range elements (realizations / observations of $X$).
+
+---
+
+## 6. Preview: what happens to $P$? (next ideas)
+
+Defining $X$ raises the natural question:
+
+> We had $P$ on subsets of $\Omega$. Under $X$, what becomes of that measure on subsets of $\mathbb{R}^{d}$?
+
+Answer (named in class, developed next): **pushforward measure**, which becomes the **distribution** of $X$.
+
+Also mentioned: the image of the event $\sigma$-algebra under $X$ relates to the Borel $\sigma$-algebra on $\mathbb{R}^{d}$ (measure-theoretic detail — intuition: “nice” subsets of $\mathbb{R}^{d}$).
+
+This lecture stopped as that transition began; later parts fill in distribution / density.
+
+### Exercise left in class
+
+Is a random variable necessarily **bijective**? (Think carefully; not required for this course’s main path.)
+
+---
+
+## 7. One-page summary
+
+| Object | Role |
+|--------|------|
+| $(\Omega,\mathcal{F},P)$ | Probability triplet — abstract uncertainty |
+| Sensor / measurement | How we *observe* the world |
+| $X:\Omega\to\mathbb{R}^{d}$ | Random variable — bridge to numbers |
+| Datapoint $x$ | Element of the range of $X$ |
+
+**ML connection:** classical “vectors in $\mathbb{R}^{d}$” sit inside a probabilistic story: experiment $\to$ $\Omega$ $\to$ $X$ $\to$ data.
+
+---
+
+## 8. Self-check
+
+1. Write down the probability triplet and one analogy with length on $\mathbb{R}$.
+2. Why is $\Omega$ alone not enough for ML engineering?
+3. Define a random variable formally (domain and codomain).
+4. Why is “random variable” a misnomer?
+5. In the X-ray example, what is abstract ($\Omega$) vs what is concrete (range of $X$)?
+6. Rephrase “an image is a point in $\mathbb{R}^{d}$” in probabilistic language.
+7. What question about $P$ does introducing $X$ force us to ask next?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*

@@ -1,0 +1,12 @@
+---
+title: "Lecture 3 — Self-check answers"
+sidebar: mfml
+---
+
+1. $(\Omega,\mathcal{F},P)$; analogy $(\mathbb{R},\text{nice subsets},\text{length})$.
+2. $\Omega$ may be non-numeric/abstract; algorithms need numbers/vectors.
+3. A (measurable) function $X:\Omega\to\mathbb{R}$ or $X:\Omega\to\mathbb{R}^{d}$.
+4. It is a deterministic function, not a “random” object nor an ordinary algebra “variable.”
+5. Abstract: disease/visit/imaging process as outcomes in $\Omega$; concrete: stored image vector in $\mathbb{R}^{d}$.
+6. The image is a point in the **range** of a random variable defined on an underlying sample space.
+7. How $P$ pushes forward to a measure/distribution on (subsets of) $\mathbb{R}^{d}$.
