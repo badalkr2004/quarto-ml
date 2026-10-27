@@ -1,0 +1,15 @@
+---
+title: "Lecture 1 — Title"
+sidebar: SERIES_ID
+toc: true
+---
+
+**Video:** *link*
+
+## Key ideas
+
+- …
+
+## Self-check
+
+1. …

@@ -1,0 +1,14 @@
+/.quarto/
+/_site/
+/_freeze/
+/.tools/
+_patch_notebook.py
+*.html
+!templates/**/*.html
+.DS_Store
+__pycache__/
+.ipynb_checkpoints/
+.Rhistory
+.RData
+
+**/*.quarto_ipynb

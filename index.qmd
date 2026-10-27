@@ -1,0 +1,33 @@
+---
+title: "Learn ML"
+subtitle: "Notes, tutorials, and references across lecture series"
+toc: false
+---
+
+Personal learning space for **machine learning** and **deep learning** — starting with NPTEL courses, extensible to any future series.
+
+## Courses
+
+| Course | Instructor | Status |
+|--------|------------|--------|
+| [Mathematical Foundations of ML](courses/mfml/index.qmd) | Prof. Prathosh A.P. (IISc / NPTEL) | In progress |
+| *Next series…* | — | Add via [Add a course](docs/adding-a-course.qmd) |
+
+## How this site is organized
+
+```text
+courses/
+  mfml/                 ← one folder per lecture series
+    lectures/01-.../
+    references.qmd
+  SERIES_ID/            ← copy template when you start a new series
+references/             ← shared reading list across courses
+```
+
+Each series has its **own sidebar**. The top **Courses** menu lists every series. When you begin a new NPTEL (or other) series, follow [Add a course](docs/adding-a-course.qmd).
+
+## Quick links
+
+- [All courses](courses/index.qmd)
+- [Shared references](references/index.qmd)
+- Current lecture: [MFML Lec 01 — Function Approximation](courses/mfml/lectures/01-overview-of-function-approximation/notes.qmd)

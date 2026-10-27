@@ -1,0 +1,25 @@
+---
+title: "Mathematical Foundations of Machine Learning"
+subtitle: "NPTEL · Prof. Prathosh A.P. · IISc Bengaluru"
+sidebar: mfml
+toc: false
+---
+
+Probability-first foundations of machine learning: from function approximation and classical statistical learning through neural nets, transformers, and an intro to generative models.
+
+| | |
+|--|--|
+| **Course code** | NPTEL `106108841` |
+| **Playlist** | [YouTube — Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu) |
+| **NPTEL page** | [nptel.ac.in/courses/106108841](https://nptel.ac.in/courses/106108841) |
+
+## Lectures
+
+| # | Topic | Materials |
+|---|--------|-----------|
+| 01 | [Overview of Function Approximation](lectures/01-overview-of-function-approximation/notes.qmd) | [Tutorial notebook](lectures/01-overview-of-function-approximation/tutorial.ipynb) · [Self-check](lectures/01-overview-of-function-approximation/self-check-answers.qmd) |
+| 02 | *Coming after you share the next lecture link* | |
+
+## Course references
+
+See [MFML references](references.qmd) for textbooks and papers tied to this series.

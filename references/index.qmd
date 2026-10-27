@@ -1,0 +1,25 @@
+---
+title: "Shared references"
+sidebar: references
+---
+
+Books, playlists, and tools useful across **multiple** lecture series. Course-specific lists stay under each course (e.g. [MFML references](../courses/mfml/references.qmd)).
+
+## Foundations
+
+| Resource | Why |
+|----------|-----|
+| *Mathematics for Machine Learning* (Deisenroth et al.) — free PDF | Linear algebra, calculus, probability refresh |
+| First course notes on probability (any solid undergrad text) | Sample space, RV, distributions, densities |
+
+## Tools
+
+| Tool | Use |
+|------|-----|
+| [Quarto](https://quarto.org) | This notes site |
+| Python + NumPy / Matplotlib | Tutorials |
+| Jupyter / Quarto notebooks | Hands-on lecture demos |
+
+## Playlists & courses (future slots)
+
+- Mathematical Foundations of Generative Models / GenAI (Prathosh) — add when you start that series

@@ -1,0 +1,6 @@
+---
+title: "SERIES — References"
+sidebar: SERIES_ID
+---
+
+Course-specific links and books. Shared references: site-wide References page.

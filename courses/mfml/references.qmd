@@ -1,0 +1,21 @@
+---
+title: "MFML — References"
+sidebar: mfml
+---
+
+Course-specific reading. Shared / cross-course links live in [References](../../references/index.qmd).
+
+## Primary
+
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- YouTube playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Instructor: [Dr. Prathosh A.P.](https://prathosh.in/)
+
+## Suggested background (before / during early weeks)
+
+- A first course in **probability** (random variables, distributions, expectation, LLN)
+- Comfortable with basic **linear algebra** (vectors, matrices) — deepened as needed in later lectures
+
+## To add later
+
+As lectures introduce books/papers (Bishop, Murphy, ESL, papers on EM/SVM/transformers, etc.), list them here under week headings.

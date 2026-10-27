@@ -1,0 +1,24 @@
+---
+title: "SERIES TITLE"
+subtitle: "Platform · Instructor · Institution"
+sidebar: SERIES_ID
+toc: false
+---
+
+Short description of what this series covers.
+
+| | |
+|--|--|
+| **Course / code** | |
+| **Playlist / site** | |
+| **Instructor** | |
+
+## Lectures
+
+| # | Topic | Materials |
+|---|--------|-----------|
+| 01 | [First lecture title](lectures/01-first-lecture/notes.qmd) | |
+
+## Course references
+
+See [references](references.qmd).

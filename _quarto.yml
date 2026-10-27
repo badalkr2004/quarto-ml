@@ -1,0 +1,103 @@
+# Extensible multi-course learning site
+# Add a new lecture series: see docs/adding-a-course.qmd
+
+project:
+  type: website
+  output-dir: _site
+  render:
+    - "*.qmd"
+    - "courses/**/*.qmd"
+    - "courses/**/*.ipynb"
+    - "docs/**/*.qmd"
+    - "!templates/**"
+
+website:
+  title: "Learn ML"
+  description: "Lecture notes, tutorials, and references for machine learning & deep learning"
+  search:
+    location: navbar
+    type: overlay
+  page-navigation: true
+  reader-mode: true
+  navbar:
+    background: light
+    left:
+      - href: index.qmd
+        text: Home
+      - text: Courses
+        menu:
+          - text: All courses
+            href: courses/index.qmd
+          - text: "—"
+          - text: Mathematical Foundations of ML
+            href: courses/mfml/index.qmd
+          # - text: Next Series Title
+          #   href: courses/SERIES_ID/index.qmd
+      - href: references/index.qmd
+        text: References
+      - href: docs/adding-a-course.qmd
+        text: Add a course
+      - href: docs/attribution.qmd
+        text: Attribution
+    right:
+      - icon: github
+        href: https://github.com
+        aria-label: GitHub
+  page-footer:
+    left: "Unofficial study notes · Not affiliated with NPTEL/IISc"
+    right:
+      - text: Attribution
+        href: docs/attribution.qmd
+  sidebar:
+    - id: mfml
+      title: "MFML (Prathosh)"
+      style: docked
+      search: true
+      collapse-level: 2
+      contents:
+        - courses/mfml/index.qmd
+        - section: "Lectures"
+          contents:
+            - courses/mfml/lectures/01-overview-of-function-approximation/notes.qmd
+            - courses/mfml/lectures/01-overview-of-function-approximation/tutorial.ipynb
+            - courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.qmd
+            # - courses/mfml/lectures/02-.../notes.qmd
+        - courses/mfml/references.qmd
+    # --- Paste a new sidebar block when you add a series ---
+    # - id: SERIES_ID
+    #   title: "Short Series Name"
+    #   style: docked
+    #   search: true
+    #   contents:
+    #     - courses/SERIES_ID/index.qmd
+    #     - section: "Lectures"
+    #       contents:
+    #         - courses/SERIES_ID/lectures/01-.../notes.qmd
+    #     - courses/SERIES_ID/references.qmd
+    - id: references
+      title: "References"
+      style: docked
+      contents:
+        - references/index.qmd
+    - id: docs
+      title: "Site docs"
+      style: docked
+      contents:
+        - docs/adding-a-course.qmd
+        - docs/attribution.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - styles.scss
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-overflow: wrap
+    link-external-newwindow: true
+    html-math-method: katex
+
+execute:
+  freeze: auto
+  warning: false

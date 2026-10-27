@@ -1,0 +1,32 @@
+---
+title: "Attribution & copyright"
+sidebar: docs
+---
+
+## What this site is
+
+Unofficial **personal study notes** for publicly available lecture series (starting with NPTEL *Mathematical Foundations of Machine Learning*).
+
+This site is **not** affiliated with NPTEL, IISc, or the course instructors.
+
+## What we publish
+
+- Original notes and explanations written for learning
+- Tutorials and code examples created for this site
+- Links to official lecture videos and course pages
+
+## What we do not publish
+
+- Lecture video or audio files
+- Official course PDFs/slides redistributed wholesale
+- Verbatim lecture transcripts
+
+## Credit
+
+When notes follow a specific lecture, the page names the course, instructor, and links the source video.
+
+Example: Prof. Prathosh A.P., NPTEL / IISc — [Mathematical Foundations of Machine Learning](https://nptel.ac.in/courses/106108841).
+
+## Your use
+
+You may read and learn from these notes. If you reuse material, please keep attribution to both this site and the original lecture sources.

@@ -1,0 +1,79 @@
+---
+title: "Add a new lecture series"
+sidebar: docs
+---
+
+Use this checklist whenever you start another course (e.g. Generative AI foundations, a CV series, etc.). The site is designed so **each series is a folder + a sidebar block**.
+
+## 1. Copy the template
+
+```powershell
+Copy-Item -Recurse templates\new-course courses\SERIES_ID
+```
+
+Replace `SERIES_ID` with a short slug, e.g. `mfgenai`, `dl-specialization`.
+
+## 2. Edit the course home page
+
+Open `courses/SERIES_ID/index.qmd`:
+
+- Set `title`, instructor, links
+- Set YAML `sidebar: SERIES_ID` (must match step 3)
+
+## 3. Register navigation in `_quarto.yml`
+
+**A. Navbar → Courses menu** — uncomment / add:
+
+```yaml
+- text: Your Series Title
+  href: courses/SERIES_ID/index.qmd
+```
+
+**B. New sidebar** — copy the commented `SERIES_ID` block and fill lecture paths:
+
+```yaml
+- id: SERIES_ID
+  title: "Short Name"
+  style: docked
+  search: true
+  contents:
+    - courses/SERIES_ID/index.qmd
+    - section: "Lectures"
+      contents:
+        - courses/SERIES_ID/lectures/01-.../notes.qmd
+    - courses/SERIES_ID/references.qmd
+```
+
+**C. Courses index table** — add a row in `courses/index.qmd` and optionally on the home page.
+
+## 4. Add lectures as you go
+
+For each lecture:
+
+```text
+courses/SERIES_ID/lectures/NN-short-slug/
+  notes.qmd          # reading notes
+  tutorial.ipynb     # optional beginner notebook
+  self-check-answers.qmd
+```
+
+Every page should include:
+
+```yaml
+sidebar: SERIES_ID
+```
+
+Then append the new files under that sidebar’s `contents` in `_quarto.yml`.
+
+## 5. Preview
+
+```powershell
+quarto preview
+```
+
+## Naming tips
+
+| Good `SERIES_ID` | Avoid |
+|------------------|--------|
+| `mfml`, `mfgenai`, `cs231n` | spaces, capitals, long titles |
+| Stable forever | renaming later breaks URLs |

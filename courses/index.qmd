@@ -1,0 +1,19 @@
+---
+title: "Courses"
+toc: false
+---
+
+Lecture series tracked on this site. Each course is independent — add another anytime without restructuring the whole project.
+
+## Active
+
+### [Mathematical Foundations of Machine Learning](mfml/index.qmd)
+
+- **ID:** `mfml`
+- **Instructor:** Prof. Prathosh A.P. (IISc)
+- **Platform:** NPTEL
+- **Focus:** Probability-first mathematical foundations of classical ML and deep learning
+
+## Planned / next
+
+When you start the next series (e.g. Mathematical Foundations of Generative AI), create `courses/<id>/` and register it in `_quarto.yml`. Step-by-step: [Add a course](../docs/adding-a-course.qmd).

@@ -1,0 +1,272 @@
+# Lecture 1 — Overview of Function Approximation
+
+**Course:** Mathematical Foundations of Machine Learning (NPTEL, IISc)  
+**Instructor:** Prof. Prathosh A.P.  
+**Video:** [Lec 01 — Overview of Function Approximation](https://www.youtube.com/watch?v=G2h7nD_Stxg)
+
+---
+
+## 1. What this course is for
+
+This is the first of a **two-course series**:
+
+| Course | Role |
+|--------|------|
+| **This one** | Mathematical / probabilistic foundations of ML |
+| **Next semester** | State-of-the-art algorithms (esp. generative models) |
+
+**Goal:** move from “internet data scientist” (drive the car) to someone who can **build and reason about** algorithms (design the engine).
+
+Analogy used in class:
+
+> You don’t need to know how an internal combustion engine works to drive a car.  
+> You do need that knowledge if you want to build a better one.
+
+By the end, reading an ML paper should feel closer to reading a novel than decoding opaque jargon.
+
+**Teaching style:** mostly chalk-and-board (no slides). Mathematics is treated as a **language of precision** — English is too ambiguous for engineering implementation.
+
+**Viewpoint:** almost everything will be developed from a **probabilistic standpoint** (with deterministic parallels pointed out along the way).
+
+---
+
+## 2. The central problem: function approximation
+
+Most problems in science and engineering can be cast as **function approximation**.
+
+### Classical motivation
+
+Kepler / Gauss-era question: observe planet positions at some times → predict positions at other times.
+
+- Independent variable: time → call this \(x\)
+- Dependent variable: position → call this \(y\)
+
+### Formal setup
+
+Two sets:
+
+- **Domain set** \(\mathcal{X}\) (often called “input”; here we keep it abstract)
+- **Range set** \(\mathcal{Y}\) (often called “output”)
+
+We are given a **dataset** of paired observations:
+
+\[
+\mathcal{D} = \bigl\{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\bigr\}
+\]
+
+where each \(x_i \in \mathcal{X}\) and \(y_i \in \mathcal{Y}\).
+
+**Assumption:** there exists a function
+
+\[
+f : \mathcal{X} \to \mathcal{Y}
+\]
+
+such that the observations are (related to) evaluations of \(f\).  
+**Problem:** \(f\) is **unknown**.
+
+> **Machine learning in one line (deterministic view):**  
+> Given \(\mathcal{D}\), find / estimate \(f\).
+
+This is an **ill-posed / “blind”** problem: we only have samples, not a description of \(f\).
+
+---
+
+## 3. How humans solve blind problems (the philosophy)
+
+If you know nothing about \(f\), you cannot magically recover “truth.” The workable philosophy is:
+
+1. **Start with an initial guess** on \(f\) (a *model family*)
+2. **Refine that guess using data** \(\mathcal{D}\) (a *learning algorithm*)
+
+### Example: planetary motion
+
+Kepler assumed orbits are **ellipses**. That does not finish the job — there are infinitely many ellipses. Data tells you **which** ellipse (among the family) fits.
+
+### Vocabulary that will stick for the whole course
+
+| Everyday phrase | ML meaning |
+|-----------------|------------|
+| Initial guess / family of candidates | **Model** / **model family** |
+| Procedure that improves the guess with \(\mathcal{D}\) | **Learning algorithm** |
+| Dataset \(\mathcal{D}\) | **Data** (“data is the new oil” — quality of \(\mathcal{D}\) limits quality of \(\hat{f}\)) |
+
+Famous proverb cited in lecture:
+
+> **All models are wrong, but some are useful.**
+
+We never have access to “true reality”; we only get **estimates**. The course will define what “useful” means rigorously later (error, risk, generalization, etc.).
+
+### Model families you will meet later
+
+Different *guesses* on \(f\):
+
+- Linear models  
+- Quadratic / polynomial families  
+- Kernel machines  
+- Decision trees  
+- Neural networks  
+
+Different *refinement algorithms* (examples):
+
+- Least squares  
+- Error backpropagation (for neural nets)  
+
+**“Learning”** = choosing a family + refining it with data. Both will be formalized later.
+
+### Overfitting (preview)
+
+A bad “solution”: define \(\hat{f}(x_i) = y_i\) only at observed points and invent nonsense elsewhere.
+
+That memorizes \(\mathcal{D}\) but fails the real goal: predict for **unseen** \(x\).  
+This idea will later be formalized as **overfitting**.
+
+---
+
+## 4. Domains need not be scalars — think vectors
+
+Nothing forces \(x\) or \(y\) to be single numbers. We often work with **vector-valued** inputs/outputs.
+
+### Running example: chest X-ray diagnosis
+
+- \(x_i\): an X-ray image  
+- \(y_i \in \{0,1\}\): diseased / not diseased  
+
+In a computer, an image is a \(P \times Q\) matrix of pixel intensities (e.g. \(0\)–\(255\) for 8-bit).  
+Stack columns into one long vector of length \(PQ\). Then:
+
+\[
+x_i \in \mathbb{R}^{PQ}
+\]
+
+Abstractly, for the rest of the course:
+
+\[
+x \in \mathbb{R}^{d}
+\]
+
+(a point in \(d\)-dimensional Euclidean space).
+
+The unknown \(f\) maps a high-dimensional image to a label \(\{0,1\}\).  
+In the real world, that \(f\) is roughly “what a radiologist does.”  
+ML tries to **mimic** such maps — this is the **universal function approximation** ambition: learn useful maps between complicated spaces.
+
+---
+
+## 5. Why a *probabilistic* viewpoint?
+
+Many ML methods can be told in a deterministic “fit a curve” language. That is **not enough** for the hard cases.
+
+### Measurable physics vs abstract human constructs
+
+Easy (Newtonian) maps:
+
+- Force ↔ acceleration (linear, few parameters)  
+- Enough to fly an aircraft with a small model  
+
+Hard maps:
+
+- Pixel reflectance → **gender**, **disease**, **intent**  
+- Microphone pressure waveform → **phoneme / meaning**  
+
+A microphone measures **pressure gradients**. A camera measures **reflected/absorbed radiation**.  
+Why those numbers should equal an abstract label like “gender” or “phone /ah/” is **not** a simple physics formula with 5 parameters. Human semantics are complex; models may need **millions of parameters**.
+
+**Thought experiment (assignment-style):** take MNIST digits and **randomly shuffle labels**. You can still train a model that fits those random labels. Semantics are subtle; memorization is possible; **meaning is not automatic**.
+
+### Historical lesson: speech recognition
+
+For decades, speech scientists tried **physics-first** inversion:
+
+- Model vocal tract as waveguides / constrictions  
+- Invert from waveform → articulatory configuration → phone  
+
+Hard and brittle.
+
+In the late 1980s, **statistical methods** solved practical digit / speech recognition by:
+
+- Making many observations  
+- Estimating patterns from data  
+
+Physics-first researchers sometimes called this **“ignorance modeling.”**  
+Engineers replied: **but it works.**
+
+Modern deep learning sits in that lineage: systems that work at scale, even when full interpretability lags behind.
+
+### Takeaway
+
+When \(f\) is too complex to derive from first-principles physics:
+
+> Make **repeated observations** and estimate \(f\) with **statistical / probabilistic methods**.
+
+That is why this course is grounded in probability theory.
+
+---
+
+## 6. From deterministic sets to random variables
+
+**Deterministic view:** \(\mathcal{X}, \mathcal{Y}\) are sets; \(f:\mathcal{X}\to\mathcal{Y}\); given \(\mathcal{D}\), estimate \(f\).
+
+**Probabilistic view:** \(\mathcal{X}\) and \(\mathcal{Y}\) are (supports of) **random variables**.  
+Function approximation becomes closely related to **distribution / density estimation**.
+
+There will be **one-to-one parallels** between:
+
+| Deterministic language | Probabilistic language |
+|------------------------|------------------------|
+| Estimate unknown \(f\) | Estimate distributions / conditionals involving \(X,Y\) |
+| Model family | Parametric / structured distributions |
+| Fit with data | Inference / learning from samples |
+
+Generative models, in particular, are most natural in the probabilistic language. That language is broad enough to cover both **discriminative** and **generative** formulations (terms to be defined soon).
+
+---
+
+## 7. Preparation for Lecture 2+
+
+Refresh thoroughly before the next class:
+
+1. Random experiment & **sample space**  
+2. **Random variable** (as a measurable function from sample space → \(\mathbb{R}\))  
+3. Probability **measure**  
+4. Distribution functions  
+5. **Density** functions (and that densities do **not** always exist)  
+6. Familiarity with measure-theoretic language (σ-algebras, etc.) will help — the course gets rigorous
+
+Next lectures connect today’s function-approximation story to random variables and distribution estimation.
+
+---
+
+## 8. One-page mental model
+
+```text
+Observations D = {(x_i, y_i)}
+        |
+        v
+Assume unknown map f : X -> Y exists
+        |
+        v
+Choose a model family (initial guess)
+        |
+        v
+Refine with data (learning algorithm)
+        |
+        v
+Get useful estimate f̂  (not "truth")
+```
+
+When physics of \(f\) is unavailable → use **statistics / probability** and lots of data.
+
+---
+
+## 9. Self-check questions
+
+1. State the function approximation problem in one sentence using \(\mathcal{D}\) and \(f\).  
+2. Why is “set \(\hat{f}(x_i)=y_i\) at training points” a bad philosophy for ML?  
+3. What is the difference between a **model family** and a **learning algorithm**? Give one example of each.  
+4. How do you represent a \(P\times Q\) image as a point in Euclidean space?  
+5. Why might predicting gender from pixels need a huge model while airplane control needs a small one?  
+6. What does “ignorance modeling” refer to historically, and why does the course still embrace a statistical view?  
+7. In one sentence: how does the probabilistic view rephrase “estimate \(f\)”?
+
+*(Short answers are in `self-check-answers.md`.)*
