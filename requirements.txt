@@ -1,0 +1,7 @@
+# Python deps for Quarto render on Posit Connect Cloud / local notebooks
+jupyter>=1.0.0
+nbclient>=0.10.0
+nbformat>=5.10.0
+ipykernel>=6.29.0
+numpy>=1.26.0
+matplotlib>=3.8.0
