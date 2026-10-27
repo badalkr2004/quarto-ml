@@ -1,0 +1,235 @@
+---
+title: "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+subtitle: "From function approximation to probability measures"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 02 — Recap of Probability Theory - 1, Part 1](https://www.youtube.com/watch?v=YLx3hBqt28k)
+
+---
+
+## 1. Bridge from Lecture 1
+
+Last time: ML = **function approximation**.
+
+- Data: pairs from two sets  
+- Assume unknown \(f\) maps domain → range  
+- Goal: estimate \(f\) (so we can **predict** on new inputs)
+
+**Prediction** means: for a new \(x\) with unknown \(y\), use \(\hat{f}\) to guess \(y\).
+
+Example: X-ray → \(\{0,1\}\) (diseased / not).
+
+**How (abstractly):** guess a model family → refine with data.
+
+**Why that is not enough alone:** for many problems you cannot derive \(f\) from physics (coin toss; reflectance → “disease”). So we use a **statistical / probabilistic** approach: many observations, infer structure from data.
+
+### The gap this lecture closes
+
+| Familiar language | Probabilistic language (feels harder at first) |
+|-------------------|-----------------------------------------------|
+| Learn / estimate a function \(f\) | Estimate an underlying **distribution** (e.g. via divergence minimization later) |
+
+Same spirit — different math language. Today: foundations so that link becomes natural.
+
+---
+
+## 2. Why probability theory?
+
+We must **decide under uncertainty**.
+
+Irony stressed in class:
+
+- Inputs / world: uncertain  
+- Final decisions (e.g. diagnosis): must be **deterministic**  
+  (A doctor cannot usefully stop at “60% diseased” without a decision rule.)
+
+So we need a **mathematical framework** for uncertainty that still ends in decisions.
+
+---
+
+## 3. Random experiment (where “random” starts — and almost ends)
+
+Probability begins with a **random experiment**:
+
+> An experiment whose outcomes we treat as uncertain / not fully predictable from our model of the world.
+
+Important points from lecture:
+
+1. **“Randomness” itself is not rigorously defined** — we assume we know what a random experiment is, then proceed with set theory / measure theory.  
+2. After fixing the experiment and its outcomes, **almost nothing else is “random”** — including random variables (coming soon): they are deterministic maps.  
+3. The designer **chooses** what counts as the experiment.  
+   - One toss of a coin  
+   - Five tosses of a coin  
+   Both are valid random experiments — different sample spaces.
+
+### Classic examples
+
+| Random experiment | Typical outcomes |
+|-------------------|------------------|
+| Coin toss | \{H, T\} |
+| Die roll | \{1,2,3,4,5,6\} |
+
+### ML examples (see every datapoint this way)
+
+| Task | What is the “random experiment”? (intuition) |
+|------|-----------------------------------------------|
+| X-ray diagnosis | Person gets ill / seeks care → imaging → image on disk → clinician label |
+| Spam filter | Someone drafts/sends email → someone labels spam / not |
+| Brain measurement → prediction | Person + protocol → recorded signal |
+
+**Punchline for ML:** every training point is an **outcome of an underlying random experiment**. That is the probabilistic starting point.
+
+---
+
+## 4. Sample space \(\Omega\)
+
+Once the random experiment is fixed:
+
+\[
+\Omega = \{\text{all possible outcomes of the experiment}\}
+\]
+
+This set is the **sample space**.
+
+### Critical reminders
+
+- \(\Omega\) need **not** be numeric.  
+  Coin: \(\Omega = \{H,T\}\) — no numbers yet.  
+  X-ray pipeline: outcomes are abstract “whole process happened this way” objects — still not vectors until we define random variables (next lectures).
+- Sample space = enumerate outcomes in a set. Set theory begins here.
+
+> Don’t ask “what is randomness?” — collect outcomes into \(\Omega\), then work mathematically.
+
+(Side joke from class: “random number generators” are deterministic algorithms → *pseudo*-random.)
+
+---
+
+## 5. Why measures? Comparing subsets
+
+Having \(\Omega\) alone does not let us predict. We need to talk about **how large / how likely** subsets are.
+
+### Analogy: real numbers and length
+
+On \(\mathbb{R}\), to say which of two intervals is “bigger,” we use **length** (Lebesgue measure on nice sets).
+
+- In \(\mathbb{R}^2\): area  
+- In \(\mathbb{R}^3\): volume  
+- In \(\mathbb{R}^d\): \(d\)-dimensional volume  
+
+**General idea:** given a set, form subsets, assign a **measure** so we can compare / quantify them.
+
+A measure is a mathematical function on (certain) subsets with formal properties (non-negativity, additivity for disjoint unions, etc.). This course gives the intuition; a full measure-theory course makes it airtight.
+
+### Back to \(\Omega\)
+
+Let \(\mathcal{F}\) be a suitable collection of subsets of \(\Omega\) (events).  
+**Goal:** assign a measure on members of \(\mathcal{F}\).
+
+(In full rigor \(\mathcal{F}\) is a σ-algebra — named in the lecture goals; formal axioms continue in the next parts.)
+
+---
+
+## 6. Probability measure \(P\)
+
+One special measure on events is the **probability measure**
+
+\[
+P : \mathcal{F} \to [0,1]
+\]
+
+### Properties (as stated in class)
+
+For events \(A,B \in \mathcal{F}\):
+
+1. **Non-negativity:** \(P(A) \ge 0\)  
+2. **Normalized on \(\Omega\):** \(P(\Omega) = 1\)  
+3. **Empty set:** \(P(\emptyset) = 0\)  
+4. **Additivity for disjoint events:** if \(A \cap B = \emptyset\), then  
+   \[
+   P(A \cup B) = P(A) + P(B)
+   \]
+5. Values lie in \([0,1]\) (unlike raw length, which can be arbitrarily large)
+
+Analogy: think of \(P\) like “length,” but scaled so the whole sample space has measure 1.
+
+### Vocabulary
+
+| Term | Meaning |
+|------|---------|
+| Outcome | An element of \(\Omega\) |
+| Event | A subset of \(\Omega\) (element of \(\mathcal{F}\)) |
+| \(P(A)\) | Probability measure of event \(A\) |
+
+---
+
+## 7. Meaning of \(P(A)\): optional until the end
+
+Mathematically, \(P\) is just a measure with those axioms.
+
+**Common interpretation:** \(P(A)\) = “likelihood” that event \(A\) occurs  
+(e.g. \(P(A)=0.7\) → “70% chance” in ordinary speech).
+
+Lecture philosophy:
+
+- You can run almost all of the **math of ML** treating \(P\) as a pure abstraction.  
+- Assign human meaning (diagnosis language, business risk, etc.) **at the end**, when a decision must be communicated.  
+- Same measure, different stories in different applications — like “area under a curve” meaning different physical things in different sciences.
+
+**Abstraction payoff for ML:** once data = values of random variables with an underlying \(P\), the same algorithms apply to images, text, time series, brain signals — all are vectors in the range of those maps. That is why a “generalist” ML view is possible.
+
+---
+
+## 8. Link back to “ignorance modeling”
+
+If you were omniscient about all physics of a coin toss, the outcome would be deterministic.  
+Because we are not, we use the probabilistic apparatus: experiment → \(\Omega\) → events → \(P\).
+
+There need not be “true metaphysical randomness” for the framework to be useful.
+
+---
+
+## 9. One-page map (so far)
+
+```text
+Random experiment  (assumed)
+        |
+        v
+Sample space Ω  (set of outcomes; may be non-numeric)
+        |
+        v
+Events  (subsets in F)
+        |
+        v
+Probability measure P : F → [0,1]
+        |
+        v
+(Next lectures) Random variables, distributions
+        |
+        v
+ML as estimating structure of P  (parallel to estimating f)
+```
+
+---
+
+## 10. What comes next
+
+This part stopped at **sample space + probability measure**.  
+Still ahead (as previewed): random variables, pushforward measures, distribution / density functions — and the explicit parallel between estimating \(f\) and estimating distributions.
+
+---
+
+## 11. Self-check
+
+1. Restate Lecture 1’s ML problem in one sentence, then say why a probabilistic view is needed.  
+2. What is a sample space? Must it consist of numbers?  
+3. Give two different random experiments you could define for “coin tossing.”  
+4. In the X-ray setting, what does the lecture treat as the random experiment (intuitively)?  
+5. Why do we need a measure on subsets of \(\Omega\)?  
+6. List the main properties of a probability measure \(P\).  
+7. What is an *event*?  
+8. Why does the instructor say you can delay assigning “meaning” to \(P(A)\)?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*

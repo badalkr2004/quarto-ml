@@ -17,8 +17,9 @@ Probability-first foundations of machine learning: from function approximation a
 
 | # | Topic | Materials |
 |---|--------|-----------|
-| 01 | [Overview of Function Approximation](lectures/01-overview-of-function-approximation/notes.qmd) | [Tutorial notebook](lectures/01-overview-of-function-approximation/tutorial.ipynb) · [Self-check](lectures/01-overview-of-function-approximation/self-check-answers.qmd) |
-| 02 | *Coming after you share the next lecture link* | |
+| 01 | [Overview of Function Approximation](lectures/01-overview-of-function-approximation/notes.qmd) | [Tutorial](lectures/01-overview-of-function-approximation/tutorial.ipynb) · [Self-check](lectures/01-overview-of-function-approximation/self-check-answers.qmd) |
+| 02 | [Recap of Probability Theory - 1, Part 1](lectures/02-recap-probability-theory-1-part-1/notes.qmd) | [Tutorial](lectures/02-recap-probability-theory-1-part-1/tutorial.ipynb) · [Self-check](lectures/02-recap-probability-theory-1-part-1/self-check-answers.qmd) |
+| 03 | *Coming after you share the next lecture link* | |
 
 ## Course references
 
