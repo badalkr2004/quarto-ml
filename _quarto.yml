@@ -10,6 +10,7 @@ project:
     - "courses/**/*.ipynb"
     - "docs/**/*.qmd"
     - "!templates/**"
+    - "!_math_test.qmd"
 
 website:
   title: "Learn ML"
@@ -99,7 +100,8 @@ format:
     code-copy: true
     code-overflow: wrap
     link-external-newwindow: true
-    html-math-method: katex
+    # MathJax is more reliable for website + Connect Cloud than KaTeX here
+    html-math-method: mathjax
 
 execute:
   freeze: auto

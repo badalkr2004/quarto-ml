@@ -3,11 +3,11 @@ title: "Lecture 2 — Self-check answers"
 sidebar: mfml
 ---
 
-1. Estimate unknown \(f\) from paired data so we can predict; physics of \(f\) is often unavailable, so we use repeated observations + probability.  
-2. Set \(\Omega\) of all possible outcomes of a chosen random experiment; **no**, it need not be numeric (e.g. \(\{H,T\}\)).  
-3. e.g. single toss vs five tosses — different experiments → different \(\Omega\).  
-4. The whole pipeline: illness / visit → imaging → digital image → clinician label (as one generative process whose outcomes we observe).  
-5. To compare / quantify subsets (events); a bare set does not tell you “how much” or “how likely.”  
-6. Non-negative; \(P(\Omega)=1\); \(P(\emptyset)=0\); additive on disjoint events; values in \([0,1]\).  
-7. A subset of \(\Omega\) (in the collection \(\mathcal{F}\)) that we assign probability to.  
-8. The math works with \(P\) as an abstract measure; human/clinical meaning is attached when you must make a real-world decision.
+1. Estimate unknown $f$ from paired data so we can predict; physics of $f$ is often unavailable, so we use repeated observations + probability.
+2. Set $\Omega$ of all possible outcomes of a chosen random experiment; **no**, it need not be numeric (e.g. $\{H,T\}$).
+3. e.g. single toss vs five tosses — different experiments $\to$ different $\Omega$.
+4. The whole pipeline: illness / visit $\to$ imaging $\to$ digital image $\to$ clinician label (as one generative process whose outcomes we observe).
+5. To compare / quantify subsets (events); a bare set does not tell you "how much" or "how likely."
+6. Non-negative; $P(\Omega)=1$; $P(\emptyset)=0$; additive on disjoint events; values in $[0,1]$.
+7. A subset of $\Omega$ (in the collection $\mathcal{F}$) that we assign probability to.
+8. The math works with $P$ as an abstract measure; human/clinical meaning is attached when you must make a real-world decision.

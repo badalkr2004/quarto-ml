@@ -45,46 +45,46 @@ Most problems in science and engineering can be cast as **function approximation
 
 Kepler / Gauss-era question: observe planet positions at some times → predict positions at other times.
 
-- Independent variable: time → call this \(x\)
-- Dependent variable: position → call this \(y\)
+- Independent variable: time → call this $x$
+- Dependent variable: position → call this $y$
 
 ### Formal setup
 
 Two sets:
 
-- **Domain set** \(\mathcal{X}\) (often called “input”; here we keep it abstract)
-- **Range set** \(\mathcal{Y}\) (often called “output”)
+- **Domain set** $\mathcal{X}$ (often called “input”; here we keep it abstract)
+- **Range set** $\mathcal{Y}$ (often called “output”)
 
 We are given a **dataset** of paired observations:
 
-\[
+$$
 \mathcal{D} = \bigl\{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\bigr\}
-\]
+$$
 
-where each \(x_i \in \mathcal{X}\) and \(y_i \in \mathcal{Y}\).
+where each $x_i \in \mathcal{X}$ and $y_i \in \mathcal{Y}$.
 
 **Assumption:** there exists a function
 
-\[
+$$
 f : \mathcal{X} \to \mathcal{Y}
-\]
+$$
 
-such that the observations are (related to) evaluations of \(f\).  
-**Problem:** \(f\) is **unknown**.
+such that the observations are (related to) evaluations of $f$.  
+**Problem:** $f$ is **unknown**.
 
 > **Machine learning in one line (deterministic view):**  
-> Given \(\mathcal{D}\), find / estimate \(f\).
+> Given $\mathcal{D}$, find / estimate $f$.
 
-This is an **ill-posed / “blind”** problem: we only have samples, not a description of \(f\).
+This is an **ill-posed / “blind”** problem: we only have samples, not a description of $f$.
 
 ---
 
 ## 3. How humans solve blind problems (the philosophy)
 
-If you know nothing about \(f\), you cannot magically recover “truth.” The workable philosophy is:
+If you know nothing about $f$, you cannot magically recover “truth.” The workable philosophy is:
 
-1. **Start with an initial guess** on \(f\) (a *model family*)
-2. **Refine that guess using data** \(\mathcal{D}\) (a *learning algorithm*)
+1. **Start with an initial guess** on $f$ (a *model family*)
+2. **Refine that guess using data** $\mathcal{D}$ (a *learning algorithm*)
 
 ### Example: planetary motion
 
@@ -95,8 +95,8 @@ Kepler assumed orbits are **ellipses**. That does not finish the job — there a
 | Everyday phrase | ML meaning |
 |-----------------|------------|
 | Initial guess / family of candidates | **Model** / **model family** |
-| Procedure that improves the guess with \(\mathcal{D}\) | **Learning algorithm** |
-| Dataset \(\mathcal{D}\) | **Data** (“data is the new oil” — quality of \(\mathcal{D}\) limits quality of \(\hat{f}\)) |
+| Procedure that improves the guess with $\mathcal{D}$ | **Learning algorithm** |
+| Dataset $\mathcal{D}$ | **Data** (“data is the new oil” — quality of $\mathcal{D}$ limits quality of $\hat{f}$) |
 
 Famous proverb cited in lecture:
 
@@ -106,7 +106,7 @@ We never have access to “true reality”; we only get **estimates**. The cours
 
 ### Model families you will meet later
 
-Different *guesses* on \(f\):
+Different *guesses* on $f$:
 
 - Linear models  
 - Quadratic / polynomial families  
@@ -123,39 +123,39 @@ Different *refinement algorithms* (examples):
 
 ### Overfitting (preview)
 
-A bad “solution”: define \(\hat{f}(x_i) = y_i\) only at observed points and invent nonsense elsewhere.
+A bad “solution”: define $\hat{f}(x_i) = y_i$ only at observed points and invent nonsense elsewhere.
 
-That memorizes \(\mathcal{D}\) but fails the real goal: predict for **unseen** \(x\).  
+That memorizes $\mathcal{D}$ but fails the real goal: predict for **unseen** $x$.  
 This idea will later be formalized as **overfitting**.
 
 ---
 
 ## 4. Domains need not be scalars — think vectors
 
-Nothing forces \(x\) or \(y\) to be single numbers. We often work with **vector-valued** inputs/outputs.
+Nothing forces $x$ or $y$ to be single numbers. We often work with **vector-valued** inputs/outputs.
 
 ### Running example: chest X-ray diagnosis
 
-- \(x_i\): an X-ray image  
-- \(y_i \in \{0,1\}\): diseased / not diseased  
+- $x_i$: an X-ray image  
+- $y_i \in \{0,1\}$: diseased / not diseased  
 
-In a computer, an image is a \(P \times Q\) matrix of pixel intensities (e.g. \(0\)–\(255\) for 8-bit).  
-Stack columns into one long vector of length \(PQ\). Then:
+In a computer, an image is a $P \times Q$ matrix of pixel intensities (e.g. $0$–$255$ for 8-bit).  
+Stack columns into one long vector of length $PQ$. Then:
 
-\[
+$$
 x_i \in \mathbb{R}^{PQ}
-\]
+$$
 
 Abstractly, for the rest of the course:
 
-\[
+$$
 x \in \mathbb{R}^{d}
-\]
+$$
 
-(a point in \(d\)-dimensional Euclidean space).
+(a point in $d$-dimensional Euclidean space).
 
-The unknown \(f\) maps a high-dimensional image to a label \(\{0,1\}\).  
-In the real world, that \(f\) is roughly “what a radiologist does.”  
+The unknown $f$ maps a high-dimensional image to a label $\{0,1\}$.  
+In the real world, that $f$ is roughly “what a radiologist does.”  
 ML tries to **mimic** such maps — this is the **universal function approximation** ambition: learn useful maps between complicated spaces.
 
 ---
@@ -202,9 +202,9 @@ Modern deep learning sits in that lineage: systems that work at scale, even when
 
 ### Takeaway
 
-When \(f\) is too complex to derive from first-principles physics:
+When $f$ is too complex to derive from first-principles physics:
 
-> Make **repeated observations** and estimate \(f\) with **statistical / probabilistic methods**.
+> Make **repeated observations** and estimate $f$ with **statistical / probabilistic methods**.
 
 That is why this course is grounded in probability theory.
 
@@ -212,16 +212,16 @@ That is why this course is grounded in probability theory.
 
 ## 6. From deterministic sets to random variables
 
-**Deterministic view:** \(\mathcal{X}, \mathcal{Y}\) are sets; \(f:\mathcal{X}\to\mathcal{Y}\); given \(\mathcal{D}\), estimate \(f\).
+**Deterministic view:** $\mathcal{X}, \mathcal{Y}$ are sets; $f:\mathcal{X}\to\mathcal{Y}$; given $\mathcal{D}$, estimate $f$.
 
-**Probabilistic view:** \(\mathcal{X}\) and \(\mathcal{Y}\) are (supports of) **random variables**.  
+**Probabilistic view:** $\mathcal{X}$ and $\mathcal{Y}$ are (supports of) **random variables**.  
 Function approximation becomes closely related to **distribution / density estimation**.
 
 There will be **one-to-one parallels** between:
 
 | Deterministic language | Probabilistic language |
 |------------------------|------------------------|
-| Estimate unknown \(f\) | Estimate distributions / conditionals involving \(X,Y\) |
+| Estimate unknown $f$ | Estimate distributions / conditionals involving $X,Y$ |
 | Model family | Parametric / structured distributions |
 | Fit with data | Inference / learning from samples |
 
@@ -234,7 +234,7 @@ Generative models, in particular, are most natural in the probabilistic language
 Refresh thoroughly before the next class:
 
 1. Random experiment & **sample space**  
-2. **Random variable** (as a measurable function from sample space → \(\mathbb{R}\))  
+2. **Random variable** (as a measurable function from sample space → $\mathbb{R}$)  
 3. Probability **measure**  
 4. Distribution functions  
 5. **Density** functions (and that densities do **not** always exist)  
@@ -262,19 +262,19 @@ Refine with data (learning algorithm)
 Get useful estimate f̂  (not "truth")
 ```
 
-When physics of \(f\) is unavailable → use **statistics / probability** and lots of data.
+When physics of $f$ is unavailable → use **statistics / probability** and lots of data.
 
 ---
 
 ## 9. Self-check questions
 
-1. State the function approximation problem in one sentence using \(\mathcal{D}\) and \(f\).  
-2. Why is “set \(\hat{f}(x_i)=y_i\) at training points” a bad philosophy for ML?  
+1. State the function approximation problem in one sentence using $\mathcal{D}$ and $f$.  
+2. Why is “set $\hat{f}(x_i)=y_i$ at training points” a bad philosophy for ML?  
 3. What is the difference between a **model family** and a **learning algorithm**? Give one example of each.  
-4. How do you represent a \(P\times Q\) image as a point in Euclidean space?  
+4. How do you represent a $P\times Q$ image as a point in Euclidean space?  
 5. Why might predicting gender from pixels need a huge model while airplane control needs a small one?  
 6. What does “ignorance modeling” refer to historically, and why does the course still embrace a statistical view?  
-7. In one sentence: how does the probabilistic view rephrase “estimate \(f\)”?
+7. In one sentence: how does the probabilistic view rephrase “estimate $f$”?
 
 *(Short answers are in `self-check-answers.qmd`.)*
 
