@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Notes based on Prof.&nbsp;Prathosh A.P. (NPTEL / IISc)">
+
+<title>Lecture 1 — Overview of Function Approximation – Learn ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<link href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html" rel="next">
+<link href="../../../../courses/mfml/index.html" rel="prev">
+<script src="../../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap-55445fb78b2cd64450b289ef7332580f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">Learn ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-courses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Courses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
+        <li>
+    <a class="dropdown-item" href="../../../../courses/index.html">
+ <span class="dropdown-text">All courses</span></a>
+  </li>  
+        <li class="dropdown-header">—</li>
+        <li>
+    <a class="dropdown-item" href="../../../../courses/mfml/index.html">
+ <span class="dropdown-text">Mathematical Foundations of ML</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../references/index.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/adding-a-course.html"> 
+<span class="menu-text">Add a course</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html"> 
+<span class="menu-text">Attribution</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/notes.html">Lecture 1 — Overview of Function Approximation</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mathematical Foundations of Machine Learning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/notes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 1 — Overview of Function Approximation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Beginner tutorial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — Recap of Probability Theory - 1, Part 1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — Beginner tutorial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Recap of Probability Theory - 1, Part 2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Beginner tutorial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Recap of Probability Theory - 1, Part 3</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Beginner tutorial</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Self-check answers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/mfml/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MFML — References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-this-course-is-for" id="toc-what-this-course-is-for" class="nav-link active" data-scroll-target="#what-this-course-is-for">1. What this course is for</a></li>
+  <li><a href="#the-central-problem-function-approximation" id="toc-the-central-problem-function-approximation" class="nav-link" data-scroll-target="#the-central-problem-function-approximation">2. The central problem: function approximation</a>
+  <ul class="collapse">
+  <li><a href="#classical-motivation" id="toc-classical-motivation" class="nav-link" data-scroll-target="#classical-motivation">Classical motivation</a></li>
+  <li><a href="#formal-setup" id="toc-formal-setup" class="nav-link" data-scroll-target="#formal-setup">Formal setup</a></li>
+  </ul></li>
+  <li><a href="#how-humans-solve-blind-problems-the-philosophy" id="toc-how-humans-solve-blind-problems-the-philosophy" class="nav-link" data-scroll-target="#how-humans-solve-blind-problems-the-philosophy">3. How humans solve blind problems (the philosophy)</a>
+  <ul class="collapse">
+  <li><a href="#example-planetary-motion" id="toc-example-planetary-motion" class="nav-link" data-scroll-target="#example-planetary-motion">Example: planetary motion</a></li>
+  <li><a href="#vocabulary-that-will-stick-for-the-whole-course" id="toc-vocabulary-that-will-stick-for-the-whole-course" class="nav-link" data-scroll-target="#vocabulary-that-will-stick-for-the-whole-course">Vocabulary that will stick for the whole course</a></li>
+  <li><a href="#model-families-you-will-meet-later" id="toc-model-families-you-will-meet-later" class="nav-link" data-scroll-target="#model-families-you-will-meet-later">Model families you will meet later</a></li>
+  <li><a href="#overfitting-preview" id="toc-overfitting-preview" class="nav-link" data-scroll-target="#overfitting-preview">Overfitting (preview)</a></li>
+  </ul></li>
+  <li><a href="#domains-need-not-be-scalars-think-vectors" id="toc-domains-need-not-be-scalars-think-vectors" class="nav-link" data-scroll-target="#domains-need-not-be-scalars-think-vectors">4. Domains need not be scalars — think vectors</a>
+  <ul class="collapse">
+  <li><a href="#running-example-chest-x-ray-diagnosis" id="toc-running-example-chest-x-ray-diagnosis" class="nav-link" data-scroll-target="#running-example-chest-x-ray-diagnosis">Running example: chest X-ray diagnosis</a></li>
+  </ul></li>
+  <li><a href="#why-a-probabilistic-viewpoint" id="toc-why-a-probabilistic-viewpoint" class="nav-link" data-scroll-target="#why-a-probabilistic-viewpoint">5. Why a <em>probabilistic</em> viewpoint?</a>
+  <ul class="collapse">
+  <li><a href="#measurable-physics-vs-abstract-human-constructs" id="toc-measurable-physics-vs-abstract-human-constructs" class="nav-link" data-scroll-target="#measurable-physics-vs-abstract-human-constructs">Measurable physics vs abstract human constructs</a></li>
+  <li><a href="#historical-lesson-speech-recognition" id="toc-historical-lesson-speech-recognition" class="nav-link" data-scroll-target="#historical-lesson-speech-recognition">Historical lesson: speech recognition</a></li>
+  <li><a href="#takeaway" id="toc-takeaway" class="nav-link" data-scroll-target="#takeaway">Takeaway</a></li>
+  </ul></li>
+  <li><a href="#from-deterministic-sets-to-random-variables" id="toc-from-deterministic-sets-to-random-variables" class="nav-link" data-scroll-target="#from-deterministic-sets-to-random-variables">6. From deterministic sets to random variables</a></li>
+  <li><a href="#preparation-for-lecture-2" id="toc-preparation-for-lecture-2" class="nav-link" data-scroll-target="#preparation-for-lecture-2">7. Preparation for Lecture 2+</a></li>
+  <li><a href="#one-page-mental-model" id="toc-one-page-mental-model" class="nav-link" data-scroll-target="#one-page-mental-model">8. One-page mental model</a></li>
+  <li><a href="#self-check-questions" id="toc-self-check-questions" class="nav-link" data-scroll-target="#self-check-questions">9. Self-check questions</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/notes.html">Lecture 1 — Overview of Function Approximation</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Lecture 1 — Overview of Function Approximation</h1>
+<p class="subtitle lead">Mathematical Foundations of Machine Learning</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Notes based on Prof.&nbsp;Prathosh A.P. (NPTEL / IISc) </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Video:</strong> <a href="https://www.youtube.com/watch?v=G2h7nD_Stxg">Lec 01 — Overview of Function Approximation</a> <strong>Course:</strong> Mathematical Foundations of Machine Learning (NPTEL, IISc)<br>
+<strong>Instructor:</strong> Prof.&nbsp;Prathosh A.P.<br>
+<strong>Video:</strong> <a href="https://www.youtube.com/watch?v=G2h7nD_Stxg">Lec 01 — Overview of Function Approximation</a></p>
+<hr>
+<section id="what-this-course-is-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-course-is-for">1. What this course is for</h2>
+<p>This is the first of a <strong>two-course series</strong>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 57%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Course</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>This one</strong></td>
+<td>Mathematical / probabilistic foundations of ML</td>
+</tr>
+<tr class="even">
+<td><strong>Next semester</strong></td>
+<td>State-of-the-art algorithms (esp.&nbsp;generative models)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Goal:</strong> move from “internet data scientist” (drive the car) to someone who can <strong>build and reason about</strong> algorithms (design the engine).</p>
+<p>Analogy used in class:</p>
+<blockquote class="blockquote">
+<p>You don’t need to know how an internal combustion engine works to drive a car.<br>
+You do need that knowledge if you want to build a better one.</p>
+</blockquote>
+<p>By the end, reading an ML paper should feel closer to reading a novel than decoding opaque jargon.</p>
+<p><strong>Teaching style:</strong> mostly chalk-and-board (no slides). Mathematics is treated as a <strong>language of precision</strong> — English is too ambiguous for engineering implementation.</p>
+<p><strong>Viewpoint:</strong> almost everything will be developed from a <strong>probabilistic standpoint</strong> (with deterministic parallels pointed out along the way).</p>
+<hr>
+</section>
+<section id="the-central-problem-function-approximation" class="level2">
+<h2 class="anchored" data-anchor-id="the-central-problem-function-approximation">2. The central problem: function approximation</h2>
+<p>Most problems in science and engineering can be cast as <strong>function approximation</strong>.</p>
+<section id="classical-motivation" class="level3">
+<h3 class="anchored" data-anchor-id="classical-motivation">Classical motivation</h3>
+<p>Kepler / Gauss-era question: observe planet positions at some times → predict positions at other times.</p>
+<ul>
+<li>Independent variable: time → call this <span class="math inline">\(x\)</span></li>
+<li>Dependent variable: position → call this <span class="math inline">\(y\)</span></li>
+</ul>
+</section>
+<section id="formal-setup" class="level3">
+<h3 class="anchored" data-anchor-id="formal-setup">Formal setup</h3>
+<p>Two sets:</p>
+<ul>
+<li><strong>Domain set</strong> <span class="math inline">\(\mathcal{X}\)</span> (often called “input”; here we keep it abstract)</li>
+<li><strong>Range set</strong> <span class="math inline">\(\mathcal{Y}\)</span> (often called “output”)</li>
+</ul>
+<p>We are given a <strong>dataset</strong> of paired observations:</p>
+<p><span class="math display">\[
+\mathcal{D} = \bigl\{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\bigr\}
+\]</span></p>
+<p>where each <span class="math inline">\(x_i \in \mathcal{X}\)</span> and <span class="math inline">\(y_i \in \mathcal{Y}\)</span>.</p>
+<p><strong>Assumption:</strong> there exists a function</p>
+<p><span class="math display">\[
+f : \mathcal{X} \to \mathcal{Y}
+\]</span></p>
+<p>such that the observations are (related to) evaluations of <span class="math inline">\(f\)</span>.<br>
+<strong>Problem:</strong> <span class="math inline">\(f\)</span> is <strong>unknown</strong>.</p>
+<blockquote class="blockquote">
+<p><strong>Machine learning in one line (deterministic view):</strong><br>
+Given <span class="math inline">\(\mathcal{D}\)</span>, find / estimate <span class="math inline">\(f\)</span>.</p>
+</blockquote>
+<p>This is an <strong>ill-posed / “blind”</strong> problem: we only have samples, not a description of <span class="math inline">\(f\)</span>.</p>
+<hr>
+</section>
+</section>
+<section id="how-humans-solve-blind-problems-the-philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="how-humans-solve-blind-problems-the-philosophy">3. How humans solve blind problems (the philosophy)</h2>
+<p>If you know nothing about <span class="math inline">\(f\)</span>, you cannot magically recover “truth.” The workable philosophy is:</p>
+<ol type="1">
+<li><strong>Start with an initial guess</strong> on <span class="math inline">\(f\)</span> (a <em>model family</em>)</li>
+<li><strong>Refine that guess using data</strong> <span class="math inline">\(\mathcal{D}\)</span> (a <em>learning algorithm</em>)</li>
+</ol>
+<section id="example-planetary-motion" class="level3">
+<h3 class="anchored" data-anchor-id="example-planetary-motion">Example: planetary motion</h3>
+<p>Kepler assumed orbits are <strong>ellipses</strong>. That does not finish the job — there are infinitely many ellipses. Data tells you <strong>which</strong> ellipse (among the family) fits.</p>
+</section>
+<section id="vocabulary-that-will-stick-for-the-whole-course" class="level3">
+<h3 class="anchored" data-anchor-id="vocabulary-that-will-stick-for-the-whole-course">Vocabulary that will stick for the whole course</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 58%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Everyday phrase</th>
+<th>ML meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initial guess / family of candidates</td>
+<td><strong>Model</strong> / <strong>model family</strong></td>
+</tr>
+<tr class="even">
+<td>Procedure that improves the guess with <span class="math inline">\(\mathcal{D}\)</span></td>
+<td><strong>Learning algorithm</strong></td>
+</tr>
+<tr class="odd">
+<td>Dataset <span class="math inline">\(\mathcal{D}\)</span></td>
+<td><strong>Data</strong> (“data is the new oil” — quality of <span class="math inline">\(\mathcal{D}\)</span> limits quality of <span class="math inline">\(\hat{f}\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p>Famous proverb cited in lecture:</p>
+<blockquote class="blockquote">
+<p><strong>All models are wrong, but some are useful.</strong></p>
+</blockquote>
+<p>We never have access to “true reality”; we only get <strong>estimates</strong>. The course will define what “useful” means rigorously later (error, risk, generalization, etc.).</p>
+</section>
+<section id="model-families-you-will-meet-later" class="level3">
+<h3 class="anchored" data-anchor-id="model-families-you-will-meet-later">Model families you will meet later</h3>
+<p>Different <em>guesses</em> on <span class="math inline">\(f\)</span>:</p>
+<ul>
+<li>Linear models<br>
+</li>
+<li>Quadratic / polynomial families<br>
+</li>
+<li>Kernel machines<br>
+</li>
+<li>Decision trees<br>
+</li>
+<li>Neural networks</li>
+</ul>
+<p>Different <em>refinement algorithms</em> (examples):</p>
+<ul>
+<li>Least squares<br>
+</li>
+<li>Error backpropagation (for neural nets)</li>
+</ul>
+<p><strong>“Learning”</strong> = choosing a family + refining it with data. Both will be formalized later.</p>
+</section>
+<section id="overfitting-preview" class="level3">
+<h3 class="anchored" data-anchor-id="overfitting-preview">Overfitting (preview)</h3>
+<p>A bad “solution”: define <span class="math inline">\(\hat{f}(x_i) = y_i\)</span> only at observed points and invent nonsense elsewhere.</p>
+<p>That memorizes <span class="math inline">\(\mathcal{D}\)</span> but fails the real goal: predict for <strong>unseen</strong> <span class="math inline">\(x\)</span>.<br>
+This idea will later be formalized as <strong>overfitting</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="domains-need-not-be-scalars-think-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="domains-need-not-be-scalars-think-vectors">4. Domains need not be scalars — think vectors</h2>
+<p>Nothing forces <span class="math inline">\(x\)</span> or <span class="math inline">\(y\)</span> to be single numbers. We often work with <strong>vector-valued</strong> inputs/outputs.</p>
+<section id="running-example-chest-x-ray-diagnosis" class="level3">
+<h3 class="anchored" data-anchor-id="running-example-chest-x-ray-diagnosis">Running example: chest X-ray diagnosis</h3>
+<ul>
+<li><span class="math inline">\(x_i\)</span>: an X-ray image<br>
+</li>
+<li><span class="math inline">\(y_i \in \{0,1\}\)</span>: diseased / not diseased</li>
+</ul>
+<p>In a computer, an image is a <span class="math inline">\(P \times Q\)</span> matrix of pixel intensities (e.g.&nbsp;<span class="math inline">\(0\)</span>–<span class="math inline">\(255\)</span> for 8-bit).<br>
+Stack columns into one long vector of length <span class="math inline">\(PQ\)</span>. Then:</p>
+<p><span class="math display">\[
+x_i \in \mathbb{R}^{PQ}
+\]</span></p>
+<p>Abstractly, for the rest of the course:</p>
+<p><span class="math display">\[
+x \in \mathbb{R}^{d}
+\]</span></p>
+<p>(a point in <span class="math inline">\(d\)</span>-dimensional Euclidean space).</p>
+<p>The unknown <span class="math inline">\(f\)</span> maps a high-dimensional image to a label <span class="math inline">\(\{0,1\}\)</span>.<br>
+In the real world, that <span class="math inline">\(f\)</span> is roughly “what a radiologist does.”<br>
+ML tries to <strong>mimic</strong> such maps — this is the <strong>universal function approximation</strong> ambition: learn useful maps between complicated spaces.</p>
+<hr>
+</section>
+</section>
+<section id="why-a-probabilistic-viewpoint" class="level2">
+<h2 class="anchored" data-anchor-id="why-a-probabilistic-viewpoint">5. Why a <em>probabilistic</em> viewpoint?</h2>
+<p>Many ML methods can be told in a deterministic “fit a curve” language. That is <strong>not enough</strong> for the hard cases.</p>
+<section id="measurable-physics-vs-abstract-human-constructs" class="level3">
+<h3 class="anchored" data-anchor-id="measurable-physics-vs-abstract-human-constructs">Measurable physics vs abstract human constructs</h3>
+<p>Easy (Newtonian) maps:</p>
+<ul>
+<li>Force ↔︎ acceleration (linear, few parameters)<br>
+</li>
+<li>Enough to fly an aircraft with a small model</li>
+</ul>
+<p>Hard maps:</p>
+<ul>
+<li>Pixel reflectance → <strong>gender</strong>, <strong>disease</strong>, <strong>intent</strong><br>
+</li>
+<li>Microphone pressure waveform → <strong>phoneme / meaning</strong></li>
+</ul>
+<p>A microphone measures <strong>pressure gradients</strong>. A camera measures <strong>reflected/absorbed radiation</strong>.<br>
+Why those numbers should equal an abstract label like “gender” or “phone /ah/” is <strong>not</strong> a simple physics formula with 5 parameters. Human semantics are complex; models may need <strong>millions of parameters</strong>.</p>
+<p><strong>Thought experiment (assignment-style):</strong> take MNIST digits and <strong>randomly shuffle labels</strong>. You can still train a model that fits those random labels. Semantics are subtle; memorization is possible; <strong>meaning is not automatic</strong>.</p>
+</section>
+<section id="historical-lesson-speech-recognition" class="level3">
+<h3 class="anchored" data-anchor-id="historical-lesson-speech-recognition">Historical lesson: speech recognition</h3>
+<p>For decades, speech scientists tried <strong>physics-first</strong> inversion:</p>
+<ul>
+<li>Model vocal tract as waveguides / constrictions<br>
+</li>
+<li>Invert from waveform → articulatory configuration → phone</li>
+</ul>
+<p>Hard and brittle.</p>
+<p>In the late 1980s, <strong>statistical methods</strong> solved practical digit / speech recognition by:</p>
+<ul>
+<li>Making many observations<br>
+</li>
+<li>Estimating patterns from data</li>
+</ul>
+<p>Physics-first researchers sometimes called this <strong>“ignorance modeling.”</strong><br>
+Engineers replied: <strong>but it works.</strong></p>
+<p>Modern deep learning sits in that lineage: systems that work at scale, even when full interpretability lags behind.</p>
+</section>
+<section id="takeaway" class="level3">
+<h3 class="anchored" data-anchor-id="takeaway">Takeaway</h3>
+<p>When <span class="math inline">\(f\)</span> is too complex to derive from first-principles physics:</p>
+<blockquote class="blockquote">
+<p>Make <strong>repeated observations</strong> and estimate <span class="math inline">\(f\)</span> with <strong>statistical / probabilistic methods</strong>.</p>
+</blockquote>
+<p>That is why this course is grounded in probability theory.</p>
+<hr>
+</section>
+</section>
+<section id="from-deterministic-sets-to-random-variables" class="level2">
+<h2 class="anchored" data-anchor-id="from-deterministic-sets-to-random-variables">6. From deterministic sets to random variables</h2>
+<p><strong>Deterministic view:</strong> <span class="math inline">\(\mathcal{X}, \mathcal{Y}\)</span> are sets; <span class="math inline">\(f:\mathcal{X}\to\mathcal{Y}\)</span>; given <span class="math inline">\(\mathcal{D}\)</span>, estimate <span class="math inline">\(f\)</span>.</p>
+<p><strong>Probabilistic view:</strong> <span class="math inline">\(\mathcal{X}\)</span> and <span class="math inline">\(\mathcal{Y}\)</span> are (supports of) <strong>random variables</strong>.<br>
+Function approximation becomes closely related to <strong>distribution / density estimation</strong>.</p>
+<p>There will be <strong>one-to-one parallels</strong> between:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Deterministic language</th>
+<th>Probabilistic language</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Estimate unknown <span class="math inline">\(f\)</span></td>
+<td>Estimate distributions / conditionals involving <span class="math inline">\(X,Y\)</span></td>
+</tr>
+<tr class="even">
+<td>Model family</td>
+<td>Parametric / structured distributions</td>
+</tr>
+<tr class="odd">
+<td>Fit with data</td>
+<td>Inference / learning from samples</td>
+</tr>
+</tbody>
+</table>
+<p>Generative models, in particular, are most natural in the probabilistic language. That language is broad enough to cover both <strong>discriminative</strong> and <strong>generative</strong> formulations (terms to be defined soon).</p>
+<hr>
+</section>
+<section id="preparation-for-lecture-2" class="level2">
+<h2 class="anchored" data-anchor-id="preparation-for-lecture-2">7. Preparation for Lecture 2+</h2>
+<p>Refresh thoroughly before the next class:</p>
+<ol type="1">
+<li>Random experiment &amp; <strong>sample space</strong><br>
+</li>
+<li><strong>Random variable</strong> (as a measurable function from sample space → <span class="math inline">\(\mathbb{R}\)</span>)<br>
+</li>
+<li>Probability <strong>measure</strong><br>
+</li>
+<li>Distribution functions<br>
+</li>
+<li><strong>Density</strong> functions (and that densities do <strong>not</strong> always exist)<br>
+</li>
+<li>Familiarity with measure-theoretic language (σ-algebras, etc.) will help — the course gets rigorous</li>
+</ol>
+<p>Next lectures connect today’s function-approximation story to random variables and distribution estimation.</p>
+<hr>
+</section>
+<section id="one-page-mental-model" class="level2">
+<h2 class="anchored" data-anchor-id="one-page-mental-model">8. One-page mental model</h2>
+<pre class="text"><code>Observations D = {(x_i, y_i)}
+        |
+        v
+Assume unknown map f : X -&gt; Y exists
+        |
+        v
+Choose a model family (initial guess)
+        |
+        v
+Refine with data (learning algorithm)
+        |
+        v
+Get useful estimate f̂  (not "truth")</code></pre>
+<p>When physics of <span class="math inline">\(f\)</span> is unavailable → use <strong>statistics / probability</strong> and lots of data.</p>
+<hr>
+</section>
+<section id="self-check-questions" class="level2">
+<h2 class="anchored" data-anchor-id="self-check-questions">9. Self-check questions</h2>
+<ol type="1">
+<li>State the function approximation problem in one sentence using <span class="math inline">\(\mathcal{D}\)</span> and <span class="math inline">\(f\)</span>.<br>
+</li>
+<li>Why is “set <span class="math inline">\(\hat{f}(x_i)=y_i\)</span> at training points” a bad philosophy for ML?<br>
+</li>
+<li>What is the difference between a <strong>model family</strong> and a <strong>learning algorithm</strong>? Give one example of each.<br>
+</li>
+<li>How do you represent a <span class="math inline">\(P\times Q\)</span> image as a point in Euclidean space?<br>
+</li>
+<li>Why might predicting gender from pixels need a huge model while airplane control needs a small one?<br>
+</li>
+<li>What does “ignorance modeling” refer to historically, and why does the course still embrace a statistical view?<br>
+</li>
+<li>In one sentence: how does the probabilistic view rephrase “estimate <span class="math inline">\(f\)</span>”?</li>
+</ol>
+<p><em>(Short answers are in <code>self-check-answers.qmd</code>.)</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../courses/mfml/index.html" class="pagination-link" aria-label="Mathematical Foundations of Machine Learning">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Mathematical Foundations of Machine Learning</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html" class="pagination-link" aria-label="Lecture 1 — Beginner tutorial">
+        <span class="nav-page-text">Lecture 1 — Beginner tutorial</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Unofficial study notes · Not affiliated with NPTEL/IISc</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html">
+<p>Attribution</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

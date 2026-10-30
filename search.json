@@ -1,0 +1,1287 @@
+[
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "Based on Lec 04.\n\n\nSee the formula\n\\[P_X(x) = P(\\{\\omega : X(\\omega) \\le x\\})\\]\non a tiny example (coin), then estimate a CDF from samples.\nRun with Shift+Enter.\n\n\n\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint('Ready')\n\n\n\n\nFair coin:\n\nOmega = {H, T}\nP({H}) = P({T}) = 1/2\nRandom variable X: X(H)=1, X(T)=0\n\n\nOmega = {\"H\", \"T\"}\n\ndef P(event):\n    event = set(event)\n    return sum(0.5 for o in event if o in Omega)\n\ndef X(omega):\n    return 1.0 if omega == \"H\" else 0.0\n\nprint(\"P({H}) =\", P({\"H\"}))\nprint(\"X(H), X(T) =\", X(\"H\"), X(\"T\"))\n\n\n\n\nFor a number x, look at the event {omega : X(omega) &lt;= x}, then apply P.\nThat is exactly P_X(x) from the lecture.\n\ndef P_X(x):\n    \"\"\"CDF / distribution function of X at real number x.\"\"\"\n    event = {omega for omega in Omega if X(omega) &lt;= x}\n    return P(event)\n\nfor x in [-1, 0, 0.5, 1, 2]:\n    print(f\"P_X({x}) = P(X &lt;= {x}) = {P_X(x)}\")\n\n\n\n\nFor x &lt; 0: nothing maps to &lt;= x → probability 0\n\nFor 0 &lt;= x &lt; 1: only T (value 0) → probability 1/2\n\nFor x &gt;= 1: both outcomes → probability 1\n\nThat step function is the pushforward / distribution of X.\n\n\n\n\nIn ML we rarely know P. We observe many values of X (range samples) and estimate.\n\nrng = np.random.default_rng(0)\nn = 5000\n# simulate abstract outcomes, push through X (like a sensor)\nsamples = np.array([X(o) for o in rng.choice([\"H\", \"T\"], size=n)])\n\nxs = np.linspace(-0.5, 1.5, 200)\n# empirical CDF: fraction of samples &lt;= x\necdf = np.array([(samples &lt;= x).mean() for x in xs])\ntrue = np.array([P_X(x) for x in xs])\n\nplt.figure(figsize=(7, 4))\nplt.step(xs, true, where=\"post\", label=\"true P_X (from Omega)\")\nplt.plot(xs, ecdf, label=\"empirical CDF from samples\")\nplt.xlabel(\"x\")\nplt.ylabel(\"P(X &lt;= x)\")\nplt.title(\"Pushforward distribution of coin RV X\")\nplt.legend()\nplt.show()\n\n\n\n\n\n# Exercise A: unfair coin P(H)=0.7, same X coding.\n# Recompute P_X at x = -1, 0, 0.5, 1.\n\ndef P_unfair(event, p_h=0.7):\n    event = set(event)\n    mass = {\"H\": p_h, \"T\": 1 - p_h}\n    return sum(mass[o] for o in event)\n\ndef P_X_unfair(x):\n    event = {o for o in Omega if X(o) &lt;= x}\n    return P_unfair(event)\n\nfor x in [-1, 0, 0.5, 1]:\n    print(x, P_X_unfair(x))\n\n\n# Exercise B: die, X(omega)=omega.\n# What is P_X(3.5)? (should equal P(X &lt;= 3.5) = P({1,2,3}) = 3/6)\n\nOmega_die = {1, 2, 3, 4, 5, 6}\n\ndef P_die(event):\n    return len(set(event) & Omega_die) / len(Omega_die)\n\ndef P_X_die(x):\n    event = {o for o in Omega_die if o &lt;= x}\n    return P_die(event)\n\nprint(\"P_X(3.5) =\", P_X_die(3.5))\n\n\n\n\n\n\n\nLecture idea\nIn this notebook\n\n\n\n\nInverse image\n{omega : X(omega) &lt;= x}\n\n\nPushforward / P_X\nP of that event\n\n\nWork with samples\nempirical CDF approximates P_X\n\n\nCourse goal\nestimate distributions from range samples\n\n\n\nNext: several random variables, conditioning, then ML as distribution learning.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-0-imports",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-0-imports",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "import numpy as np\nimport matplotlib.pyplot as plt\n\nprint('Ready')",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-1-abstract-world-omega-p-and-x",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-1-abstract-world-omega-p-and-x",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "Fair coin:\n\nOmega = {H, T}\nP({H}) = P({T}) = 1/2\nRandom variable X: X(H)=1, X(T)=0\n\n\nOmega = {\"H\", \"T\"}\n\ndef P(event):\n    event = set(event)\n    return sum(0.5 for o in event if o in Omega)\n\ndef X(omega):\n    return 1.0 if omega == \"H\" else 0.0\n\nprint(\"P({H}) =\", P({\"H\"}))\nprint(\"X(H), X(T) =\", X(\"H\"), X(\"T\"))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-2-distribution-function-by-inverse-image",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-2-distribution-function-by-inverse-image",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "For a number x, look at the event {omega : X(omega) &lt;= x}, then apply P.\nThat is exactly P_X(x) from the lecture.\n\ndef P_X(x):\n    \"\"\"CDF / distribution function of X at real number x.\"\"\"\n    event = {omega for omega in Omega if X(omega) &lt;= x}\n    return P(event)\n\nfor x in [-1, 0, 0.5, 1, 2]:\n    print(f\"P_X({x}) = P(X &lt;= {x}) = {P_X(x)}\")\n\n\n\n\nFor x &lt; 0: nothing maps to &lt;= x → probability 0\n\nFor 0 &lt;= x &lt; 1: only T (value 0) → probability 1/2\n\nFor x &gt;= 1: both outcomes → probability 1\n\nThat step function is the pushforward / distribution of X.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-3-estimate-the-same-cdf-from-samples",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-3-estimate-the-same-cdf-from-samples",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "In ML we rarely know P. We observe many values of X (range samples) and estimate.\n\nrng = np.random.default_rng(0)\nn = 5000\n# simulate abstract outcomes, push through X (like a sensor)\nsamples = np.array([X(o) for o in rng.choice([\"H\", \"T\"], size=n)])\n\nxs = np.linspace(-0.5, 1.5, 200)\n# empirical CDF: fraction of samples &lt;= x\necdf = np.array([(samples &lt;= x).mean() for x in xs])\ntrue = np.array([P_X(x) for x in xs])\n\nplt.figure(figsize=(7, 4))\nplt.step(xs, true, where=\"post\", label=\"true P_X (from Omega)\")\nplt.plot(xs, ecdf, label=\"empirical CDF from samples\")\nplt.xlabel(\"x\")\nplt.ylabel(\"P(X &lt;= x)\")\nplt.title(\"Pushforward distribution of coin RV X\")\nplt.legend()\nplt.show()",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-4-mini-exercises",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#step-4-mini-exercises",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "# Exercise A: unfair coin P(H)=0.7, same X coding.\n# Recompute P_X at x = -1, 0, 0.5, 1.\n\ndef P_unfair(event, p_h=0.7):\n    event = set(event)\n    mass = {\"H\": p_h, \"T\": 1 - p_h}\n    return sum(mass[o] for o in event)\n\ndef P_X_unfair(x):\n    event = {o for o in Omega if X(o) &lt;= x}\n    return P_unfair(event)\n\nfor x in [-1, 0, 0.5, 1]:\n    print(x, P_X_unfair(x))\n\n\n# Exercise B: die, X(omega)=omega.\n# What is P_X(3.5)? (should equal P(X &lt;= 3.5) = P({1,2,3}) = 3/6)\n\nOmega_die = {1, 2, 3, 4, 5, 6}\n\ndef P_die(event):\n    return len(set(event) & Omega_die) / len(Omega_die)\n\ndef P_X_die(x):\n    event = {o for o in Omega_die if o &lt;= x}\n    return P_die(event)\n\nprint(\"P_X(3.5) =\", P_X_die(3.5))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#recap",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html#recap",
+    "title": "Lecture 4 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture idea\nIn this notebook\n\n\n\n\nInverse image\n{omega : X(omega) &lt;= x}\n\n\nPushforward / P_X\nP of that event\n\n\nWork with samples\nempirical CDF approximates P_X\n\n\nCourse goal\nestimate distributions from range samples\n\n\n\nNext: several random variables, conditioning, then ML as distribution learning.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Based on Lec 02.\n\n\nFeel these ideas with tiny examples:\n\nRandom experiment → you choose what it is\nSample space Ω → all outcomes\nEvents → subsets of Ω\nProbability measure P → numbers in [0,1] with simple rules\n\nRun cells top to bottom with Shift+Enter.\n\n\n\n\nimport numpy as np\n\nprint(\"Ready\")\n\n\n\n\nLecture point: the experiment is your design choice.\nWe take: one fair coin toss.\nOutcomes are not numbers yet — just labels.\n\nOmega = {\"H\", \"T\"}  # sample space\nprint(\"Sample space Ω =\", Omega)\nprint(\"Number of outcomes =\", len(Omega))\n\n\n\n\n\n\n\nEvent (English)\nAs a set\n\n\n\n\nHeads\n{H}\n\n\nTails\n{T}\n\n\nAnything\n{H, T} = Ω\n\n\nImpossible\nempty set = ∅\n\n\n\n\nevent_heads = {\"H\"}\nevent_tails = {\"T\"}\nevent_anything = Omega\nevent_impossible = set()\n\nprint(\"Heads event:\", event_heads)\nprint(\"Impossible event:\", event_impossible)\n\n\n\n\nFor a fair coin:\n\nP({H}) = P({T}) = 1/2\nP(Ω) = 1\nP(∅) = 0\n\nCheck lecture properties: non-negative, P(Ω)=1, disjoint additivity.\n\ndef P_fair_coin(event):\n    \"\"\"Probability of an event for a fair coin (event subset of {H,T}).\"\"\"\n    event = set(event)\n    if not event.issubset(Omega):\n        raise ValueError(\"Event must be a subset of Omega\")\n    # fair: each singleton outcome has mass 1/2\n    return sum(0.5 for outcome in event)\n\nprint(\"P(H) =\", P_fair_coin({\"H\"}))\nprint(\"P(T) =\", P_fair_coin({\"T\"}))\nprint(\"P(Omega) =\", P_fair_coin(Omega))\nprint(\"P(empty) =\", P_fair_coin(set()))\n\n# Disjoint additivity: H and T do not overlap\nprint(\"P(H)+P(T) =\", P_fair_coin({\"H\"}) + P_fair_coin({\"T\"}))\n\n\n\n\nSame physical coin, new experiment: toss twice.\nΩ₂ = {HH, HT, TH, TT}\nThis matches the lecture: you choose the experiment.\n\nOmega2 = {\"HH\", \"HT\", \"TH\", \"TT\"}\nprint(\"Two-toss sample space:\", Omega2)\n\n# Event: exactly one head\nexactly_one_head = {o for o in Omega2 if o.count(\"H\") == 1}\nprint(\"Exactly one head:\", exactly_one_head)\n\n# Fair independent tosses -&gt; each of 4 outcomes has probability 1/4\nP_exact = len(exactly_one_head) / len(Omega2)\nprint(\"P(exactly one head) =\", P_exact)\n\n\n\n\nLecture: when physics is hard, repeat observations and use statistics.\nSimulate many fair tosses; the fraction of heads should approach 1/2.\n\nrng = np.random.default_rng(0)\nn = 10_000\ntosses = rng.choice([\"H\", \"T\"], size=n)\nfrac_heads = np.mean(tosses == \"H\")\n\nprint(f\"In {n} tosses, fraction of heads ≈ {frac_heads:.3f}\")\nprint(\"True P(H) for fair coin = 0.5\")\n\n\n\n\n\n# Exercise A: unfair coin with P(H)=0.7\n\ndef P_unfair(event, p_heads=0.7):\n    event = set(event)\n    mass = {\"H\": p_heads, \"T\": 1 - p_heads}\n    return sum(mass[o] for o in event)\n\nprint(\"Unfair P(H) =\", P_unfair({\"H\"}))\nprint(\"Unfair P(T) =\", P_unfair({\"T\"}))\nprint(\"Unfair P(Omega) =\", P_unfair({\"H\", \"T\"}))\n\n\n# Exercise B: die Omega = {1,...,6}, fair — what is P(even)?\n\nOmega_die = {1, 2, 3, 4, 5, 6}\neven = {2, 4, 6}\nP_even = len(even) / len(Omega_die)\nprint(\"P(even) =\", P_even)\n\n\n\n\n\n\n\nLecture idea\nIn this notebook\n\n\n\n\nRandom experiment\ncoin once / twice / die\n\n\nSample space Ω\nPython set of outcomes\n\n\nEvent\nsubset\n\n\nProbability measure\nfunction → [0,1] with rules\n\n\nStatistical view\nsimulate many tosses\n\n\n\nNext: random variables (turning abstract outcomes into numbers/vectors).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-0-imports",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-0-imports",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "import numpy as np\n\nprint(\"Ready\")",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-1-choose-a-random-experiment",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-1-choose-a-random-experiment",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture point: the experiment is your design choice.\nWe take: one fair coin toss.\nOutcomes are not numbers yet — just labels.\n\nOmega = {\"H\", \"T\"}  # sample space\nprint(\"Sample space Ω =\", Omega)\nprint(\"Number of outcomes =\", len(Omega))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-2-events-subsets",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-2-events-subsets",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Event (English)\nAs a set\n\n\n\n\nHeads\n{H}\n\n\nTails\n{T}\n\n\nAnything\n{H, T} = Ω\n\n\nImpossible\nempty set = ∅\n\n\n\n\nevent_heads = {\"H\"}\nevent_tails = {\"T\"}\nevent_anything = Omega\nevent_impossible = set()\n\nprint(\"Heads event:\", event_heads)\nprint(\"Impossible event:\", event_impossible)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-3-a-probability-measure-on-this-tiny-space",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-3-a-probability-measure-on-this-tiny-space",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "For a fair coin:\n\nP({H}) = P({T}) = 1/2\nP(Ω) = 1\nP(∅) = 0\n\nCheck lecture properties: non-negative, P(Ω)=1, disjoint additivity.\n\ndef P_fair_coin(event):\n    \"\"\"Probability of an event for a fair coin (event subset of {H,T}).\"\"\"\n    event = set(event)\n    if not event.issubset(Omega):\n        raise ValueError(\"Event must be a subset of Omega\")\n    # fair: each singleton outcome has mass 1/2\n    return sum(0.5 for outcome in event)\n\nprint(\"P(H) =\", P_fair_coin({\"H\"}))\nprint(\"P(T) =\", P_fair_coin({\"T\"}))\nprint(\"P(Omega) =\", P_fair_coin(Omega))\nprint(\"P(empty) =\", P_fair_coin(set()))\n\n# Disjoint additivity: H and T do not overlap\nprint(\"P(H)+P(T) =\", P_fair_coin({\"H\"}) + P_fair_coin({\"T\"}))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-4-different-experiment-different-ω",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-4-different-experiment-different-ω",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Same physical coin, new experiment: toss twice.\nΩ₂ = {HH, HT, TH, TT}\nThis matches the lecture: you choose the experiment.\n\nOmega2 = {\"HH\", \"HT\", \"TH\", \"TT\"}\nprint(\"Two-toss sample space:\", Omega2)\n\n# Event: exactly one head\nexactly_one_head = {o for o in Omega2 if o.count(\"H\") == 1}\nprint(\"Exactly one head:\", exactly_one_head)\n\n# Fair independent tosses -&gt; each of 4 outcomes has probability 1/4\nP_exact = len(exactly_one_head) / len(Omega2)\nprint(\"P(exactly one head) =\", P_exact)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-5-simulate-many-outcomes-statistical-viewpoint",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-5-simulate-many-outcomes-statistical-viewpoint",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture: when physics is hard, repeat observations and use statistics.\nSimulate many fair tosses; the fraction of heads should approach 1/2.\n\nrng = np.random.default_rng(0)\nn = 10_000\ntosses = rng.choice([\"H\", \"T\"], size=n)\nfrac_heads = np.mean(tosses == \"H\")\n\nprint(f\"In {n} tosses, fraction of heads ≈ {frac_heads:.3f}\")\nprint(\"True P(H) for fair coin = 0.5\")",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-6-mini-exercises",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#step-6-mini-exercises",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "# Exercise A: unfair coin with P(H)=0.7\n\ndef P_unfair(event, p_heads=0.7):\n    event = set(event)\n    mass = {\"H\": p_heads, \"T\": 1 - p_heads}\n    return sum(mass[o] for o in event)\n\nprint(\"Unfair P(H) =\", P_unfair({\"H\"}))\nprint(\"Unfair P(T) =\", P_unfair({\"T\"}))\nprint(\"Unfair P(Omega) =\", P_unfair({\"H\", \"T\"}))\n\n\n# Exercise B: die Omega = {1,...,6}, fair — what is P(even)?\n\nOmega_die = {1, 2, 3, 4, 5, 6}\neven = {2, 4, 6}\nP_even = len(even) / len(Omega_die)\nprint(\"P(even) =\", P_even)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#recap",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html#recap",
+    "title": "Lecture 2 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture idea\nIn this notebook\n\n\n\n\nRandom experiment\ncoin once / twice / die\n\n\nSample space Ω\nPython set of outcomes\n\n\nEvent\nsubset\n\n\nProbability measure\nfunction → [0,1] with rules\n\n\nStatistical view\nsimulate many tosses\n\n\n\nNext: random variables (turning abstract outcomes into numbers/vectors).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "references/index.html",
+    "href": "references/index.html",
+    "title": "Shared references",
+    "section": "",
+    "text": "Books, playlists, and tools useful across multiple lecture series. Course-specific lists stay under each course (e.g. MFML references).",
+    "crumbs": [
+      "Home",
+      "Shared references"
+    ]
+  },
+  {
+    "objectID": "references/index.html#foundations",
+    "href": "references/index.html#foundations",
+    "title": "Shared references",
+    "section": "Foundations",
+    "text": "Foundations\n\n\n\n\n\n\n\nResource\nWhy\n\n\n\n\nMathematics for Machine Learning (Deisenroth et al.) — free PDF\nLinear algebra, calculus, probability refresh\n\n\nFirst course notes on probability (any solid undergrad text)\nSample space, RV, distributions, densities",
+    "crumbs": [
+      "Home",
+      "Shared references"
+    ]
+  },
+  {
+    "objectID": "references/index.html#tools",
+    "href": "references/index.html#tools",
+    "title": "Shared references",
+    "section": "Tools",
+    "text": "Tools\n\n\n\nTool\nUse\n\n\n\n\nQuarto\nThis notes site\n\n\nPython + NumPy / Matplotlib\nTutorials\n\n\nJupyter / Quarto notebooks\nHands-on lecture demos",
+    "crumbs": [
+      "Home",
+      "Shared references"
+    ]
+  },
+  {
+    "objectID": "references/index.html#playlists-courses-future-slots",
+    "href": "references/index.html#playlists-courses-future-slots",
+    "title": "Shared references",
+    "section": "Playlists & courses (future slots)",
+    "text": "Playlists & courses (future slots)\n\nMathematical Foundations of Generative Models / GenAI (Prathosh) — add when you start that series",
+    "crumbs": [
+      "Home",
+      "Shared references"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html",
+    "href": "docs/attribution.html",
+    "title": "Attribution & copyright",
+    "section": "",
+    "text": "Unofficial personal study notes for publicly available lecture series (starting with NPTEL Mathematical Foundations of Machine Learning).\nThis site is not affiliated with NPTEL, IISc, or the course instructors.",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html#what-this-site-is",
+    "href": "docs/attribution.html#what-this-site-is",
+    "title": "Attribution & copyright",
+    "section": "",
+    "text": "Unofficial personal study notes for publicly available lecture series (starting with NPTEL Mathematical Foundations of Machine Learning).\nThis site is not affiliated with NPTEL, IISc, or the course instructors.",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html#what-we-publish",
+    "href": "docs/attribution.html#what-we-publish",
+    "title": "Attribution & copyright",
+    "section": "What we publish",
+    "text": "What we publish\n\nOriginal notes and explanations written for learning\nTutorials and code examples created for this site\nLinks to official lecture videos and course pages",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html#what-we-do-not-publish",
+    "href": "docs/attribution.html#what-we-do-not-publish",
+    "title": "Attribution & copyright",
+    "section": "What we do not publish",
+    "text": "What we do not publish\n\nLecture video or audio files\nOfficial course PDFs/slides redistributed wholesale\nVerbatim lecture transcripts",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html#credit",
+    "href": "docs/attribution.html#credit",
+    "title": "Attribution & copyright",
+    "section": "Credit",
+    "text": "Credit\nWhen notes follow a specific lecture, the page names the course, instructor, and links the source video.\nExample: Prof. Prathosh A.P., NPTEL / IISc — Mathematical Foundations of Machine Learning.",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "docs/attribution.html#your-use",
+    "href": "docs/attribution.html#your-use",
+    "title": "Attribution & copyright",
+    "section": "Your use",
+    "text": "Your use\nYou may read and learn from these notes. If you reuse material, please keep attribution to both this site and the original lecture sources.",
+    "crumbs": [
+      "Home",
+      "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/references.html",
+    "href": "courses/mfml/references.html",
+    "title": "MFML — References",
+    "section": "",
+    "text": "Course-specific reading. Shared / cross-course links live in References.",
+    "crumbs": [
+      "Home",
+      "MFML — References"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/references.html#primary",
+    "href": "courses/mfml/references.html#primary",
+    "title": "MFML — References",
+    "section": "Primary",
+    "text": "Primary\n\nNPTEL course page: 106108841\nYouTube playlist: Mathematical Foundations of Machine Learning\nInstructor: Dr. Prathosh A.P.",
+    "crumbs": [
+      "Home",
+      "MFML — References"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/references.html#suggested-background-before-during-early-weeks",
+    "href": "courses/mfml/references.html#suggested-background-before-during-early-weeks",
+    "title": "MFML — References",
+    "section": "Suggested background (before / during early weeks)",
+    "text": "Suggested background (before / during early weeks)\n\nA first course in probability (random variables, distributions, expectation, LLN)\nComfortable with basic linear algebra (vectors, matrices) — deepened as needed in later lectures",
+    "crumbs": [
+      "Home",
+      "MFML — References"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/references.html#to-add-later",
+    "href": "courses/mfml/references.html#to-add-later",
+    "title": "MFML — References",
+    "section": "To add later",
+    "text": "To add later\nAs lectures introduce books/papers (Bishop, Murphy, ESL, papers on EM/SVM/transformers, etc.), list them here under week headings.",
+    "crumbs": [
+      "Home",
+      "MFML — References"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "",
+    "text": "Video: Lec 04 — Recap of Probability Theory - 1, Part 3",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#setup-from-lectures-23",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#setup-from-lectures-23",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "1. Setup from Lectures 2–3",
+    "text": "1. Setup from Lectures 2–3\nWe have the probability triplet \\((\\Omega, \\mathcal{F}, P)\\) and a random variable\n\\[\nX : \\Omega \\to \\mathbb{R}\n\\]\n(or later \\(X : \\Omega \\to \\mathbb{R}^{d}\\)).\nQuestion of this lecture: what happens to the measure \\(P\\) when we pass to the range of \\(X\\)?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#which-subsets-of-mathbbr-do-we-use-borel-sets",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#which-subsets-of-mathbbr-do-we-use-borel-sets",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "2. Which subsets of \\(\\mathbb{R}\\) do we use? Borel sets",
+    "text": "2. Which subsets of \\(\\mathbb{R}\\) do we use? Borel sets\nNot every subset of \\(\\mathbb{R}\\) is treated as an “event” in the range. We use a standard family: the Borel \\(\\sigma\\)-algebra \\(\\mathcal{B}(\\mathbb{R})\\).\nIntuition used in class: building blocks are half-lines of the form\n\\[\n(-\\infty,\\ x]\n\\]\n(and the \\(\\sigma\\)-algebra they generate). In \\(\\mathbb{R}^{d}\\), the analogous building blocks are Cartesian products of such half-lines (rectangles unbounded toward \\(-\\infty\\) in each coordinate).\nRandom variables are defined so that inverse images of these Borel sets land back in \\(\\mathcal{F}\\) (measurability) — so probabilities remain well-defined.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#pushforward-measure-distribution-of-x",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#pushforward-measure-distribution-of-x",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "3. Pushforward measure = distribution of \\(X\\)",
+    "text": "3. Pushforward measure = distribution of \\(X\\)\n\\(X\\) maps outcomes in \\(\\Omega\\) to numbers in \\(\\mathbb{R}\\). Subsets of \\(\\Omega\\) map (via inverse images) to subsets of \\(\\mathbb{R}\\).\nBecause \\(P\\) lives on events in \\(\\Omega\\), there is an induced measure on (Borel) subsets of \\(\\mathbb{R}\\). That induced measure is called:\n\n\n\nName used in class\nSame idea\n\n\n\n\nPushforward measure\n\\(P\\) “pushed” through \\(X\\)\n\n\nDistribution of \\(X\\)\nlaw of \\(X\\)\n\n\nDistribution function / CDF\ncommon 1-D encoding of that law\n\n\n\nPicture: one measurable space \\((\\Omega,\\mathcal{F},P)\\) + a map \\(X\\) \\(\\Rightarrow\\) a new measure space on the range side.\n\nCourse notation\nScript / calligraphic \\(P\\) with a mark for \\(X\\) means the distribution of the random variable \\(X\\). In these notes we write \\(P_{X}\\).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#definition-in-one-dimension-cdf-view",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#definition-in-one-dimension-cdf-view",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "4. Definition in one dimension (CDF view)",
+    "text": "4. Definition in one dimension (CDF view)\nFor \\(X : \\Omega \\to \\mathbb{R}\\) and a real number \\(x\\),\n\\[\nP_{X}(x) \\;=\\; P\\bigl( X^{-1}((-\\infty,\\ x]) \\bigr) \\;=\\; P\\bigl(\\{\\omega \\in \\Omega : X(\\omega) \\le x\\}\\bigr).\n\\]\nIn words:\n\nBuild the Borel set \\((-\\infty,\\ x]\\) in \\(\\mathbb{R}\\).\nTake its inverse image under \\(X\\) (a subset of \\(\\Omega\\)).\nEvaluate the original probability measure \\(P\\) on that event.\n\nThat value is the distribution function (CDF) at \\(x\\).\nEndpoint convention: the interval is typically closed at \\(x\\) and open toward \\(-\\infty\\), i.e. \\((-\\infty,\\ x]\\).\n\nProbability is always assigned to a set (an event). Evaluating the distribution at \\(x\\) is still “probability of a set” — the set \\(\\{\\omega : X(\\omega)\\le x\\}\\).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#how-is-p-assigned-in-the-real-world",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#how-is-p-assigned-in-the-real-world",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "5. How is \\(P\\) “assigned” in the real world?",
+    "text": "5. How is \\(P\\) “assigned” in the real world?\nClass answer: nature / the labeling process assigns the underlying measure. A radiologist’s intuition is hard to put into equations — we treat it as given by the problem.\nOur engineering job (central theme of the course):\n\nGiven samples from the range of random variables, estimate the underlying distribution / measure.\n\nThat is the probabilistic formulation of ML that the next lectures will connect to function approximation.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#the-working-triplet-from-now-on",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#the-working-triplet-from-now-on",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "6. The working triplet from now on",
+    "text": "6. The working triplet from now on\nPushing forward gives a new triplet on the observation side, schematically\n\\[\n\\bigl(\\mathbb{R},\\ \\mathcal{B}(\\mathbb{R}),\\ P_{X}\\bigr).\n\\]\nOnce data are vectors from sensors, we mostly talk and compute in this pushforward world, while remembering that an underlying \\((\\Omega,\\mathcal{F},P)\\) and map \\(X\\) sit behind it.\nThat is why random variables were invented: not decoration — the device that moves us from abstract \\(\\Omega\\) to numbers with a well-defined distribution.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#vector-valued-random-variables",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#vector-valued-random-variables",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "7. Vector-valued random variables",
+    "text": "7. Vector-valued random variables\nIn ML, usually\n\\[\nX : \\Omega \\to \\mathbb{R}^{d}.\n\\]\n(“Vector-valued RV” just means: the range consists of vectors in \\(\\mathbb{R}^{d}\\).)\n\nBorel building blocks in \\(\\mathbb{R}^{d}\\)\nCartesian products of half-lines, e.g. in \\(\\mathbb{R}^{2}\\):\n\\[\n(-\\infty,\\ x_1] \\times (-\\infty,\\ x_2].\n\\]\nGeometrically: everything “southwest” of the point \\((x_1,x_2)\\) in the plane (with the usual closed/open conventions on edges).\n\n\nDistribution at a vector \\(x \\in \\mathbb{R}^{d}\\)\nInput to \\(P_{X}\\) is an element of the range of \\(X\\). For vector \\(X\\),\n\\[\nP_{X}(x) \\;=\\; P\\Bigl( X^{-1}\\bigl( (-\\infty,x_1]\\times\\cdots\\times(-\\infty,x_d] \\bigr) \\Bigr).\n\\]\nAgain: inverse image under \\(X\\), then apply \\(P\\).\nNotation clash warning (from class): capital \\(X\\) for the RV vs small/bold \\(x\\) for a point in \\(\\mathbb{R}^{d}\\) — same letter family, different objects.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#distribution-vs-density-preview",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#distribution-vs-density-preview",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "8. Distribution vs density (preview)",
+    "text": "8. Distribution vs density (preview)\n\nThe distribution function / pushforward is a valid probability measure (on Borel sets).\nA density (when it exists) is not itself a probability: evaluating a density at a single point does not give \\(P(X=x)\\) in continuous models.\n\nFormal density discussion continues later; do not confuse “PDF value at a point” with “probability of an event.”",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#multiple-random-variables-setup-for-next-class",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#multiple-random-variables-setup-for-next-class",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "9. Multiple random variables (setup for next class)",
+    "text": "9. Multiple random variables (setup for next class)\nThere can be several random variables (hence possibly several experiments / sample spaces, or one joint experiment — your modeling choice).\n\nX-ray + disease (two views)\n\n\n\n\n\n\n\nView\nMeaning\n\n\n\n\nOne experiment\n“Get disease and get imaged” as a single process \\(\\to\\) one \\(\\Omega\\), maybe vector-valued \\(X\\)\n\n\nTwo experiments\nDisease outcome vs imaging outcome as separate RVs that may be correlated\n\n\n\nBoth are allowed; random experiments are chosen by the modeler.\n\n\nVector RV vs many scalars\nA Gaussian vector in \\(\\mathbb{R}^{d}\\) can be seen as:\n\none RV with range \\(\\mathbb{R}^{d}\\), or\n\n\\(d\\) correlated scalar RVs (covariance / correlation matrix).\n\nSame mathematics, two stories.\n\n\nDiscriminative vs generative (preview)\nIn this worldview they can look unified: the label is simply another coordinate of a vector-valued random variable; conditioning corresponds to restricting to appropriate events (set operations on the underlying spaces).\nNext lectures: joint / conditional distributions more carefully, then ML as learning distributions (linked back to function approximation).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#what-to-refresh-before-next-class",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#what-to-refresh-before-next-class",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "10. What to refresh before next class",
+    "text": "10. What to refresh before next class\n\nJoint distributions of several RVs\n\nConditional distributions (ask: which events am I conditioning on?)\n\nDiscrete vs continuous RVs\n\nAlways relate formulas back to sets in \\(\\Omega\\) and inverse images under \\(X\\)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#self-check",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html#self-check",
+    "title": "Lecture 4 — Recap of Probability Theory - 1, Part 3",
+    "section": "11. Self-check",
+    "text": "11. Self-check\n\nWhat is a pushforward measure in one sentence?\nWrite the 1-D formula for \\(P_{X}(x)\\) using an inverse image.\nWhy do we care about Borel half-lines \\((-\\infty,x]\\)?\nIn \\(\\mathbb{R}^{2}\\), what geometric region does \\((-\\infty,x_1]\\times(-\\infty,x_2]\\) describe?\nWho “assigns” \\(P\\) in applications, and what do ML engineers estimate?\nWhy is evaluating a continuous density at a point not a probability?\nGive two modeling views of “disease + X-ray” as random experiments.\n\n(Answers: self-check-answers.qmd.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Recap of Probability Theory - 1, Part 3"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "",
+    "text": "Video: Lec 03 — Recap of Probability Theory - 1, Part 2",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#where-we-left-off",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#where-we-left-off",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "1. Where we left off",
+    "text": "1. Where we left off\nLecture 2 gave us:\n\nSample space \\(\\Omega\\)\nEvents \\(\\mathcal{F}\\) (suitable subsets of \\(\\Omega\\))\nProbability measure \\(P : \\mathcal{F} \\to [0,1]\\)\n\nQuestion for ML: where does this fit, and what do we do next?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#the-probability-triplet",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#the-probability-triplet",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "2. The probability triplet",
+    "text": "2. The probability triplet\nThe package\n\\[\n(\\Omega,\\ \\mathcal{F},\\ P)\n\\]\nis the probability triplet (probability space).\n\nUseful analogy\n\n\n\nAbstract probability\nConcrete geometry on the line\n\n\n\n\n\\(\\Omega\\)\n\\(\\mathbb{R}\\)\n\n\nevents \\(\\mathcal{F}\\)\n(nice) subsets of \\(\\mathbb{R}\\)\n\n\n\\(P\\)\nlength (Lebesgue) measure\n\n\n\nSame pattern: a ground set, a family of subsets, a measure on those subsets.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#why-we-cannot-stop-at-the-triplet",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#why-we-cannot-stop-at-the-triplet",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "3. Why we cannot stop at the triplet",
+    "text": "3. Why we cannot stop at the triplet\n\\(\\Omega\\) is often abstract and non-numeric (heads/tails; “someone got imaged and labeled”).\nEngineers need numbers — we add, subtract, run algorithms, store arrays.\nSlogan from class: think abstract, act concrete.\n\nThinking: probability space / experiment\nActing: concrete observations (vectors on a computer)\n\nSo we need a bridge from abstraction \\(\\to\\) something we can compute with.\n\nSensors / observations (X-ray story)\nPart of \\(\\Omega\\): the whole story (nodule develops, person visits, imaging happens, …).\nWhat we actually store: an X-ray image \\(\\to\\) a vector on disk.\nWe work with vectors; we started from an abstract sample space. What connects them?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#random-variable-the-bridge",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#random-variable-the-bridge",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "4. Random variable = the bridge",
+    "text": "4. Random variable = the bridge\nA random variable is a function\n\\[\nX : \\Omega \\to \\mathbb{R}\n\\]\n(or, more useful for ML, \\(X : \\Omega \\to \\mathbb{R}^{d}\\)).\nIt maps each abstract outcome \\(\\omega \\in \\Omega\\) to a number (or vector) we can manipulate.\n\nWhy we need it\n\n\n\n\n\n\n\nWithout \\(X\\)\nWith \\(X\\)\n\n\n\n\nOnly abstract outcomes (H/T, “process happened”)\nConcrete numbers / vectors\n\n\nHard to do algebra / ML\nCan compute, fit models, store data\n\n\n\nYou cannot stop at \\(\\Omega\\) if you want engineering work. The extra map \\(X\\) is not optional decoration — it is why RVs were defined.\n\n\nFamous misnomer\n\nA random variable is neither random nor a variable.\nIt is a deterministic function \\(\\Omega \\to \\mathbb{R}\\) (or \\(\\mathbb{R}^{d}\\)).\n\n(Name is historical; treat it as a function.)\n\n\nRange need not be all of \\(\\mathbb{R}\\)\n\nCan be integers, a finite set, etc.\nIn practice for images / features: range is \\(\\mathbb{R}^{d}\\)\nLecture generalizes: think \\(X : \\Omega \\to \\mathbb{R}^{d}\\)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#what-is-a-data-point-two-layers-of-truth",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#what-is-a-data-point-two-layers-of-truth",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "5. What is a data point? (two layers of truth)",
+    "text": "5. What is a data point? (two layers of truth)\n\nDeterministic language (Lecture 1)\nAn image is a point / vector in \\(\\mathbb{R}^{d}\\).\n\n\nProbabilistic language (this lecture)\nStill a point in \\(\\mathbb{R}^{d}\\), but that \\(\\mathbb{R}^{d}\\) is the range of a random variable \\(X\\) defined on an underlying sample space \\(\\Omega\\) from a random experiment we do not fully observe.\nMental checklist whenever you see a datapoint \\(x \\in \\mathbb{R}^{d}\\):\nrandom experiment\n      |\n      v\nsample space Omega\n      |\n      v\nrandom variable X : Omega -&gt; R^d\n      |\n      v\nobserved vector x  (element of the range of X)\nFolder of images = many such range elements (realizations / observations of \\(X\\)).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#preview-what-happens-to-p-next-ideas",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#preview-what-happens-to-p-next-ideas",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "6. Preview: what happens to \\(P\\)? (next ideas)",
+    "text": "6. Preview: what happens to \\(P\\)? (next ideas)\nDefining \\(X\\) raises the natural question:\n\nWe had \\(P\\) on subsets of \\(\\Omega\\). Under \\(X\\), what becomes of that measure on subsets of \\(\\mathbb{R}^{d}\\)?\n\nAnswer (named in class, developed next): pushforward measure, which becomes the distribution of \\(X\\).\nAlso mentioned: the image of the event \\(\\sigma\\)-algebra under \\(X\\) relates to the Borel \\(\\sigma\\)-algebra on \\(\\mathbb{R}^{d}\\) (measure-theoretic detail — intuition: “nice” subsets of \\(\\mathbb{R}^{d}\\)).\nThis lecture stopped as that transition began; later parts fill in distribution / density.\n\nExercise left in class\nIs a random variable necessarily bijective? (Think carefully; not required for this course’s main path.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#one-page-summary",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#one-page-summary",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "7. One-page summary",
+    "text": "7. One-page summary\n\n\n\n\n\n\n\nObject\nRole\n\n\n\n\n\\((\\Omega,\\mathcal{F},P)\\)\nProbability triplet — abstract uncertainty\n\n\nSensor / measurement\nHow we observe the world\n\n\n\\(X:\\Omega\\to\\mathbb{R}^{d}\\)\nRandom variable — bridge to numbers\n\n\nDatapoint \\(x\\)\nElement of the range of \\(X\\)\n\n\n\nML connection: classical “vectors in \\(\\mathbb{R}^{d}\\)” sit inside a probabilistic story: experiment \\(\\to\\) \\(\\Omega\\) \\(\\to\\) \\(X\\) \\(\\to\\) data.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#self-check",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html#self-check",
+    "title": "Lecture 3 — Recap of Probability Theory - 1, Part 2",
+    "section": "8. Self-check",
+    "text": "8. Self-check\n\nWrite down the probability triplet and one analogy with length on \\(\\mathbb{R}\\).\nWhy is \\(\\Omega\\) alone not enough for ML engineering?\nDefine a random variable formally (domain and codomain).\nWhy is “random variable” a misnomer?\nIn the X-ray example, what is abstract (\\(\\Omega\\)) vs what is concrete (range of \\(X\\))?\nRephrase “an image is a point in \\(\\mathbb{R}^{d}\\)” in probabilistic language.\nWhat question about \\(P\\) does introducing \\(X\\) force us to ask next?\n\n(Answers: self-check-answers.qmd.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Recap of Probability Theory - 1, Part 2"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "",
+    "text": "Video: Lec 02 — Recap of Probability Theory - 1, Part 1",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#bridge-from-lecture-1",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#bridge-from-lecture-1",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "1. Bridge from Lecture 1",
+    "text": "1. Bridge from Lecture 1\nLast time: ML = function approximation.\n\nData: pairs from two sets\nAssume unknown \\(f\\) maps domain \\(\\to\\) range\nGoal: estimate \\(f\\) (so we can predict on new inputs)\n\nPrediction means: for a new \\(x\\) with unknown \\(y\\), use \\(\\hat{f}\\) to guess \\(y\\).\nExample: X-ray \\(\\to\\) \\(\\{0,1\\}\\) (diseased / not).\nHow (abstractly): guess a model family \\(\\to\\) refine with data.\nWhy that is not enough alone: for many problems you cannot derive \\(f\\) from physics (coin toss; reflectance \\(\\to\\) “disease”). So we use a statistical / probabilistic approach: many observations, infer structure from data.\n\nThe gap this lecture closes\n\n\n\n\n\n\n\nFamiliar language\nProbabilistic language (feels harder at first)\n\n\n\n\nLearn / estimate a function \\(f\\)\nEstimate an underlying distribution (e.g. via divergence minimization later)\n\n\n\nSame spirit — different math language. Today: foundations so that link becomes natural.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#why-probability-theory",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#why-probability-theory",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "2. Why probability theory?",
+    "text": "2. Why probability theory?\nWe must decide under uncertainty.\nIrony stressed in class:\n\nInputs / world: uncertain\nFinal decisions (e.g. diagnosis): must be deterministic (A doctor cannot usefully stop at “60% diseased” without a decision rule.)\n\nSo we need a mathematical framework for uncertainty that still ends in decisions.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#random-experiment-where-random-starts-and-almost-ends",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#random-experiment-where-random-starts-and-almost-ends",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "3. Random experiment (where “random” starts — and almost ends)",
+    "text": "3. Random experiment (where “random” starts — and almost ends)\nProbability begins with a random experiment:\n\nAn experiment whose outcomes we treat as uncertain / not fully predictable from our model of the world.\n\nImportant points from lecture:\n\n“Randomness” itself is not rigorously defined — we assume we know what a random experiment is, then proceed with set theory / measure theory.\nAfter fixing the experiment and its outcomes, almost nothing else is “random” — including random variables (coming soon): they are deterministic maps.\nThe designer chooses what counts as the experiment.\n\nOne toss of a coin\nFive tosses of a coin Both are valid random experiments — different sample spaces.\n\n\n\nClassic examples\n\n\n\nRandom experiment\nTypical outcomes\n\n\n\n\nCoin toss\n\\(\\{H, T\\}\\)\n\n\nDie roll\n\\(\\{1,2,3,4,5,6\\}\\)\n\n\n\n\n\nML examples (see every datapoint this way)\n\n\n\n\n\n\n\nTask\nWhat is the “random experiment”? (intuition)\n\n\n\n\nX-ray diagnosis\nPerson gets ill / seeks care \\(\\to\\) imaging \\(\\to\\) image on disk \\(\\to\\) clinician label\n\n\nSpam filter\nSomeone drafts/sends email \\(\\to\\) someone labels spam / not\n\n\nBrain measurement \\(\\to\\) prediction\nPerson + protocol \\(\\to\\) recorded signal\n\n\n\nPunchline for ML: every training point is an outcome of an underlying random experiment. That is the probabilistic starting point.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#sample-space-omega",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#sample-space-omega",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "4. Sample space \\(\\Omega\\)",
+    "text": "4. Sample space \\(\\Omega\\)\nOnce the random experiment is fixed:\n\\[\n\\Omega = \\{\\text{all possible outcomes of the experiment}\\}\n\\]\nThis set is the sample space.\n\nCritical reminders\n\n\\(\\Omega\\) need not be numeric. Coin: \\(\\Omega = \\{H,T\\}\\) — no numbers yet. X-ray pipeline: outcomes are abstract “whole process happened this way” objects — still not vectors until we define random variables (next lectures).\nSample space = enumerate outcomes in a set. Set theory begins here.\n\n\nDon’t ask “what is randomness?” — collect outcomes into \\(\\Omega\\), then work mathematically.\n\n(Side joke from class: “random number generators” are deterministic algorithms \\(\\to\\) pseudo-random.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#why-measures-comparing-subsets",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#why-measures-comparing-subsets",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "5. Why measures? Comparing subsets",
+    "text": "5. Why measures? Comparing subsets\nHaving \\(\\Omega\\) alone does not let us predict. We need to talk about how large / how likely subsets are.\n\nAnalogy: real numbers and length\nOn \\(\\mathbb{R}\\), to say which of two intervals is “bigger,” we use length (Lebesgue measure on nice sets).\n\nIn \\(\\mathbb{R}^2\\): area\nIn \\(\\mathbb{R}^3\\): volume\nIn \\(\\mathbb{R}^d\\): \\(d\\)-dimensional volume\n\nGeneral idea: given a set, form subsets, assign a measure so we can compare / quantify them.\nA measure is a mathematical function on (certain) subsets with formal properties (non-negativity, additivity for disjoint unions, etc.). This course gives the intuition; a full measure-theory course makes it airtight.\n\n\nBack to \\(\\Omega\\)\nLet \\(\\mathcal{F}\\) be a suitable collection of subsets of \\(\\Omega\\) (events). Goal: assign a measure on members of \\(\\mathcal{F}\\).\n(In full rigor \\(\\mathcal{F}\\) is a \\(\\sigma\\)-algebra — named in the lecture goals; formal axioms continue in the next parts.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#probability-measure-p",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#probability-measure-p",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "6. Probability measure \\(P\\)",
+    "text": "6. Probability measure \\(P\\)\nOne special measure on events is the probability measure\n\\[\nP : \\mathcal{F} \\to [0,1]\n\\]\n\nProperties (as stated in class)\nFor events \\(A,B \\in \\mathcal{F}\\):\n\nNon-negativity: \\(P(A) \\ge 0\\)\nNormalized on \\(\\Omega\\): \\(P(\\Omega) = 1\\)\nEmpty set: \\(P(\\emptyset) = 0\\)\nAdditivity for disjoint events: if \\(A \\cap B = \\emptyset\\), then\n\n\\[\nP(A \\cup B) = P(A) + P(B)\n\\]\n\nValues lie in \\([0,1]\\) (unlike raw length, which can be arbitrarily large)\n\nAnalogy: think of \\(P\\) like “length,” but scaled so the whole sample space has measure 1.\n\n\nVocabulary\n\n\n\nTerm\nMeaning\n\n\n\n\nOutcome\nAn element of \\(\\Omega\\)\n\n\nEvent\nA subset of \\(\\Omega\\) (element of \\(\\mathcal{F}\\))\n\n\n\\(P(A)\\)\nProbability measure of event \\(A\\)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#meaning-of-pa-optional-until-the-end",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#meaning-of-pa-optional-until-the-end",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "7. Meaning of \\(P(A)\\): optional until the end",
+    "text": "7. Meaning of \\(P(A)\\): optional until the end\nMathematically, \\(P\\) is just a measure with those axioms.\nCommon interpretation: \\(P(A)\\) = “likelihood” that event \\(A\\) occurs (e.g. \\(P(A)=0.7\\) \\(\\to\\) “70% chance” in ordinary speech).\nLecture philosophy:\n\nYou can run almost all of the math of ML treating \\(P\\) as a pure abstraction.\nAssign human meaning (diagnosis language, business risk, etc.) at the end, when a decision must be communicated.\nSame measure, different stories in different applications — like “area under a curve” meaning different physical things in different sciences.\n\nAbstraction payoff for ML: once data = values of random variables with an underlying \\(P\\), the same algorithms apply to images, text, time series, brain signals — all are vectors in the range of those maps. That is why a “generalist” ML view is possible.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#link-back-to-ignorance-modeling",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#link-back-to-ignorance-modeling",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "8. Link back to “ignorance modeling”",
+    "text": "8. Link back to “ignorance modeling”\nIf you were omniscient about all physics of a coin toss, the outcome would be deterministic. Because we are not, we use the probabilistic apparatus: experiment \\(\\to\\) \\(\\Omega\\) \\(\\to\\) events \\(\\to\\) \\(P\\).\nThere need not be “true metaphysical randomness” for the framework to be useful.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#one-page-map-so-far",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#one-page-map-so-far",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "9. One-page map (so far)",
+    "text": "9. One-page map (so far)\nRandom experiment  (assumed)\n        |\n        v\nSample space Omega  (set of outcomes; may be non-numeric)\n        |\n        v\nEvents  (subsets in F)\n        |\n        v\nProbability measure P : F -&gt; [0,1]\n        |\n        v\n(Next lectures) Random variables, distributions\n        |\n        v\nML as estimating structure of P  (parallel to estimating f)\n(In prose we write the sample space as \\(\\Omega\\).)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#what-comes-next",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#what-comes-next",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "10. What comes next",
+    "text": "10. What comes next\nThis part stopped at sample space + probability measure. Still ahead (as previewed): random variables, pushforward measures, distribution / density functions — and the explicit parallel between estimating \\(f\\) and estimating distributions.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#self-check",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html#self-check",
+    "title": "Lecture 2 — Recap of Probability Theory - 1, Part 1",
+    "section": "11. Self-check",
+    "text": "11. Self-check\n\nRestate Lecture 1’s ML problem in one sentence, then say why a probabilistic view is needed.\nWhat is a sample space? Must it consist of numbers?\nGive two different random experiments you could define for “coin tossing.”\nIn the X-ray setting, what does the lecture treat as the random experiment (intuitively)?\nWhy do we need a measure on subsets of \\(\\Omega\\)?\nList the main properties of a probability measure \\(P\\).\nWhat is an event?\nWhy does the instructor say you can delay assigning “meaning” to \\(P(A)\\)?\n\n(Answers: self-check-answers.qmd.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Recap of Probability Theory - 1, Part 1"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "",
+    "text": "Video: Lec 01 — Overview of Function Approximation Course: Mathematical Foundations of Machine Learning (NPTEL, IISc)\nInstructor: Prof. Prathosh A.P.\nVideo: Lec 01 — Overview of Function Approximation",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#what-this-course-is-for",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#what-this-course-is-for",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "1. What this course is for",
+    "text": "1. What this course is for\nThis is the first of a two-course series:\n\n\n\n\n\n\n\nCourse\nRole\n\n\n\n\nThis one\nMathematical / probabilistic foundations of ML\n\n\nNext semester\nState-of-the-art algorithms (esp. generative models)\n\n\n\nGoal: move from “internet data scientist” (drive the car) to someone who can build and reason about algorithms (design the engine).\nAnalogy used in class:\n\nYou don’t need to know how an internal combustion engine works to drive a car.\nYou do need that knowledge if you want to build a better one.\n\nBy the end, reading an ML paper should feel closer to reading a novel than decoding opaque jargon.\nTeaching style: mostly chalk-and-board (no slides). Mathematics is treated as a language of precision — English is too ambiguous for engineering implementation.\nViewpoint: almost everything will be developed from a probabilistic standpoint (with deterministic parallels pointed out along the way).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#the-central-problem-function-approximation",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#the-central-problem-function-approximation",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "2. The central problem: function approximation",
+    "text": "2. The central problem: function approximation\nMost problems in science and engineering can be cast as function approximation.\n\nClassical motivation\nKepler / Gauss-era question: observe planet positions at some times → predict positions at other times.\n\nIndependent variable: time → call this \\(x\\)\nDependent variable: position → call this \\(y\\)\n\n\n\nFormal setup\nTwo sets:\n\nDomain set \\(\\mathcal{X}\\) (often called “input”; here we keep it abstract)\nRange set \\(\\mathcal{Y}\\) (often called “output”)\n\nWe are given a dataset of paired observations:\n\\[\n\\mathcal{D} = \\bigl\\{(x_1, y_1), (x_2, y_2), \\ldots, (x_n, y_n)\\bigr\\}\n\\]\nwhere each \\(x_i \\in \\mathcal{X}\\) and \\(y_i \\in \\mathcal{Y}\\).\nAssumption: there exists a function\n\\[\nf : \\mathcal{X} \\to \\mathcal{Y}\n\\]\nsuch that the observations are (related to) evaluations of \\(f\\).\nProblem: \\(f\\) is unknown.\n\nMachine learning in one line (deterministic view):\nGiven \\(\\mathcal{D}\\), find / estimate \\(f\\).\n\nThis is an ill-posed / “blind” problem: we only have samples, not a description of \\(f\\).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#how-humans-solve-blind-problems-the-philosophy",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#how-humans-solve-blind-problems-the-philosophy",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "3. How humans solve blind problems (the philosophy)",
+    "text": "3. How humans solve blind problems (the philosophy)\nIf you know nothing about \\(f\\), you cannot magically recover “truth.” The workable philosophy is:\n\nStart with an initial guess on \\(f\\) (a model family)\nRefine that guess using data \\(\\mathcal{D}\\) (a learning algorithm)\n\n\nExample: planetary motion\nKepler assumed orbits are ellipses. That does not finish the job — there are infinitely many ellipses. Data tells you which ellipse (among the family) fits.\n\n\nVocabulary that will stick for the whole course\n\n\n\n\n\n\n\nEveryday phrase\nML meaning\n\n\n\n\nInitial guess / family of candidates\nModel / model family\n\n\nProcedure that improves the guess with \\(\\mathcal{D}\\)\nLearning algorithm\n\n\nDataset \\(\\mathcal{D}\\)\nData (“data is the new oil” — quality of \\(\\mathcal{D}\\) limits quality of \\(\\hat{f}\\))\n\n\n\nFamous proverb cited in lecture:\n\nAll models are wrong, but some are useful.\n\nWe never have access to “true reality”; we only get estimates. The course will define what “useful” means rigorously later (error, risk, generalization, etc.).\n\n\nModel families you will meet later\nDifferent guesses on \\(f\\):\n\nLinear models\n\nQuadratic / polynomial families\n\nKernel machines\n\nDecision trees\n\nNeural networks\n\nDifferent refinement algorithms (examples):\n\nLeast squares\n\nError backpropagation (for neural nets)\n\n“Learning” = choosing a family + refining it with data. Both will be formalized later.\n\n\nOverfitting (preview)\nA bad “solution”: define \\(\\hat{f}(x_i) = y_i\\) only at observed points and invent nonsense elsewhere.\nThat memorizes \\(\\mathcal{D}\\) but fails the real goal: predict for unseen \\(x\\).\nThis idea will later be formalized as overfitting.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#domains-need-not-be-scalars-think-vectors",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#domains-need-not-be-scalars-think-vectors",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "4. Domains need not be scalars — think vectors",
+    "text": "4. Domains need not be scalars — think vectors\nNothing forces \\(x\\) or \\(y\\) to be single numbers. We often work with vector-valued inputs/outputs.\n\nRunning example: chest X-ray diagnosis\n\n\\(x_i\\): an X-ray image\n\n\\(y_i \\in \\{0,1\\}\\): diseased / not diseased\n\nIn a computer, an image is a \\(P \\times Q\\) matrix of pixel intensities (e.g. \\(0\\)–\\(255\\) for 8-bit).\nStack columns into one long vector of length \\(PQ\\). Then:\n\\[\nx_i \\in \\mathbb{R}^{PQ}\n\\]\nAbstractly, for the rest of the course:\n\\[\nx \\in \\mathbb{R}^{d}\n\\]\n(a point in \\(d\\)-dimensional Euclidean space).\nThe unknown \\(f\\) maps a high-dimensional image to a label \\(\\{0,1\\}\\).\nIn the real world, that \\(f\\) is roughly “what a radiologist does.”\nML tries to mimic such maps — this is the universal function approximation ambition: learn useful maps between complicated spaces.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#why-a-probabilistic-viewpoint",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#why-a-probabilistic-viewpoint",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "5. Why a probabilistic viewpoint?",
+    "text": "5. Why a probabilistic viewpoint?\nMany ML methods can be told in a deterministic “fit a curve” language. That is not enough for the hard cases.\n\nMeasurable physics vs abstract human constructs\nEasy (Newtonian) maps:\n\nForce ↔︎ acceleration (linear, few parameters)\n\nEnough to fly an aircraft with a small model\n\nHard maps:\n\nPixel reflectance → gender, disease, intent\n\nMicrophone pressure waveform → phoneme / meaning\n\nA microphone measures pressure gradients. A camera measures reflected/absorbed radiation.\nWhy those numbers should equal an abstract label like “gender” or “phone /ah/” is not a simple physics formula with 5 parameters. Human semantics are complex; models may need millions of parameters.\nThought experiment (assignment-style): take MNIST digits and randomly shuffle labels. You can still train a model that fits those random labels. Semantics are subtle; memorization is possible; meaning is not automatic.\n\n\nHistorical lesson: speech recognition\nFor decades, speech scientists tried physics-first inversion:\n\nModel vocal tract as waveguides / constrictions\n\nInvert from waveform → articulatory configuration → phone\n\nHard and brittle.\nIn the late 1980s, statistical methods solved practical digit / speech recognition by:\n\nMaking many observations\n\nEstimating patterns from data\n\nPhysics-first researchers sometimes called this “ignorance modeling.”\nEngineers replied: but it works.\nModern deep learning sits in that lineage: systems that work at scale, even when full interpretability lags behind.\n\n\nTakeaway\nWhen \\(f\\) is too complex to derive from first-principles physics:\n\nMake repeated observations and estimate \\(f\\) with statistical / probabilistic methods.\n\nThat is why this course is grounded in probability theory.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#from-deterministic-sets-to-random-variables",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#from-deterministic-sets-to-random-variables",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "6. From deterministic sets to random variables",
+    "text": "6. From deterministic sets to random variables\nDeterministic view: \\(\\mathcal{X}, \\mathcal{Y}\\) are sets; \\(f:\\mathcal{X}\\to\\mathcal{Y}\\); given \\(\\mathcal{D}\\), estimate \\(f\\).\nProbabilistic view: \\(\\mathcal{X}\\) and \\(\\mathcal{Y}\\) are (supports of) random variables.\nFunction approximation becomes closely related to distribution / density estimation.\nThere will be one-to-one parallels between:\n\n\n\n\n\n\n\nDeterministic language\nProbabilistic language\n\n\n\n\nEstimate unknown \\(f\\)\nEstimate distributions / conditionals involving \\(X,Y\\)\n\n\nModel family\nParametric / structured distributions\n\n\nFit with data\nInference / learning from samples\n\n\n\nGenerative models, in particular, are most natural in the probabilistic language. That language is broad enough to cover both discriminative and generative formulations (terms to be defined soon).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#preparation-for-lecture-2",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#preparation-for-lecture-2",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "7. Preparation for Lecture 2+",
+    "text": "7. Preparation for Lecture 2+\nRefresh thoroughly before the next class:\n\nRandom experiment & sample space\n\nRandom variable (as a measurable function from sample space → \\(\\mathbb{R}\\))\n\nProbability measure\n\nDistribution functions\n\nDensity functions (and that densities do not always exist)\n\nFamiliarity with measure-theoretic language (σ-algebras, etc.) will help — the course gets rigorous\n\nNext lectures connect today’s function-approximation story to random variables and distribution estimation.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#one-page-mental-model",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#one-page-mental-model",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "8. One-page mental model",
+    "text": "8. One-page mental model\nObservations D = {(x_i, y_i)}\n        |\n        v\nAssume unknown map f : X -&gt; Y exists\n        |\n        v\nChoose a model family (initial guess)\n        |\n        v\nRefine with data (learning algorithm)\n        |\n        v\nGet useful estimate f̂  (not \"truth\")\nWhen physics of \\(f\\) is unavailable → use statistics / probability and lots of data.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#self-check-questions",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/notes.html#self-check-questions",
+    "title": "Lecture 1 — Overview of Function Approximation",
+    "section": "9. Self-check questions",
+    "text": "9. Self-check questions\n\nState the function approximation problem in one sentence using \\(\\mathcal{D}\\) and \\(f\\).\n\nWhy is “set \\(\\hat{f}(x_i)=y_i\\) at training points” a bad philosophy for ML?\n\nWhat is the difference between a model family and a learning algorithm? Give one example of each.\n\nHow do you represent a \\(P\\times Q\\) image as a point in Euclidean space?\n\nWhy might predicting gender from pixels need a huge model while airplane control needs a small one?\n\nWhat does “ignorance modeling” refer to historically, and why does the course still embrace a statistical view?\n\nIn one sentence: how does the probabilistic view rephrase “estimate \\(f\\)”?\n\n(Short answers are in self-check-answers.qmd.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Overview of Function Approximation"
+    ]
+  },
+  {
+    "objectID": "courses/index.html",
+    "href": "courses/index.html",
+    "title": "Courses",
+    "section": "",
+    "text": "Lecture series tracked on this site. Each course is independent — add another anytime without restructuring the whole project."
+  },
+  {
+    "objectID": "courses/index.html#active",
+    "href": "courses/index.html#active",
+    "title": "Courses",
+    "section": "Active",
+    "text": "Active\n\nMathematical Foundations of Machine Learning\n\nID: mfml\nInstructor: Prof. Prathosh A.P. (IISc)\nPlatform: NPTEL\nFocus: Probability-first mathematical foundations of classical ML and deep learning"
+  },
+  {
+    "objectID": "courses/index.html#planned-next",
+    "href": "courses/index.html#planned-next",
+    "title": "Courses",
+    "section": "Planned / next",
+    "text": "Planned / next\nWhen you start the next series (e.g. Mathematical Foundations of Generative AI), create courses/&lt;id&gt;/ and register it in _quarto.yml. Step-by-step: Add a course."
+  },
+  {
+    "objectID": "courses/mfml/index.html",
+    "href": "courses/mfml/index.html",
+    "title": "Mathematical Foundations of Machine Learning",
+    "section": "",
+    "text": "Probability-first foundations of machine learning: from function approximation and classical statistical learning through neural nets, transformers, and an intro to generative models.",
+    "crumbs": [
+      "Home",
+      "Mathematical Foundations of Machine Learning"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/index.html#lectures",
+    "href": "courses/mfml/index.html#lectures",
+    "title": "Mathematical Foundations of Machine Learning",
+    "section": "Lectures",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nOverview of Function Approximation\nTutorial · Self-check\n\n\n02\nRecap of Probability Theory - 1, Part 1\nTutorial · Self-check\n\n\n03\nRecap of Probability Theory - 1, Part 2\nTutorial · Self-check\n\n\n04\nRecap of Probability Theory - 1, Part 3\nTutorial · Self-check\n\n\n05\nComing after you share the next lecture link",
+    "crumbs": [
+      "Home",
+      "Mathematical Foundations of Machine Learning"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/index.html#course-references",
+    "href": "courses/mfml/index.html#course-references",
+    "title": "Mathematical Foundations of Machine Learning",
+    "section": "Course references",
+    "text": "Course references\nSee MFML references for textbooks and papers tied to this series.",
+    "crumbs": [
+      "Home",
+      "Mathematical Foundations of Machine Learning"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html",
+    "title": "Lecture 1 — Self-check answers",
+    "section": "",
+    "text": "Given paired data \\(\\mathcal{D}=\\{(x_i,y_i)\\}\\), estimate the unknown map \\(f:\\mathcal{X}\\to\\mathcal{Y}\\) that relates them.\n\nIt memorizes observed points and does not tell you \\(f(x)\\) for new \\(x\\) — classic overfitting.\n\nFamily = class of candidates (e.g. neural nets, linear models). Algorithm = how you pick one using data (e.g. backprop, least squares).\n\nFlatten / stack the \\(P\\times Q\\) pixel matrix into a vector in \\(\\mathbb{R}^{PQ}\\).\n\nGender is an abstract human construct weakly tied to raw reflectance; aircraft dynamics follow relatively simple measurable physics.\n\nLate-1980s statistical speech recognition that ignored detailed vocal-tract physics; it worked via repeated observation + stats — the same spirit as modern ML.\n\nTreat \\(X,Y\\) as random variables and estimate the relevant distributions (paralleling estimating \\(f\\)).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html",
+    "href": "courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html",
+    "title": "Lecture 2 — Self-check answers",
+    "section": "",
+    "text": "Estimate unknown \\(f\\) from paired data so we can predict; physics of \\(f\\) is often unavailable, so we use repeated observations + probability.\nSet \\(\\Omega\\) of all possible outcomes of a chosen random experiment; no, it need not be numeric (e.g. \\(\\{H,T\\}\\)).\ne.g. single toss vs five tosses — different experiments \\(\\to\\) different \\(\\Omega\\).\nThe whole pipeline: illness / visit \\(\\to\\) imaging \\(\\to\\) digital image \\(\\to\\) clinician label (as one generative process whose outcomes we observe).\nTo compare / quantify subsets (events); a bare set does not tell you “how much” or “how likely.”\nNon-negative; \\(P(\\Omega)=1\\); \\(P(\\emptyset)=0\\); additive on disjoint events; values in \\([0,1]\\).\nA subset of \\(\\Omega\\) (in the collection \\(\\mathcal{F}\\)) that we assign probability to.\nThe math works with \\(P\\) as an abstract measure; human/clinical meaning is attached when you must make a real-world decision.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html",
+    "title": "Lecture 3 — Self-check answers",
+    "section": "",
+    "text": "\\((\\Omega,\\mathcal{F},P)\\); analogy \\((\\mathbb{R},\\text{nice subsets},\\text{length})\\).\n\\(\\Omega\\) may be non-numeric/abstract; algorithms need numbers/vectors.\nA (measurable) function \\(X:\\Omega\\to\\mathbb{R}\\) or \\(X:\\Omega\\to\\mathbb{R}^{d}\\).\nIt is a deterministic function, not a “random” object nor an ordinary algebra “variable.”\nAbstract: disease/visit/imaging process as outcomes in \\(\\Omega\\); concrete: stored image vector in \\(\\mathbb{R}^{d}\\).\nThe image is a point in the range of a random variable defined on an underlying sample space.\nHow \\(P\\) pushes forward to a measure/distribution on (subsets of) \\(\\mathbb{R}^{d}\\).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html",
+    "href": "courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html",
+    "title": "Lecture 4 — Self-check answers",
+    "section": "",
+    "text": "The measure on (Borel) subsets of the range obtained by pushing \\(P\\) through \\(X\\) via inverse images; the distribution / law of \\(X\\).\n\\(P_{X}(x)=P(X^{-1}((-\\infty,x]))=P(\\{\\omega:X(\\omega)\\le x\\})\\).\nThey generate the Borel \\(\\sigma\\)-algebra; RVs are set up so those inverse images are events we can assign \\(P\\) to.\nThe unbounded rectangle of points with first coordinate \\(\\le x_1\\) and second \\(\\le x_2\\) (“southwest” of \\((x_1,x_2)\\)).\nNature / labelers assign the underlying measure; we estimate distributions from samples in the range of RVs.\nProbability is a measure of sets; a density value at one point is not \\(P\\) of a singleton in continuous models.\nOne joint experiment vs two correlated experiments (disease process vs imaging/labeling process) — modeler’s choice.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html",
+    "href": "docs/adding-a-course.html",
+    "title": "Add a new lecture series",
+    "section": "",
+    "text": "Use this checklist whenever you start another course (e.g. Generative AI foundations, a CV series, etc.). The site is designed so each series is a folder + a sidebar block.",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#copy-the-template",
+    "href": "docs/adding-a-course.html#copy-the-template",
+    "title": "Add a new lecture series",
+    "section": "1. Copy the template",
+    "text": "1. Copy the template\nCopy-Item -Recurse templates\\new-course courses\\SERIES_ID\nReplace SERIES_ID with a short slug, e.g. mfgenai, dl-specialization.",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#edit-the-course-home-page",
+    "href": "docs/adding-a-course.html#edit-the-course-home-page",
+    "title": "Add a new lecture series",
+    "section": "2. Edit the course home page",
+    "text": "2. Edit the course home page\nOpen courses/SERIES_ID/index.qmd:\n\nSet title, instructor, links\nSet YAML sidebar: SERIES_ID (must match step 3)",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#register-navigation-in-_quarto.yml",
+    "href": "docs/adding-a-course.html#register-navigation-in-_quarto.yml",
+    "title": "Add a new lecture series",
+    "section": "3. Register navigation in _quarto.yml",
+    "text": "3. Register navigation in _quarto.yml\nA. Navbar → Courses menu — uncomment / add:\n- text: Your Series Title\n  href: courses/SERIES_ID/index.qmd\nB. New sidebar — copy the commented SERIES_ID block and fill lecture paths:\n- id: SERIES_ID\n  title: \"Short Name\"\n  style: docked\n  search: true\n  contents:\n    - courses/SERIES_ID/index.qmd\n    - section: \"Lectures\"\n      contents:\n        - courses/SERIES_ID/lectures/01-.../notes.qmd\n    - courses/SERIES_ID/references.qmd\nC. Courses index table — add a row in courses/index.qmd and optionally on the home page.",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#add-lectures-as-you-go",
+    "href": "docs/adding-a-course.html#add-lectures-as-you-go",
+    "title": "Add a new lecture series",
+    "section": "4. Add lectures as you go",
+    "text": "4. Add lectures as you go\nFor each lecture:\ncourses/SERIES_ID/lectures/NN-short-slug/\n  notes.qmd          # reading notes\n  tutorial.ipynb     # optional beginner notebook\n  self-check-answers.qmd\nEvery page should include:\nsidebar: SERIES_ID\nThen append the new files under that sidebar’s contents in _quarto.yml.",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#preview",
+    "href": "docs/adding-a-course.html#preview",
+    "title": "Add a new lecture series",
+    "section": "5. Preview",
+    "text": "5. Preview\nquarto preview",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "docs/adding-a-course.html#naming-tips",
+    "href": "docs/adding-a-course.html#naming-tips",
+    "title": "Add a new lecture series",
+    "section": "Naming tips",
+    "text": "Naming tips\n\n\n\nGood SERIES_ID\nAvoid\n\n\n\n\nmfml, mfgenai, cs231n\nspaces, capitals, long titles\n\n\nStable forever\nrenaming later breaks URLs",
+    "crumbs": [
+      "Home",
+      "Add a new lecture series"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Learn ML",
+    "section": "",
+    "text": "Personal learning space for machine learning and deep learning — starting with NPTEL courses, extensible to any future series."
+  },
+  {
+    "objectID": "index.html#courses",
+    "href": "index.html#courses",
+    "title": "Learn ML",
+    "section": "Courses",
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nNext series…\n—\nAdd via Add a course"
+  },
+  {
+    "objectID": "index.html#how-this-site-is-organized",
+    "href": "index.html#how-this-site-is-organized",
+    "title": "Learn ML",
+    "section": "How this site is organized",
+    "text": "How this site is organized\ncourses/\n  mfml/                 ← one folder per lecture series\n    lectures/01-.../\n    references.qmd\n  SERIES_ID/            ← copy template when you start a new series\nreferences/             ← shared reading list across courses\nEach series has its own sidebar. The top Courses menu lists every series. When you begin a new NPTEL (or other) series, follow Add a course."
+  },
+  {
+    "objectID": "index.html#quick-links",
+    "href": "index.html#quick-links",
+    "title": "Learn ML",
+    "section": "Quick links",
+    "text": "Quick links\n\nAll courses\nShared references\nCurrent lecture: MFML Lec 01 — Function Approximation"
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "Course: Mathematical Foundations of Machine Learning (Prof. Prathosh A.P.)\nBased on: Lec 01 — Overview of Function Approximation\n\n\n\nCreate a tiny dataset (like observations in the lecture)\nMake an initial guess for the unknown function (a model family)\nRefine that guess using data\nSee overfitting (memorizing data)\nSee that a flexible model can even fit random labels\nTurn a small “image” into a vector (X-ray idea from class)\n\n\n\n\n\nRead each markdown cell (the text explanations).\nRun the code cell right below it (Shift + Enter).\nDo not skip cells — later cells need earlier ones.\n\n\nYou do not need to know ML already. If a line of code is new, the text above it explains what it does.\n\n\n\n\nWe need two libraries:\n\n\n\nLibrary\nJob\n\n\n\n\nnumpy\nWork with numbers and arrays (lists of numbers)\n\n\nmatplotlib\nDraw plots\n\n\n\nIf the next cell fails with ModuleNotFoundError, run this once in a cell:\n%pip install numpy matplotlib\nThen run the import cell again.\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint(\"Imports OK. numpy version:\", np.__version__)\n\n\n\n\nIn class we said:\n\nWe have pairs (x, y). We assume there is an unknown function f such that y ≈ f(x).\nGoal: estimate f from data.\n\nIn this notebook we will pretend the true function is a sine wave:\n\\[\nf(x) = \\sin(2\\pi x)\n\\]\nIn real ML we do not know f. Here we keep it secret from the “learner”, but we plot it as a dashed line so you can see the truth.\n\ndef true_f(x):\n    \"\"\"The unknown reality. In real problems we do NOT know this.\"\"\"\n    return np.sin(2 * np.pi * x)\n\n# Try it on a few numbers\nprint(\"f(0.0) =\", true_f(0.0))\nprint(\"f(0.25) =\", true_f(0.25))  # should be about 1\nprint(\"f(0.5) =\", true_f(0.5))    # should be about 0\n\n\n\n\nLecture notation:\n\\[\n\\mathcal{D} = \\{(x_1,y_1),\\ldots,(x_n,y_n)\\}\n\\]\nWe will: 1. Pick random x values between 0 and 1 2. Compute y = true_f(x) 3. Add a little noise (real measurements are never perfect)\nNew words - seed: makes “random” numbers repeatable (same result every run) - noise: small random error added to y\n\ndef make_dataset(n=15, noise=0.15, seed=0):\n    \"\"\"Make n noisy observations from true_f.\"\"\"\n    rng = np.random.default_rng(seed)          # random number generator\n    x = np.sort(rng.uniform(0, 1, size=n))      # n random x in [0,1], sorted\n    y = true_f(x) + rng.normal(0, noise, size=n)  # true value + noise\n    return x, y\n\nx_train, y_train = make_dataset()\n\nprint(\"Number of points:\", len(x_train))\nprint(\"First 5 x values:\", x_train[:5])\nprint(\"First 5 y values:\", y_train[:5])\n\n\n\n\nRed dots = what we observed (D)\nBlack dashed curve = true f (unknown in real life)\n\nNotice: the dots are near the curve, but not exactly on it, because of noise.\n\nx_grid = np.linspace(0, 1, 400)  # many x values for a smooth curve\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f (unknown in real ML)\")\nplt.scatter(x_train, y_train, c=\"red\", label=\"data D\", zorder=3)\nplt.xlabel(\"x\")\nplt.ylabel(\"y\")\nplt.title(\"Observations vs the unknown function\")\nplt.legend()\nplt.show()\n\n\n\n\n\nFrom class:\n\nStart with a guess for f (choose a model family)\nRefine using data D\n\nOur simple guess family: polynomials\n\n\n\nDegree\nExample shape\n\n\n\n\n1\nstraight line: \\(a + bx\\)\n\n\n2\nparabola: \\(a + bx + cx^2\\)\n\n\n3\ncubic: \\(a + bx + cx^2 + dx^3\\)\n\n\nhigh\ncan wiggle a lot\n\n\n\nnp.polyfit = refine the guess (find best coefficients for that degree)\nnp.polyval = use the fitted polynomial to predict y at new x\n\ndef fit_and_predict(x_train, y_train, x_query, degree):\n    \"\"\"\n    Guess family: polynomials of this degree.\n    Refine: least squares fit to the data.\n    \"\"\"\n    coeffs = np.polyfit(x_train, y_train, degree)  # learn coefficients from D\n    y_hat = np.polyval(coeffs, x_query)            # predict on new x\n    return y_hat\n\n# Quick test: fit a line (degree 1) and predict at x=0.5\ny_at_half = fit_and_predict(x_train, y_train, 0.5, degree=1)\nprint(\"Degree-1 model prediction at x=0.5:\", float(y_at_half))\n\n\n\n\nWe try three model families on the same data:\n\n\n\nDegree\nWhat usually happens\n\n\n\n\n1\nToo simple → underfitting (misses the curve)\n\n\n3\nOften a reasonable compromise\n\n\n12\nToo flexible → overfitting (chases noise, wild wiggles)\n\n\n\nOverfitting matches what the lecture said: defining the function only to match observed points does not help on new x.\n\ndegrees = [1, 3, 12]\n\nfig, axes = plt.subplots(1, 3, figsize=(12, 3.5), sharey=True)\n\nfor ax, deg in zip(axes, degrees):\n    y_hat = fit_and_predict(x_train, y_train, x_grid, degree=deg)\n\n    ax.plot(x_grid, true_f(x_grid), \"k--\", lw=1.5, label=\"true f\")\n    ax.plot(x_grid, y_hat, lw=2, label=f\"degree {deg}\")\n    ax.scatter(x_train, y_train, c=\"red\", zorder=3, label=\"data D\")\n    ax.set_title(f\"Guess family: poly degree {deg}\")\n    ax.set_xlabel(\"x\")\n    ax.legend(fontsize=8)\n\naxes[0].set_ylabel(\"y\")\nfig.suptitle(\"Same data D — different initial guesses (model families)\")\nfig.tight_layout()\nplt.show()\n\n\n\n\nLeft plot: line cannot bend with the sine wave → bad guess family.\nMiddle: closer to truth → useful model (still “wrong”, but useful).\nRight: passes near every red point, but oscillates → memorizing noise.\n\nLecture proverb: All models are wrong, but some are useful.\n\n\n\n\nIn class: take MNIST digits, shuffle the labels randomly, and you can still fit a powerful model.\nHere we do a tiny version:\n\nMeaningful labels: 1 if true_f(x) &gt; 0, else 0\nRandom labels: coin-flip 0/1 with no meaning\n\nWe use a very flexible polynomial (degree 18).\nPoint: fitting the training points does not mean the labels make sense.\n\nrng = np.random.default_rng(1)\n\nx = np.linspace(0, 1, 20)\ny_meaningful = (true_f(x) &gt; 0).astype(float)          # structured 0/1 labels\ny_random = rng.integers(0, 2, size=len(x)).astype(float)  # nonsense labels\n\nprint(\"Meaningful labels:\", y_meaningful)\nprint(\"Random labels:    \", y_random)\n\n\ny_hat_meaningful = fit_and_predict(x, y_meaningful, x_grid, degree=18)\ny_hat_random = fit_and_predict(x, y_random, x_grid, degree=18)\n\nfig, axes = plt.subplots(1, 2, figsize=(10, 3.5), sharey=True)\n\naxes[0].scatter(x, y_meaningful, c=\"C0\", label=\"meaningful labels\")\naxes[0].plot(x_grid, y_hat_meaningful, c=\"C0\")\naxes[0].set_title(\"Fit meaningful labels\")\naxes[0].set_xlabel(\"x\")\naxes[0].legend(fontsize=8)\n\naxes[1].scatter(x, y_random, c=\"C1\", label=\"random labels\")\naxes[1].plot(x_grid, y_hat_random, c=\"C1\")\naxes[1].set_title(\"Fit random labels (still possible!)\")\naxes[1].set_xlabel(\"x\")\naxes[1].legend(fontsize=8)\n\nfor ax in axes:\n    ax.set_ylim(-0.2, 1.2)\n\nfig.suptitle(\"Flexible models can memorize nonsense\")\nfig.tight_layout()\nplt.show()\n\nThis is why the course moves to a probabilistic view later:\nwe need ideas beyond “draw a curve through the points” (generalization, uncertainty, distributions).\n\n\n\nIn lecture: a \\(P \\times Q\\) image → stack columns → one long vector in \\(\\mathbb{R}^{PQ}\\).\nWe use a tiny fake “image” (4 rows × 5 columns) so you can see every number.\n\nP, Q = 4, 5\nimg = np.arange(P * Q).reshape(P, Q)  # numbers 0..19 arranged as a grid\n\nprint(\"Image shape (rows, cols):\", img.shape)\nprint(\"Image (matrix):\")\nprint(img)\n\n\n# order=\"F\" means Fortran-order = stack COLUMN by column (as in lecture)\nvec = img.reshape(-1, order=\"F\")\n\nprint(\"As a vector in R^{}:\".format(P * Q))\nprint(vec)\nprint(\"Vector length:\", vec.shape[0])\n\nplt.figure(figsize=(3, 3))\nplt.imshow(img, cmap=\"viridis\")\nplt.title(\"Tiny fake image\")\nplt.colorbar()\nplt.show()\n\nA real X-ray is the same idea with a much bigger \\(P\\) and \\(Q\\)\n(for example \\(512 \\times 512\\) → a vector of length \\(262\\,144\\)).\nThen ML learns a function:\n\\[\nf : \\mathbb{R}^{d} \\rightarrow \\{0,1\\}\n\\]\n(image vector → diseased / not diseased).\n\n\n\nChange numbers and re-run. There is no single “correct” answer — watch what happens.\n\n# Exercise A: more noise → harder to see the true curve\nx2, y2 = make_dataset(n=15, noise=0.4, seed=0)  # try noise=0.05 vs 0.4\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f\")\nplt.scatter(x2, y2, c=\"red\", label=\"noisier data\")\nplt.legend()\nplt.title(\"Exercise A: change the noise\")\nplt.show()\n\n\n# Exercise B: change the degree yourself\nmy_degree = 5  # try 0, 2, 8, 14 ...\n\ny_hat = fit_and_predict(x_train, y_train, x_grid, degree=my_degree)\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f\")\nplt.plot(x_grid, y_hat, label=f\"degree {my_degree}\")\nplt.scatter(x_train, y_train, c=\"red\", label=\"data D\", zorder=3)\nplt.legend()\nplt.title(\"Exercise B: pick your own model family\")\nplt.show()\n\n\n\n\n\n\n\nLecture phrase\nWhat we did\n\n\n\n\nDataset \\(\\mathcal{D}\\)\nred points (x_train, y_train)\n\n\nUnknown \\(f\\)\ntrue_f (sine)\n\n\nInitial guess / model family\npolynomial degree\n\n\nRefine using data\nnp.polyfit\n\n\nOverfitting\nvery high degree chasing noise\n\n\nRandom labels\nflexible model fits nonsense\n\n\nImage as vector\nreshape matrix → long list of numbers\n\n\nWhy probability next?\nfitting alone is not enough\n\n\n\nNext lectures: probability theory — sample space, random variables, distributions.\nWhen you finish, send the Lecture 2 link and we will make the next notes + notebook.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-0-install-import-tools",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-0-install-import-tools",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "We need two libraries:\n\n\n\nLibrary\nJob\n\n\n\n\nnumpy\nWork with numbers and arrays (lists of numbers)\n\n\nmatplotlib\nDraw plots\n\n\n\nIf the next cell fails with ModuleNotFoundError, run this once in a cell:\n%pip install numpy matplotlib\nThen run the import cell again.\n\nimport numpy as np\nimport matplotlib.pyplot as plt\n\nprint(\"Imports OK. numpy version:\", np.__version__)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-1-remember-the-lecture-idea",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-1-remember-the-lecture-idea",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "In class we said:\n\nWe have pairs (x, y). We assume there is an unknown function f such that y ≈ f(x).\nGoal: estimate f from data.\n\nIn this notebook we will pretend the true function is a sine wave:\n\\[\nf(x) = \\sin(2\\pi x)\n\\]\nIn real ML we do not know f. Here we keep it secret from the “learner”, but we plot it as a dashed line so you can see the truth.\n\ndef true_f(x):\n    \"\"\"The unknown reality. In real problems we do NOT know this.\"\"\"\n    return np.sin(2 * np.pi * x)\n\n# Try it on a few numbers\nprint(\"f(0.0) =\", true_f(0.0))\nprint(\"f(0.25) =\", true_f(0.25))  # should be about 1\nprint(\"f(0.5) =\", true_f(0.5))    # should be about 0",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-2-create-the-dataset-d",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-2-create-the-dataset-d",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture notation:\n\\[\n\\mathcal{D} = \\{(x_1,y_1),\\ldots,(x_n,y_n)\\}\n\\]\nWe will: 1. Pick random x values between 0 and 1 2. Compute y = true_f(x) 3. Add a little noise (real measurements are never perfect)\nNew words - seed: makes “random” numbers repeatable (same result every run) - noise: small random error added to y\n\ndef make_dataset(n=15, noise=0.15, seed=0):\n    \"\"\"Make n noisy observations from true_f.\"\"\"\n    rng = np.random.default_rng(seed)          # random number generator\n    x = np.sort(rng.uniform(0, 1, size=n))      # n random x in [0,1], sorted\n    y = true_f(x) + rng.normal(0, noise, size=n)  # true value + noise\n    return x, y\n\nx_train, y_train = make_dataset()\n\nprint(\"Number of points:\", len(x_train))\nprint(\"First 5 x values:\", x_train[:5])\nprint(\"First 5 y values:\", y_train[:5])\n\n\n\n\nRed dots = what we observed (D)\nBlack dashed curve = true f (unknown in real life)\n\nNotice: the dots are near the curve, but not exactly on it, because of noise.\n\nx_grid = np.linspace(0, 1, 400)  # many x values for a smooth curve\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f (unknown in real ML)\")\nplt.scatter(x_train, y_train, c=\"red\", label=\"data D\", zorder=3)\nplt.xlabel(\"x\")\nplt.ylabel(\"y\")\nplt.title(\"Observations vs the unknown function\")\nplt.legend()\nplt.show()",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-3-initial-guess-refine-the-lecture-philosophy",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-3-initial-guess-refine-the-lecture-philosophy",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "From class:\n\nStart with a guess for f (choose a model family)\nRefine using data D\n\nOur simple guess family: polynomials\n\n\n\nDegree\nExample shape\n\n\n\n\n1\nstraight line: \\(a + bx\\)\n\n\n2\nparabola: \\(a + bx + cx^2\\)\n\n\n3\ncubic: \\(a + bx + cx^2 + dx^3\\)\n\n\nhigh\ncan wiggle a lot\n\n\n\nnp.polyfit = refine the guess (find best coefficients for that degree)\nnp.polyval = use the fitted polynomial to predict y at new x\n\ndef fit_and_predict(x_train, y_train, x_query, degree):\n    \"\"\"\n    Guess family: polynomials of this degree.\n    Refine: least squares fit to the data.\n    \"\"\"\n    coeffs = np.polyfit(x_train, y_train, degree)  # learn coefficients from D\n    y_hat = np.polyval(coeffs, x_query)            # predict on new x\n    return y_hat\n\n# Quick test: fit a line (degree 1) and predict at x=0.5\ny_at_half = fit_and_predict(x_train, y_train, 0.5, degree=1)\nprint(\"Degree-1 model prediction at x=0.5:\", float(y_at_half))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-4-compare-three-guesses-underfit-ok-overfit",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-4-compare-three-guesses-underfit-ok-overfit",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "We try three model families on the same data:\n\n\n\nDegree\nWhat usually happens\n\n\n\n\n1\nToo simple → underfitting (misses the curve)\n\n\n3\nOften a reasonable compromise\n\n\n12\nToo flexible → overfitting (chases noise, wild wiggles)\n\n\n\nOverfitting matches what the lecture said: defining the function only to match observed points does not help on new x.\n\ndegrees = [1, 3, 12]\n\nfig, axes = plt.subplots(1, 3, figsize=(12, 3.5), sharey=True)\n\nfor ax, deg in zip(axes, degrees):\n    y_hat = fit_and_predict(x_train, y_train, x_grid, degree=deg)\n\n    ax.plot(x_grid, true_f(x_grid), \"k--\", lw=1.5, label=\"true f\")\n    ax.plot(x_grid, y_hat, lw=2, label=f\"degree {deg}\")\n    ax.scatter(x_train, y_train, c=\"red\", zorder=3, label=\"data D\")\n    ax.set_title(f\"Guess family: poly degree {deg}\")\n    ax.set_xlabel(\"x\")\n    ax.legend(fontsize=8)\n\naxes[0].set_ylabel(\"y\")\nfig.suptitle(\"Same data D — different initial guesses (model families)\")\nfig.tight_layout()\nplt.show()\n\n\n\n\nLeft plot: line cannot bend with the sine wave → bad guess family.\nMiddle: closer to truth → useful model (still “wrong”, but useful).\nRight: passes near every red point, but oscillates → memorizing noise.\n\nLecture proverb: All models are wrong, but some are useful.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-5-random-labels-thought-experiment",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-5-random-labels-thought-experiment",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "In class: take MNIST digits, shuffle the labels randomly, and you can still fit a powerful model.\nHere we do a tiny version:\n\nMeaningful labels: 1 if true_f(x) &gt; 0, else 0\nRandom labels: coin-flip 0/1 with no meaning\n\nWe use a very flexible polynomial (degree 18).\nPoint: fitting the training points does not mean the labels make sense.\n\nrng = np.random.default_rng(1)\n\nx = np.linspace(0, 1, 20)\ny_meaningful = (true_f(x) &gt; 0).astype(float)          # structured 0/1 labels\ny_random = rng.integers(0, 2, size=len(x)).astype(float)  # nonsense labels\n\nprint(\"Meaningful labels:\", y_meaningful)\nprint(\"Random labels:    \", y_random)\n\n\ny_hat_meaningful = fit_and_predict(x, y_meaningful, x_grid, degree=18)\ny_hat_random = fit_and_predict(x, y_random, x_grid, degree=18)\n\nfig, axes = plt.subplots(1, 2, figsize=(10, 3.5), sharey=True)\n\naxes[0].scatter(x, y_meaningful, c=\"C0\", label=\"meaningful labels\")\naxes[0].plot(x_grid, y_hat_meaningful, c=\"C0\")\naxes[0].set_title(\"Fit meaningful labels\")\naxes[0].set_xlabel(\"x\")\naxes[0].legend(fontsize=8)\n\naxes[1].scatter(x, y_random, c=\"C1\", label=\"random labels\")\naxes[1].plot(x_grid, y_hat_random, c=\"C1\")\naxes[1].set_title(\"Fit random labels (still possible!)\")\naxes[1].set_xlabel(\"x\")\naxes[1].legend(fontsize=8)\n\nfor ax in axes:\n    ax.set_ylim(-0.2, 1.2)\n\nfig.suptitle(\"Flexible models can memorize nonsense\")\nfig.tight_layout()\nplt.show()\n\nThis is why the course moves to a probabilistic view later:\nwe need ideas beyond “draw a curve through the points” (generalization, uncertainty, distributions).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-6-an-image-is-just-a-vector-x-ray-idea",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-6-an-image-is-just-a-vector-x-ray-idea",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "In lecture: a \\(P \\times Q\\) image → stack columns → one long vector in \\(\\mathbb{R}^{PQ}\\).\nWe use a tiny fake “image” (4 rows × 5 columns) so you can see every number.\n\nP, Q = 4, 5\nimg = np.arange(P * Q).reshape(P, Q)  # numbers 0..19 arranged as a grid\n\nprint(\"Image shape (rows, cols):\", img.shape)\nprint(\"Image (matrix):\")\nprint(img)\n\n\n# order=\"F\" means Fortran-order = stack COLUMN by column (as in lecture)\nvec = img.reshape(-1, order=\"F\")\n\nprint(\"As a vector in R^{}:\".format(P * Q))\nprint(vec)\nprint(\"Vector length:\", vec.shape[0])\n\nplt.figure(figsize=(3, 3))\nplt.imshow(img, cmap=\"viridis\")\nplt.title(\"Tiny fake image\")\nplt.colorbar()\nplt.show()\n\nA real X-ray is the same idea with a much bigger \\(P\\) and \\(Q\\)\n(for example \\(512 \\times 512\\) → a vector of length \\(262\\,144\\)).\nThen ML learns a function:\n\\[\nf : \\mathbb{R}^{d} \\rightarrow \\{0,1\\}\n\\]\n(image vector → diseased / not diseased).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-7-mini-exercises-try-yourself",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#step-7-mini-exercises-try-yourself",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "Change numbers and re-run. There is no single “correct” answer — watch what happens.\n\n# Exercise A: more noise → harder to see the true curve\nx2, y2 = make_dataset(n=15, noise=0.4, seed=0)  # try noise=0.05 vs 0.4\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f\")\nplt.scatter(x2, y2, c=\"red\", label=\"noisier data\")\nplt.legend()\nplt.title(\"Exercise A: change the noise\")\nplt.show()\n\n\n# Exercise B: change the degree yourself\nmy_degree = 5  # try 0, 2, 8, 14 ...\n\ny_hat = fit_and_predict(x_train, y_train, x_grid, degree=my_degree)\n\nplt.figure(figsize=(7, 4))\nplt.plot(x_grid, true_f(x_grid), \"k--\", label=\"true f\")\nplt.plot(x_grid, y_hat, label=f\"degree {my_degree}\")\nplt.scatter(x_train, y_train, c=\"red\", label=\"data D\", zorder=3)\nplt.legend()\nplt.title(\"Exercise B: pick your own model family\")\nplt.show()",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#recap-map-back-to-the-lecture",
+    "href": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html#recap-map-back-to-the-lecture",
+    "title": "Lecture 1 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture phrase\nWhat we did\n\n\n\n\nDataset \\(\\mathcal{D}\\)\nred points (x_train, y_train)\n\n\nUnknown \\(f\\)\ntrue_f (sine)\n\n\nInitial guess / model family\npolynomial degree\n\n\nRefine using data\nnp.polyfit\n\n\nOverfitting\nvery high degree chasing noise\n\n\nRandom labels\nflexible model fits nonsense\n\n\nImage as vector\nreshape matrix → long list of numbers\n\n\nWhy probability next?\nfitting alone is not enough\n\n\n\nNext lectures: probability theory — sample space, random variables, distributions.\nWhen you finish, send the Lecture 2 link and we will make the next notes + notebook.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "Based on Lec 03.\n\n\nSample space can be abstract (H / T).\nA random variable is a function that turns those outcomes into numbers.\nRun cells with Shift+Enter.\n\n\n\n\nimport numpy as np\n\nprint('Ready')\n\n\n\n\n\nOmega = sample space\n\nEvents = subsets\n\nP = probability measure\n\nExample: fair coin, Omega = {H, T}.\n\nOmega = {\"H\", \"T\"}\n\ndef P(event):\n    event = set(event)\n    return sum(0.5 for o in event if o in Omega)\n\nprint(\"Omega =\", Omega)\nprint(\"P({H}) =\", P({\"H\"}))\n\n\n\n\nWe cannot do much arithmetic with the labels H and T.\nDefine a map X: Omega -&gt; real numbers, for example:\n\nX(H) = 1\n\nX(T) = 0\n\nThat map is the random variable (a deterministic function!).\n\ndef X(omega):\n    \"\"\"Random variable: abstract outcome -&gt; number.\"\"\"\n    return 1 if omega == \"H\" else 0\n\nfor outcome in sorted(Omega):\n    print(f\"X({outcome}) = {X(outcome)}\")\n\n\n\n\nWhen we “observe” many coin tosses, we store numbers (0/1), not the letters.\nThose numbers are elements of the range of X.\n\nrng = np.random.default_rng(0)\n# simulate abstract outcomes, then map through X\nabstract = rng.choice([\"H\", \"T\"], size=10)\ndata = np.array([X(o) for o in abstract])\n\nprint(\"Abstract outcomes:\", abstract)\nprint(\"Observed data (range of X):\", data)\nprint(\"Mean of data ≈ P(H) for fair coin:\", data.mean())\n\n\n\n\nFor images, X maps Omega -&gt; R^d (a long vector of pixels).\nTiny demo: pretend each outcome maps to a 2-D “feature vector”.\n\ndef X_vec(omega):\n    # toy features: [is_heads, bias_term]\n    return np.array([1.0, 1.0]) if omega == \"H\" else np.array([0.0, 1.0])\n\nprint(\"X_vec(H) =\", X_vec(\"H\"))\nprint(\"X_vec(T) =\", X_vec(\"T\"))\nprint(\"shape:\", X_vec(\"H\").shape)  # like a mini R^2 datapoint\n\n\n\n\n\n# Exercise A: redefine X so X(H)=+1 and X(T)=-1 (common coding).\n# Compute the average of 5000 simulated values. What do you expect for a fair coin?\n\ndef X_pm(omega):\n    return 1 if omega == \"H\" else -1\n\nsim = rng.choice([\"H\", \"T\"], size=5000)\nvals = np.array([X_pm(o) for o in sim])\nprint(\"sample mean:\", vals.mean())  # expect near 0\n\n\n# Exercise B: die Omega = {1,...,6}, X(omega)=omega (identity).\n# This is already numeric — but still formally a random variable Omega -&gt; R.\n\nOmega_die = {1, 2, 3, 4, 5, 6}\n\ndef X_die(omega):\n    return float(omega)\n\nprint([X_die(o) for o in sorted(Omega_die)])\n\n\n\n\n\n\n\nLecture idea\nHere\n\n\n\n\nProbability triplet\nOmega, events, P\n\n\nNeed numbers\ncannot stop at H/T labels\n\n\nRandom variable\nfunction X: Omega -&gt; R or R^d\n\n\nDatapoint\nvalue in the range of X\n\n\n\nNext lectures: pushforward measure / distribution of X (what happens to P).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-0-imports",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-0-imports",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "import numpy as np\n\nprint('Ready')",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-1-probability-triplet-quick-recall",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-1-probability-triplet-quick-recall",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "Omega = sample space\n\nEvents = subsets\n\nP = probability measure\n\nExample: fair coin, Omega = {H, T}.\n\nOmega = {\"H\", \"T\"}\n\ndef P(event):\n    event = set(event)\n    return sum(0.5 for o in event if o in Omega)\n\nprint(\"Omega =\", Omega)\nprint(\"P({H}) =\", P({\"H\"}))",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-2-why-we-need-a-random-variable",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-2-why-we-need-a-random-variable",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "We cannot do much arithmetic with the labels H and T.\nDefine a map X: Omega -&gt; real numbers, for example:\n\nX(H) = 1\n\nX(T) = 0\n\nThat map is the random variable (a deterministic function!).\n\ndef X(omega):\n    \"\"\"Random variable: abstract outcome -&gt; number.\"\"\"\n    return 1 if omega == \"H\" else 0\n\nfor outcome in sorted(Omega):\n    print(f\"X({outcome}) = {X(outcome)}\")",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-3-data-values-in-the-range-of-x",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-3-data-values-in-the-range-of-x",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "When we “observe” many coin tosses, we store numbers (0/1), not the letters.\nThose numbers are elements of the range of X.\n\nrng = np.random.default_rng(0)\n# simulate abstract outcomes, then map through X\nabstract = rng.choice([\"H\", \"T\"], size=10)\ndata = np.array([X(o) for o in abstract])\n\nprint(\"Abstract outcomes:\", abstract)\nprint(\"Observed data (range of X):\", data)\nprint(\"Mean of data ≈ P(H) for fair coin:\", data.mean())",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-4-vector-valued-random-variable-ml-flavor",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-4-vector-valued-random-variable-ml-flavor",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "For images, X maps Omega -&gt; R^d (a long vector of pixels).\nTiny demo: pretend each outcome maps to a 2-D “feature vector”.\n\ndef X_vec(omega):\n    # toy features: [is_heads, bias_term]\n    return np.array([1.0, 1.0]) if omega == \"H\" else np.array([0.0, 1.0])\n\nprint(\"X_vec(H) =\", X_vec(\"H\"))\nprint(\"X_vec(T) =\", X_vec(\"T\"))\nprint(\"shape:\", X_vec(\"H\").shape)  # like a mini R^2 datapoint",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-5-mini-exercises",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#step-5-mini-exercises",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "# Exercise A: redefine X so X(H)=+1 and X(T)=-1 (common coding).\n# Compute the average of 5000 simulated values. What do you expect for a fair coin?\n\ndef X_pm(omega):\n    return 1 if omega == \"H\" else -1\n\nsim = rng.choice([\"H\", \"T\"], size=5000)\nvals = np.array([X_pm(o) for o in sim])\nprint(\"sample mean:\", vals.mean())  # expect near 0\n\n\n# Exercise B: die Omega = {1,...,6}, X(omega)=omega (identity).\n# This is already numeric — but still formally a random variable Omega -&gt; R.\n\nOmega_die = {1, 2, 3, 4, 5, 6}\n\ndef X_die(omega):\n    return float(omega)\n\nprint([X_die(o) for o in sorted(Omega_die)])",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  },
+  {
+    "objectID": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#recap",
+    "href": "courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html#recap",
+    "title": "Lecture 3 — Beginner tutorial",
+    "section": "",
+    "text": "Lecture idea\nHere\n\n\n\n\nProbability triplet\nOmega, events, P\n\n\nNeed numbers\ncannot stop at H/T labels\n\n\nRandom variable\nfunction X: Omega -&gt; R or R^d\n\n\nDatapoint\nvalue in the range of X\n\n\n\nNext lectures: pushforward measure / distribution of X (what happens to P).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Beginner tutorial"
+    ]
+  }
+]
