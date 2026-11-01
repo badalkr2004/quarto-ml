@@ -1,0 +1,18 @@
+---
+title: "Lecture 4 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Create the class, then `new OrderService(new SlackNotificationService())` in `main`.
+2. Depending on `EmailService` couples you to one channel; depending on `NotificationService` lets any implementation be substituted (email, SMS, stub, …).
+3. **Constructor** — required deps are non-null after construction; object can be immutable (`final` fields); always fully wired when used.
+4. Stage 1: `OrderService` creates `EmailService`. Stage 3: `main` (external assembler) creates it and injects it.
+
+## Self-check
+
+1. **No.** DI is a general design technique. Spring *automates* it.
+2. Control of **creating / wiring dependencies** moves out of the dependent class to an external assembler / container.
+3. Plain Java has no container reading annotations to set private fields after construction. Field injection becomes practical when a framework (Spring) processes those annotations.

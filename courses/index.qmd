@@ -14,6 +14,13 @@ Lecture series tracked on this site. Each course is independent — add another 
 - **Platform:** NPTEL
 - **Focus:** Probability-first mathematical foundations of classical ML and deep learning
 
+### [Spring Boot Full Course](springboot/index.qmd)
+
+- **ID:** `springboot`
+- **Instructor:** Aditya Tandon (Coder Army)
+- **Platform:** YouTube playlist
+- **Focus:** Practice-first Spring Boot / Spring Framework notes — type code in your editor lecture by lecture
+
 ## Planned / next
 
-When you start the next series (e.g. Mathematical Foundations of Generative AI), create `courses/<id>/` and register it in `_quarto.yml`. Step-by-step: [Add a course](../docs/adding-a-course.qmd).
+When you start another series, create `courses/<id>/` and register it in `_quarto.yml`. Step-by-step: [Add a course](../docs/adding-a-course.qmd).

@@ -4,13 +4,14 @@ subtitle: "Notes, tutorials, and references across lecture series"
 toc: false
 ---
 
-Personal learning space for **machine learning** and **deep learning** — starting with NPTEL courses, extensible to any future series.
+Personal learning space for lecture notes and **practice-first** tutorials — ML foundations plus hands-on engineering series. Extensible: add any new course without restructuring the site.
 
 ## Courses
 
 | Course | Instructor | Status |
 |--------|------------|--------|
 | [Mathematical Foundations of ML](courses/mfml/index.qmd) | Prof. Prathosh A.P. (IISc / NPTEL) | In progress |
+| [Spring Boot Full Course](courses/springboot/index.qmd) | Aditya Tandon (Coder Army) | Lectures 01–05 |
 | *Next series…* | — | Add via [Add a course](docs/adding-a-course.qmd) |
 
 ## How this site is organized
@@ -20,14 +21,16 @@ courses/
   mfml/                 ← one folder per lecture series
     lectures/01-.../
     references.qmd
+  springboot/           ← Spring Boot practice notes
   SERIES_ID/            ← copy template when you start a new series
 references/             ← shared reading list across courses
 ```
 
-Each series has its **own sidebar**. The top **Courses** menu lists every series. When you begin a new NPTEL (or other) series, follow [Add a course](docs/adding-a-course.qmd).
+Each series has its **own sidebar**. The top **Courses** menu lists every series. To add another, follow [Add a course](docs/adding-a-course.qmd).
 
 ## Quick links
 
 - [All courses](courses/index.qmd)
 - [Shared references](references/index.qmd)
-- Current lecture: [MFML Lec 01 — Function Approximation](courses/mfml/lectures/01-overview-of-function-approximation/notes.qmd)
+- [MFML Lec 01 — Function Approximation](courses/mfml/lectures/01-overview-of-function-approximation/notes.qmd)
+- [Spring Boot Lec 04 — DI & IoC (practice)](courses/springboot/lectures/04-dependency-injection-ioc/notes.qmd)

@@ -1,0 +1,29 @@
+---
+title: "Spring Boot — References"
+sidebar: springboot
+---
+
+Course-specific links. Shared site references: [References](../../references/index.qmd).
+
+## Official docs
+
+- [Spring Framework — Core / IoC container](https://docs.spring.io/spring-framework/reference/core.html)
+- [Spring Boot reference](https://docs.spring.io/spring-boot/reference/index.html)
+- [Spring Initializr](https://start.spring.io/)
+- [Maven — Getting Started](https://maven.apache.org/guides/getting-started/)
+- [Maven Central Repository](https://central.sonatype.com/)
+
+## Playlist & instructor
+
+- [Spring Boot Full Course playlist](https://www.youtube.com/playlist?list=PLEYgx5hMdopw) (Coder Army)
+- Instructor: Aditya Tandon
+
+## Concepts to keep nearby
+
+| Concept | First covered in |
+|---------|------------------|
+| Client–server, HTTP, ports | Lecture 01–02 |
+| Embedded Tomcat, `@RestController` | Lecture 02 |
+| POM, GAV, lifecycle | Lecture 03 |
+| DI, IoC, loose coupling | Lecture 04 |
+| Beans, `@Component`, `@Bean`, `@Autowired` | Lecture 05 |

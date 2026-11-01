@@ -1,0 +1,47 @@
+---
+title: "Spring Boot Full Course"
+subtitle: "Coder Army · Aditya Tandon · Practice-first notes"
+sidebar: springboot
+toc: false
+---
+
+Unofficial **practice notes** for the [Spring Boot Full Course](https://www.youtube.com/playlist?list=PLEYgx5hMdopw) playlist.  
+These pages are written so anyone can **type code in their own editor**, one step at a time — not just rewatch the video.
+
+| | |
+|--|--|
+| **Series** | Spring Boot & Spring Framework (Full Course) |
+| **Instructor** | Aditya Tandon (Coder Army) |
+| **Playlist** | [YouTube — Spring Boot Full Course](https://www.youtube.com/playlist?list=PLEYgx5hMdopw) |
+| **How to use** | Watch a short section → pause → implement the practice steps here → only then continue |
+
+::: {.callout-tip}
+## Study pattern (recommended)
+
+1. Skim the **Goal** and **Concepts** on this site.
+2. Open your IDE (IntelliJ / VS Code / Eclipse).
+3. Follow **Practice** steps *without* copying whole projects blindly — type them.
+4. Attempt **Exercises** before opening self-check answers.
+5. Replay the video only when stuck on *why*, not on *what to type*.
+:::
+
+## Lectures
+
+| # | Topic | Materials |
+|---|--------|-----------|
+| 01 | [Spring Framework intro — client/server & why Spring](lectures/01-spring-framework-intro/notes.qmd) | [Self-check](lectures/01-spring-framework-intro/self-check-answers.qmd) |
+| 02 | [First Spring Boot app — REST Hello World](lectures/02-first-spring-boot-app/notes.qmd) | [Self-check](lectures/02-first-spring-boot-app/self-check-answers.qmd) |
+| 03 | [Apache Maven — POM, dependencies & lifecycle](lectures/03-apache-maven/notes.qmd) | [Self-check](lectures/03-apache-maven/self-check-answers.qmd) |
+| 04 | [Dependency Injection & IoC — loose coupling (plain Java)](lectures/04-dependency-injection-ioc/notes.qmd) | [Self-check](lectures/04-dependency-injection-ioc/self-check-answers.qmd) |
+| 05 | [Spring IoC container — beans, `@Component`, `@Autowired`, `@Bean`](lectures/05-spring-ioc-container/notes.qmd) | [Self-check](lectures/05-spring-ioc-container/self-check-answers.qmd) |
+| 06+ | *Add next playlist lectures the same way* | |
+
+## Prerequisites
+
+- Comfortable with Java basics (classes, interfaces, constructors, packages)
+- JDK 17+ installed (`java -version`)
+- An IDE (IntelliJ IDEA Community is what the series uses)
+
+## Course references
+
+See [Spring Boot references](references.qmd) for docs and related reading.

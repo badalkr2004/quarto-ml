@@ -1,6 +1,6 @@
 # Learn ML — Quarto notes site
 
-Extensible multi-course notes for machine learning / deep learning.
+Extensible multi-course notes (ML foundations + hands-on series such as Spring Boot).
 
 ## Preview locally
 
@@ -22,10 +22,12 @@ Free hosted static sites: [docs](https://quarto.org/docs/publishing/posit-connec
 3. Press **Y** when asked to authorize, approve in the browser  
 4. Your public URL is saved in `_publish.yml` after the first publish  
 
-## Current course
+## Current courses
 
 - **MFML** — Mathematical Foundations of Machine Learning (Prof. Prathosh A.P.)
   - Notes + beginner notebook under `courses/mfml/`
+- **Spring Boot** — Coder Army / Aditya Tandon practice notes
+  - Editor-first labs under `courses/springboot/` (lectures 01–05)
 
 ## Add the next lecture series
 

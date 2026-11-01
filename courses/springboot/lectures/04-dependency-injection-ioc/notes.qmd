@@ -1,0 +1,311 @@
+---
+title: "Lecture 4 — Dependency Injection & IoC"
+subtitle: "Loose coupling with plain Java (before Spring annotations)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Dependency Injection & IoC Explained \| Loose Coupling \| Full Course #4](https://www.youtube.com/watch?v=dT10m_5POfs)  
+**Playlist index:** 4
+
+---
+
+## Goal
+
+Implement the lecture’s **Order / Notification** example **yourself in plain Java** (no Spring yet).
+
+By the end you will have felt:
+
+1. **Tight coupling** pain (`new EmailService()` inside business code).
+2. **Programming to an interface**.
+3. **Dependency Injection** via constructor and setter.
+4. Why this is called **Inversion of Control** — and what Spring will automate next lecture.
+
+::: {.callout-important}
+## How to use this page
+
+Do **not** only watch. Create a simple Maven (or plain Java) project named e.g. `di-lab` and type each stage. Keep stages in git commits or separate packages (`stage1`, `stage2`, …) so you can compare.
+:::
+
+---
+
+## Concepts
+
+### Dependency
+
+If `OrderService` needs `EmailService` to finish `placeOrder()`, then **EmailService is a dependency** of OrderService.
+
+### Tight coupling (the problem)
+
+```text
+OrderService ──creates──► EmailService
+```
+
+Problems:
+
+- Cannot switch to SMS/Popup without editing `OrderService`
+- Hard to unit-test without sending real emails
+- `OrderService` does two jobs: business logic **and** object creation (SRP smell)
+
+### Loose coupling via interface
+
+```text
+OrderService ──depends on──► NotificationService (interface)
+                                      ▲
+                      EmailService / SmsService / …
+```
+
+Still incomplete if `OrderService` itself does `new EmailService()`.
+
+### Dependency Injection (DI)
+
+**Someone outside** creates the dependency and **passes it in** (constructor or setter).  
+`OrderService` only *uses* `NotificationService`; it does not *create* it.
+
+### Inversion of Control (IoC)
+
+Control of **creating and wiring objects** moves from the class to an external assembler (`main` today, **Spring container** tomorrow).
+
+Rough relationship used in the lecture:
+
+| Term | Role |
+|------|------|
+| IoC | The broader idea — control of wiring is inverted |
+| DI | A practical technique to achieve IoC |
+| Spring IoC container | Automates creation, wiring, lifecycle of **beans** |
+
+### Injection styles (this lecture)
+
+| Style | Idea |
+|-------|------|
+| **Constructor injection** | Pass dependency in constructor (preferred for required deps) |
+| **Setter injection** | `setX(...)` after construction |
+| **Field injection** | Annotate fields — meaningful with Spring; deferred |
+
+---
+
+## Practice lab — type this in your editor
+
+Create packages under `src/main/java`, e.g. `com.example.dilab`.
+
+### Stage 1 — tight coupling (baseline)
+
+**`EmailService.java`**
+
+```java
+package com.example.dilab;
+
+public class EmailService {
+    public void sendNotification() {
+        System.out.println("Email sent");
+    }
+}
+```
+
+**`OrderService.java`** (tightly coupled)
+
+```java
+package com.example.dilab;
+
+public class OrderService {
+    public void placeOrder() {
+        EmailService notification = new EmailService(); // problem
+        notification.sendNotification();
+        System.out.println("Order placed");
+    }
+}
+```
+
+**`Main.java`**
+
+```java
+package com.example.dilab;
+
+public class Main {
+    public static void main(String[] args) {
+        OrderService orderService = new OrderService();
+        orderService.placeOrder();
+    }
+}
+```
+
+Run it. Then ask: *What must I edit to notify via SMS instead?*
+
+---
+
+### Stage 2 — introduce the interface (still creating inside)
+
+**`NotificationService.java`**
+
+```java
+package com.example.dilab;
+
+public interface NotificationService {
+    void sendNotification();
+}
+```
+
+**Implementations**
+
+```java
+package com.example.dilab;
+
+public class EmailService implements NotificationService {
+    @Override
+    public void sendNotification() {
+        System.out.println("Email sent");
+    }
+}
+```
+
+```java
+package com.example.dilab;
+
+public class SmsService implements NotificationService {
+    @Override
+    public void sendNotification() {
+        System.out.println("SMS sent");
+    }
+}
+```
+
+```java
+package com.example.dilab;
+
+public class PopUpNotificationService implements NotificationService {
+    @Override
+    public void sendNotification() {
+        System.out.println("Popup shown");
+    }
+}
+```
+
+Update `OrderService` to use the **interface type**, but still `new` a concrete class inside — notice the design is only half-fixed.
+
+```java
+public class OrderService {
+    private NotificationService notification = new EmailService(); // still creates
+
+    public void placeOrder() {
+        notification.sendNotification();
+        System.out.println("Order placed");
+    }
+}
+```
+
+---
+
+### Stage 3 — constructor injection (DI)
+
+```java
+package com.example.dilab;
+
+public class OrderService {
+    private final NotificationService notification;
+
+    public OrderService(NotificationService notification) {
+        this.notification = notification;
+    }
+
+    public void placeOrder() {
+        notification.sendNotification();
+        System.out.println("Order placed");
+    }
+}
+```
+
+**`Main` becomes the assembler:**
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        NotificationService notification = new EmailService();
+        // try: new SmsService(); new PopUpNotificationService();
+        OrderService orderService = new OrderService(notification);
+        orderService.placeOrder();
+    }
+}
+```
+
+Swap implementations in `main` only — **do not change** `OrderService`.
+
+---
+
+### Stage 4 — setter injection
+
+```java
+package com.example.dilab;
+
+public class OrderService {
+    private NotificationService notification;
+
+    public OrderService() {}
+
+    public void setNotification(NotificationService notification) {
+        this.notification = notification;
+    }
+
+    public void placeOrder() {
+        if (notification == null) {
+            throw new IllegalStateException("NotificationService not injected");
+        }
+        notification.sendNotification();
+        System.out.println("Order placed");
+    }
+}
+```
+
+```java
+OrderService orderService = new OrderService();
+orderService.setNotification(new SmsService());
+orderService.placeOrder();
+```
+
+---
+
+### Stage 5 — testability win (dummy / stub)
+
+```java
+package com.example.dilab;
+
+public class DummyNotificationService implements NotificationService {
+    @Override
+    public void sendNotification() {
+        System.out.println("Dummy notification (test double)");
+    }
+}
+```
+
+In tests (or a second `main` path), inject `DummyNotificationService` so order logic can be verified **without** real email/SMS.
+
+---
+
+## What Spring will replace next
+
+Today `main` is the IoC “container”:
+
+1. Create objects
+2. Wire dependencies
+3. Call business methods
+
+**Lecture 5:** Spring’s IoC container does (1) and (2). Your code declares *what* depends on *what*; the container builds the graph.
+
+---
+
+## Exercises
+
+1. Add `SlackNotificationService implements NotificationService` and inject it via constructor — without editing `OrderService`’s `placeOrder` body.
+2. Write one paragraph: difference between depending on `EmailService` vs `NotificationService`.
+3. Prefer constructor or setter for a **required** dependency? Why?
+4. Draw the control-flow arrow: who creates `EmailService` in Stage 1 vs Stage 3?
+
+---
+
+## Self-check
+
+1. Is Dependency Injection a Spring-only feature?
+2. What is inverted in “Inversion of Control” in this lecture’s sense?
+3. Why does field injection not show up cleanly in plain Java the same way?
+
+Answers: [self-check-answers](self-check-answers.qmd)

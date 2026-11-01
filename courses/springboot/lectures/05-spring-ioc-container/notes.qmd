@@ -1,0 +1,336 @@
+---
+title: "Lecture 5 — Spring IoC container"
+subtitle: "Beans, @Component, @Autowired, @Bean, @Configuration"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring IOC Container \| Beans, @Component, @Autowired & @Bean \| Full Course #5](https://www.youtube.com/watch?v=Az9tIgCdaRU)  
+**Playlist index:** 5
+
+---
+
+## Goal
+
+Take the **manual DI** idea from lecture 4 and let **Spring** create and wire objects.
+
+You will practice two registration styles:
+
+1. **Stereotype + component scan** — `@Component` (and friends)
+2. **Java config** — `@Configuration` + `@Bean`
+
+And you will inject collaborators with constructor injection (`@Autowired` when needed).
+
+::: {.callout-tip}
+## Project setup for this lab
+
+Create a **small Spring project** (not full Boot web app required):
+
+- Initializr: Maven, Java 21, dependency **Spring Boot** is fine even with no Web — or add only what you need
+- Or a plain Spring Core app with `spring-context` on the classpath
+
+Package example: `com.example.ioclab`
+
+If you use Spring Boot, `@SpringBootApplication` already includes component scanning from its package downward. For a pure Spring demo, you will use `AnnotationConfigApplicationContext` as shown below.
+:::
+
+---
+
+## Concepts
+
+### Bean
+
+A **bean** is an object **created and managed by the Spring IoC container**.
+
+Not every Java object is a bean — only the ones the container knows about.
+
+### What the container does (replaces `main` wiring)
+
+```text
+You declare types + relationships
+            │
+            v
+   Spring IoC container
+     • instantiate beans
+     • inject dependencies
+     • manage lifecycle
+            │
+            v
+   Your code calls business methods
+```
+
+### Two ways to tell Spring about beans
+
+| Approach | How you mark types | Typical use |
+|----------|--------------------|-------------|
+| Component scanning | `@Component` / `@Service` / `@Repository` / `@Controller` | Your own app classes |
+| `@Bean` methods | Methods inside `@Configuration` | Third-party types, explicit factory setup |
+
+`@Service`, `@Repository`, `@Controller` are specializations of `@Component` (same scanning idea; clearer intent).
+
+### `@Autowired`
+
+Asks Spring: “find a bean that matches this dependency and inject it.”
+
+- Match is usually **by type**
+- On a **single constructor**, Spring Boot / modern Spring can inject **without** writing `@Autowired`
+- If **multiple** constructors exist, mark the one Spring should use
+- If **multiple beans** of the same type exist, resolve with `@Primary` / `@Qualifier` (see exercises)
+
+### Component scan
+
+Spring looks in configured packages for stereotype annotations.  
+Boot: scanning starts from the package of the `@SpringBootApplication` class — **keep your components in that package or subpackages**.
+
+---
+
+## Practice A — manual DI reminder (Payment / Order)
+
+Before Spring, the lecture rebuilds the idea with **payment before order**:
+
+```java
+package com.example.ioclab;
+
+public class PaymentService {
+    public void pay() {
+        System.out.println("Payment done");
+    }
+}
+```
+
+```java
+package com.example.ioclab;
+
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+```java
+// main still does IoC by hand
+PaymentService paymentService = new PaymentService();
+OrderService orderService = new OrderService(paymentService);
+orderService.placeOrder();
+```
+
+**Checkpoint:** output should be:
+
+```text
+Payment done
+Order placed
+```
+
+---
+
+## Practice B — let Spring manage beans (`@Component`)
+
+### Step 1 — mark classes as components
+
+```java
+package com.example.ioclab;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class PaymentService {
+    public void pay() {
+        System.out.println("Payment done");
+    }
+}
+```
+
+```java
+package com.example.ioclab;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    // single constructor → Spring can autowire without @Autowired
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+### Step 2 — configuration / scan entry
+
+**Option 1 — Spring Boot (simplest if you generated a Boot app)**
+
+Keep `PaymentService` / `OrderService` under the same base package as:
+
+```java
+@SpringBootApplication
+public class IocLabApplication {
+    public static void main(String[] args) {
+        var context = SpringApplication.run(IocLabApplication.class, args);
+        OrderService orderService = context.getBean(OrderService.class);
+        orderService.placeOrder();
+    }
+}
+```
+
+**Option 2 — plain Spring context**
+
+```java
+package com.example.ioclab;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan("com.example.ioclab")
+public class AppConfig {
+}
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        var context = new AnnotationConfigApplicationContext(AppConfig.class);
+        OrderService orderService = context.getBean(OrderService.class);
+        orderService.placeOrder();
+        context.close();
+    }
+}
+```
+
+### Step 3 — verify
+
+Run. Same output as Practice A — but **you did not `new` the services in main**. Spring did.
+
+### Step 4 — see what breaks (learning)
+
+Temporarily **remove** `@Component` from `PaymentService`, restart:
+
+- Expect a failure creating `OrderService` (unsatisfied dependency).
+- Put `@Component` back.
+
+This error is your friend — it proves the container is doing the wiring.
+
+---
+
+## Practice C — `@Bean` + `@Configuration`
+
+Use this when you cannot (or should not) annotate a class with `@Component` — e.g. a library class — or when you want explicit factory code.
+
+Remove `@Component` from both services for this experiment (or use differently named demo classes) and configure:
+
+```java
+package com.example.ioclab;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class BeanConfig {
+
+    @Bean
+    public PaymentService paymentService() {
+        return new PaymentService();
+    }
+
+    @Bean
+    public OrderService orderService(PaymentService paymentService) {
+        return new OrderService(paymentService);
+    }
+}
+```
+
+Bootstrap with that config class:
+
+```java
+var context = new AnnotationConfigApplicationContext(BeanConfig.class);
+// or include BeanConfig in Boot via @Import / component scan of the config class
+OrderService orderService = context.getBean(OrderService.class);
+orderService.placeOrder();
+```
+
+**Mental model**
+
+| Annotation | Analogy |
+|------------|---------|
+| `@Component` on a class | “Spring, scan me and manage an instance.” |
+| `@Bean` on a method | “Spring, call this method to obtain a managed instance.” |
+
+---
+
+## Practice D — `@Autowired` explicitly (optional)
+
+Equivalent constructor form:
+
+```java
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    @Autowired
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+    // ...
+}
+```
+
+Prefer constructor injection. Avoid field injection while learning (`@Autowired` on fields) — it hides dependencies and complicates tests.
+
+---
+
+## Common mistakes checklist
+
+| Mistake | Symptom / fix |
+|---------|----------------|
+| Component outside scan package | Bean not found — move class or fix `@ComponentScan` |
+| Forgot `@Component` / `@Bean` | Unsatisfied dependency when creating consumer |
+| Two beans of same type | Ambiguity — add `@Primary` or `@Qualifier` |
+| Calling `new OrderService(...)` yourself | Bypasses container — dependencies won’t be injected into *that* instance |
+
+---
+
+## Exercises
+
+1. Rename mentally: map lecture-4 `NotificationService` example onto `@Component` + constructor injection. Implement it under Spring.
+2. Create two `@Component` classes both implementing the same interface. Inject into a consumer — observe the error — fix with `@Primary` **or** `@Qualifier("beanName")`.
+3. Explain in two sentences when you would choose `@Bean` over `@Component`.
+4. True/False: every object created with `new` inside a `@Component` method body is automatically a Spring bean.
+
+---
+
+## Bridge to later lectures
+
+Next playlist topics build on this container:
+
+- Bean scopes, lazy vs eager, circular dependencies
+- Bean lifecycle (`@PostConstruct`, `@PreDestroy`)
+- XML config (historical but still useful to read)
+- Boot’s `@SpringBootApplication` = component scan + auto-config + more
+
+If you can create two beans and inject one into the other **without watching the video on mute-copy**, you are ready to continue.
+
+---
+
+## Self-check
+
+1. What is a Spring bean?
+2. Does a class with a single constructor need `@Autowired` for injection?
+3. Who replaces the wiring role that `main` played in lecture 4?
+
+Answers: [self-check-answers](self-check-answers.qmd)

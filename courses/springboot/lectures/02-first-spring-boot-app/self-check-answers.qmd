@@ -1,0 +1,18 @@
+---
+title: "Lecture 2 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. `@GetMapping("/ping") public String ping() { return "pong"; }`
+2. `server.port=7070` then open `http://localhost:7070/hello`.
+3. Without `@RestController`, `/hello` is not exposed as a REST endpoint — expect 404 / whitelabel error. With the annotation restored, it works again.
+4. Examples: folder layout, choosing compatible dependency versions, generating `pom.xml`, wiring a basic Boot main class.
+
+## Self-check
+
+1. Client and server are the **same machine**. `localhost` / `127.0.0.1` means “talk to myself.”
+2. Spring Boot, via the **Spring Web** starter’s **embedded Tomcat**, starts when the application runs — you did not install Tomcat separately.
+3. **No.** The path comes from `@GetMapping("...")`; the method can be named anything legal in Java.

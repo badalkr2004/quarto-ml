@@ -14,7 +14,7 @@ project:
 
 website:
   title: "Learn ML"
-  description: "Lecture notes, tutorials, and references for machine learning & deep learning"
+  description: "Lecture notes, tutorials, and references — ML and hands-on engineering courses"
   search:
     location: navbar
     type: overlay
@@ -32,6 +32,8 @@ website:
           - text: "—"
           - text: Mathematical Foundations of ML
             href: courses/mfml/index.qmd
+          - text: Spring Boot Full Course
+            href: courses/springboot/index.qmd
           # - text: Next Series Title
           #   href: courses/SERIES_ID/index.qmd
       - href: references/index.qmd
@@ -73,6 +75,26 @@ website:
             - courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.qmd
             # - courses/mfml/lectures/05-.../notes.qmd
         - courses/mfml/references.qmd
+    - id: springboot
+      title: "Spring Boot (Coder Army)"
+      style: docked
+      search: true
+      collapse-level: 2
+      contents:
+        - courses/springboot/index.qmd
+        - section: "Lectures"
+          contents:
+            - courses/springboot/lectures/01-spring-framework-intro/notes.qmd
+            - courses/springboot/lectures/01-spring-framework-intro/self-check-answers.qmd
+            - courses/springboot/lectures/02-first-spring-boot-app/notes.qmd
+            - courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.qmd
+            - courses/springboot/lectures/03-apache-maven/notes.qmd
+            - courses/springboot/lectures/03-apache-maven/self-check-answers.qmd
+            - courses/springboot/lectures/04-dependency-injection-ioc/notes.qmd
+            - courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.qmd
+            - courses/springboot/lectures/05-spring-ioc-container/notes.qmd
+            - courses/springboot/lectures/05-spring-ioc-container/self-check-answers.qmd
+        - courses/springboot/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID
     #   title: "Short Series Name"

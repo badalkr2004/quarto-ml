@@ -5,9 +5,9 @@ sidebar: docs
 
 ## What this site is
 
-Unofficial **personal study notes** for publicly available lecture series (starting with NPTEL *Mathematical Foundations of Machine Learning*).
+Unofficial **personal study notes** for publicly available lecture series (NPTEL *Mathematical Foundations of Machine Learning*, Coder Army *Spring Boot Full Course*, and others as added).
 
-This site is **not** affiliated with NPTEL, IISc, or the course instructors.
+This site is **not** affiliated with NPTEL, IISc, Coder Army, or the course instructors.
 
 ## What we publish
 
@@ -25,7 +25,10 @@ This site is **not** affiliated with NPTEL, IISc, or the course instructors.
 
 When notes follow a specific lecture, the page names the course, instructor, and links the source video.
 
-Example: Prof. Prathosh A.P., NPTEL / IISc — [Mathematical Foundations of Machine Learning](https://nptel.ac.in/courses/106108841).
+Examples:
+
+- Prof. Prathosh A.P., NPTEL / IISc — [Mathematical Foundations of Machine Learning](https://nptel.ac.in/courses/106108841)
+- Aditya Tandon, Coder Army — [Spring Boot Full Course playlist](https://www.youtube.com/playlist?list=PLEYgx5hMdopw)
 
 ## Your use
 

@@ -1,0 +1,18 @@
+---
+title: "Lecture 5 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Mark `EmailService` / `SmsService` / `OrderService` with `@Component` (implementations + consumer), inject `NotificationService` into `OrderService` via constructor, fetch `OrderService` from the context.
+2. Without disambiguation Spring fails with a non-unique bean error. `@Primary` picks a default; `@Qualifier("smsService")` picks by name (default bean name is usually the camelCase class name).
+3. Use `@Bean` for types you do not own / cannot annotate, or when construction needs custom factory logic. Use `@Component` for your own everyday app classes.
+4. **False.** Only objects registered with the container (component scan or `@Bean`, etc.) are beans. A plain `new` inside business code is a normal Java object unless returned from a `@Bean` method (or otherwise registered).
+
+## Self-check
+
+1. An object **instantiated and managed** by the Spring IoC container.
+2. **No** (in modern Spring / Boot) — a single constructor is enough for the container to use it. Multiple constructors → mark the chosen one with `@Autowired`.
+3. The **Spring IoC container** (`ApplicationContext`), based on your annotations / config metadata.

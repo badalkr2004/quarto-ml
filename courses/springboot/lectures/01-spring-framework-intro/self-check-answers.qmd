@@ -1,0 +1,20 @@
+---
+title: "Lecture 1 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Practice B — sample vocabulary
+
+| Phrase | One-line meaning |
+|--------|------------------|
+| Spring Framework | Family of libraries for building Java apps (core IoC, MVC, data, …) |
+| Spring Boot | Opinionated layer on Spring that auto-configures and packs starters so you start faster |
+| Spring MVC | Spring’s web stack for mapping HTTP requests to Java handlers |
+| Spring Core / IoC | Container that creates and wires application objects (“beans”) |
+
+## Self-check
+
+1. **Client.** Your browser sends the HTTP request; Amazon’s machines are the server.
+2. Boot hides wiring and server setup. Without core/MVC ideas, debugging failed mappings, missing beans, or config issues is guesswork.
+3. Receive the request, process it (business logic / DB / …), and return an HTTP response.

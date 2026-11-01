@@ -1,0 +1,196 @@
+---
+title: "Lecture 3 — Master Apache Maven"
+subtitle: "POM, dependencies, repositories, and the build lifecycle"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Master Apache Maven \| POM, Dependencies & Lifecycle \| Full Course #3](https://www.youtube.com/watch?v=N2EXGMJVwUU)  
+**Playlist index:** 3
+
+---
+
+## Goal
+
+After this lecture you can:
+
+1. Read a `pom.xml` and explain `groupId`, `artifactId`, `version`.
+2. Add a dependency and know where Maven downloads it from.
+3. Run key lifecycle phases (`clean`, `compile`, `package`) and know what `target/` is.
+
+Maven is how almost every Spring Boot project is built. Tracking Boot code without Maven literacy is painful.
+
+---
+
+## Concepts
+
+### Why Maven exists
+
+Hand-managing JARs does not scale:
+
+- Wrong versions
+- Missing transitive libraries
+- “Works on my machine” classpath chaos
+
+Maven is a **build + dependency + project** tool. It downloads libraries, compiles, tests, and packages your app using a standard layout.
+
+### Standard project layout
+
+```text
+my-app/
+  pom.xml
+  src/
+    main/
+      java/          ← application code
+      resources/     ← application.properties, etc.
+    test/
+      java/          ← tests
+  target/            ← build output (generated; do not edit)
+```
+
+### Coordinates (GAV)
+
+Every artifact is identified by:
+
+| Field | Example | Meaning |
+|-------|---------|---------|
+| `groupId` | `com.example` | Organization / namespace |
+| `artifactId` | `demo` | Project name |
+| `version` | `0.0.1-SNAPSHOT` | Release version |
+
+Together: `com.example:demo:0.0.1-SNAPSHOT`.
+
+### POM (Project Object Model)
+
+`pom.xml` is the project’s declaration: coordinates, packaging (`jar`/`war`/`pom`), dependencies, plugins, Java version, parent BOM (Spring Boot parent often manages versions for you).
+
+### Repositories
+
+| Repo | Role |
+|------|------|
+| **Maven Central** | Public default remote repository |
+| **Local `~/.m2/repository`** | Cache of downloaded artifacts on your machine |
+
+First build downloads; later builds reuse the local cache.
+
+### Super POM vs effective POM
+
+- **Super POM**: Maven’s built-in defaults.
+- **Your POM**: What you write.
+- **Effective POM**: Merged result (your POM + parents + Super POM).  
+  Inspect with: `mvn help:effective-pom`
+
+### Build lifecycle (default)
+
+Important phases (in order):
+
+```text
+validate → compile → test → package → verify → install → deploy
+```
+
+| Phase | What it roughly does |
+|-------|----------------------|
+| `compile` | Compile main sources |
+| `test` | Run unit tests |
+| `package` | Build the JAR/WAR in `target/` |
+| `install` | Put the artifact into your local `.m2` |
+| `clean` | Delete `target/` (separate **clean** lifecycle) |
+
+Running a phase runs all previous phases in that lifecycle too (`package` implies compile + test, unless you skip tests).
+
+---
+
+## Practice — hands-on in your editor / terminal
+
+Use either:
+
+- The Spring Boot project from lecture 02, or
+- A fresh Maven project from Initializr (Maven + Java, even without Web)
+
+### Step 1 — open and read `pom.xml`
+
+Find and write down (in your notes):
+
+1. `groupId`
+2. `artifactId`
+3. `version`
+4. `parent` (if present — Boot projects usually inherit `spring-boot-starter-parent`)
+5. One `<dependency>` block (e.g. `spring-boot-starter-web`)
+
+### Step 2 — confirm Maven works
+
+In the project root (folder that contains `pom.xml`):
+
+```bash
+mvn -v
+```
+
+If the IDE bundles Maven, you can use the IDE’s Maven tool window instead of the CLI.
+
+### Step 3 — compile
+
+```bash
+mvn compile
+```
+
+Confirm `target/classes` appears with `.class` files.
+
+### Step 4 — package
+
+```bash
+mvn package
+```
+
+Find the JAR under `target/` (name includes `artifactId` + `version`).  
+For Boot apps this is often an executable “fat” JAR.
+
+### Step 5 — clean
+
+```bash
+mvn clean
+```
+
+`target/` should be removed (or emptied). Run `package` again to regenerate it.
+
+### Step 6 — see the effective POM (optional but useful)
+
+```bash
+mvn help:effective-pom > effective-pom.xml
+```
+
+Skim it: notice how much configuration came from the parent, not your short `pom.xml`.
+
+### Step 7 — add a dependency deliberately
+
+1. Pick a small library on [Maven Central](https://central.sonatype.com/) (or Maven Repository), e.g. a JSON helper you are curious about.
+2. Copy the `<dependency>…</dependency>` snippet into your `pom.xml` `<dependencies>` section.
+3. Reload Maven in the IDE / run `mvn compile`.
+4. Confirm the JAR appears under **External Libraries** (IDE) or in `~/.m2/repository/...`.
+
+Then **remove** the dependency if you do not need it — the point is learning the workflow.
+
+---
+
+## How this connects to Spring Boot
+
+When Initializr added **Spring Web**, it added a dependency like `spring-boot-starter-web` to the POM. That starter pulls Tomcat, Spring MVC, Jackson, etc. **Maven resolved that graph**; Boot did not magically invent JARs on disk.
+
+---
+
+## Exercises
+
+1. Without looking, write the meaning of `groupId`, `artifactId`, `version`.
+2. Explain the difference between `mvn compile` and `mvn package`.
+3. Where does Maven store downloaded JARs on your machine?
+4. Why should you usually not commit the entire `target/` folder to git?
+
+---
+
+## Self-check
+
+1. What does `SNAPSHOT` in a version often signal?
+2. True/False: `mvn package` always uploads your JAR to Maven Central.
+3. Name three default-lifecycle phases in order.
+
+Answers: [self-check-answers](self-check-answers.qmd)

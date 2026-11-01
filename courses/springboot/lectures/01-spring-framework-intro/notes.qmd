@@ -1,0 +1,126 @@
+---
+title: "Lecture 1 — Spring Framework intro"
+subtitle: "Client–server, HTTP, and why Spring exists"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot & Spring Framework Full Course #1](https://www.youtube.com/watch?v=Q04sTEwC7Kg)  
+**Playlist:** [Spring Boot Full Course](https://www.youtube.com/playlist?list=PLEYgx5hMdopw) · index 1
+
+---
+
+## Goal
+
+After this lecture you should be able to explain, in your own words:
+
+1. What happens when a browser talks to a website (client–server).
+2. Why “only memorizing Spring Boot annotations” is not enough.
+3. What Spring Framework vs Spring Boot roughly means at a high level.
+
+This lecture is **conceptual**. You still practice by writing short explanations and a tiny diagram — so you can track the ideas before code arrives in lecture 2.
+
+---
+
+## 1. Client–server in one picture
+
+```text
+  Browser (CLIENT)                    Machine hosting the site (SERVER)
+  ─────────────────                   ────────────────────────────────
+         |  HTTP request (e.g. GET /)              |
+         | --------------------------------------> |
+         |                                         |  process request
+         |  HTTP response (HTML / JSON / …)        |
+         | <-------------------------------------- |
+         |  render page                            |
+```
+
+| Term | Meaning |
+|------|---------|
+| **Client** | Who sends the request (browser, mobile app, Postman, another service) |
+| **Server** | Computer where the application is hosted; sends the response |
+| **HTTP / HTTPS** | The protocol carrying the request and response |
+
+**Practice A — narrate the flow**
+
+Write 4–6 bullet points in a notebook (or a `notes.md` in any folder) answering:
+
+> I open `https://www.example.com` in Chrome. What happens end-to-end?
+
+Include: client, server, request, response. Do **not** copy jargon — use plain language first.
+
+---
+
+## 2. Why Spring at all?
+
+You *can* build Java web apps with raw servlets, manual wiring, and lots of boilerplate. Teams adopted Spring because it helps with:
+
+- **Object wiring** (who creates whom) — later: IoC / DI
+- **Web request handling** — later: Spring MVC
+- **Consistent patterns** for data access, transactions, security, etc.
+
+**Spring Boot** sits on top of Spring: starters + auto-configuration so you start with business code faster.  
+**Spring Framework (core + MVC + …)** is what Boot is configuring for you.
+
+> Learning only Boot syntax without core ideas is like driving without knowing what a clutch does — fine until something breaks.
+
+**Practice B — vocabulary card**
+
+Fill this table yourself (answers in self-check):
+
+| Phrase | Your one-line meaning |
+|--------|------------------------|
+| Spring Framework | |
+| Spring Boot | |
+| Spring MVC | |
+| Spring Core / IoC | |
+
+---
+
+## 3. Series roadmap (so you know where you are)
+
+| Block | What you build / learn |
+|-------|-------------------------|
+| Intro + first app + Maven | Run something; understand the project file |
+| DI / IoC / beans | How objects are created and connected |
+| Boot internals, properties | What Boot auto-configures |
+| CRUD + JPA + MVC | Real APIs and persistence |
+| Security, AOP, testing, projects | Production-style topics |
+
+Lectures **04** and **05** are where tracking “code vs video” usually gets hard — this site slows those down into editor steps.
+
+---
+
+## 4. Setup checklist (do this before lecture 2)
+
+Complete these once. Tick them off:
+
+- [ ] JDK 17+ installed; `java -version` works in a terminal
+- [ ] IDE installed (IntelliJ Community recommended in the series)
+- [ ] Browser ready for `http://localhost:8080`
+- [ ] Optional: bookmark [start.spring.io](https://start.spring.io/)
+
+**Practice C — prove Java works**
+
+Create a single file `Hello.java` anywhere:
+
+```java
+public class Hello {
+    public static void main(String[] args) {
+        System.out.println("JDK ready");
+    }
+}
+```
+
+Compile and run (`javac Hello.java` then `java Hello`, or Run in the IDE). You should see `JDK ready`.
+
+---
+
+## Self-check
+
+1. In client–server terms, is your browser the client or the server when you visit Amazon?
+2. Why does the instructor insist on learning Spring Framework, not only Spring Boot syntax?
+3. Name one responsibility of a server in the HTTP request/response cycle.
+
+Answers: [self-check-answers](self-check-answers.qmd)
