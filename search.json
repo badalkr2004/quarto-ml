@@ -339,10 +339,142 @@
     "href": "courses/springboot/references.html#concepts-to-keep-nearby",
     "title": "Spring Boot — References",
     "section": "Concepts to keep nearby",
-    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05",
+    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06",
     "crumbs": [
       "Home",
       "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "",
+    "text": "Video: Circular Dependency in Spring | Bean Scope, Lazy & Eager Beans | Full Course #6\nPlaylist index: 6\nBuilds on: Lecture 5 — IoC container",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#goal",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#goal",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Goal",
+    "text": "Goal\nIn your editor, you will:\n\nReproduce a circular dependency with constructor injection and read the failure.\nTry common workarounds (@Lazy, setter) — then understand why redesign is better.\nCompare singleton vs prototype scope with print statements in constructors.\nContrast eager vs lazy initialization.\n\nReuse the Spring Core / Boot lab from lecture 5 (AnnotationConfigApplicationContext + @Configuration + @ComponentScan, or a Boot app).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#concepts",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#concepts",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Concepts",
+    "text": "Concepts\n\nCircular dependency\nOrderService  ──needs──►  PaymentService\n     ▲                         │\n     └──────── needs ──────────┘\nSpring creates beans in dependency order. With constructor injection on both sides, neither bean can finish constructing → typically BeanCurrentlyInCreationException (or a clear circular-reference error at context startup).\n\n\n\n\n\n\n\n\nApproach\nWhat happens\nVerdict\n\n\n\n\nRedesign (extract third type / events / break the cycle)\nNo cycle\nPreferred\n\n\n@Lazy on one constructor parameter\nInjects a lazy proxy; real bean created later\nWorkaround\n\n\nSetter / field injection\nPartial object published, then wired\nWorkaround; hides design smell\n\n\n\nConstructor injection is not “wrong” here — it surfaces the cycle early. That is a feature.\n\n\nSide note from the lecture: @Configuration is a component\n@Configuration is meta-annotated with @Component. The config class itself becomes a bean so Spring can invoke your @Bean methods. Component scanning + @Bean factories both live in the same container world you started in lecture 5.\n\n\nBean scope\nScope = how many instances Spring creates for a bean definition, and when.\n\n\n\n\n\n\n\n\nScope\nInstances\nTypical use\n\n\n\n\nsingleton (default)\nOne per bean definition\nStateless services\n\n\nprototype\nNew instance every time the bean is requested\nStateful / per-use objects\n\n\nrequest / session / application\nWeb-aware (later)\nHTTP request/session lifetime\n\n\n\n\n\n\n\n\n\nImportantInterview-depth point\n\n\n\nSingleton does not mean “only one object in the whole JVM / container.”\nIt means one instance per bean definition.\nTwo @Bean methods that both return OrderService → two singleton definitions → two instances, each reused when you ask for that definition.\n\n\n\n\nEager vs lazy initialization\n\n\n\n\n\n\n\n\n\nEager\nLazy\n\n\n\n\nWhen created\nWhen the container starts (for singletons by default)\nOn first request / first use\n\n\nDefault\nSingleton → eager\nPrototype → effectively lazy (created when asked)\n\n\nFail-fast\nConfig errors show at startup\nErrors may hide until first use\n\n\nAnnotation\n(default)\n@Lazy on a bean or on an injection point\n\n\n\nTradeoff: eager = slower startup, faster discovery of broken wiring; lazy = faster startup, later failures.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-a-healthy-one-way-dependency-baseline",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-a-healthy-one-way-dependency-baseline",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Practice A — healthy one-way dependency (baseline)",
+    "text": "Practice A — healthy one-way dependency (baseline)\nPackage e.g. com.example.scopeLab.\nAppConfig.java\npackage com.example.scopeLab;\n\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\n@ComponentScan\npublic class AppConfig {\n}\nPaymentService.java\npackage com.example.scopeLab;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class PaymentService {\n    public void pay() {\n        System.out.println(\"Payment done\");\n    }\n}\nOrderService.java\npackage com.example.scopeLab;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\nMain.java\npackage com.example.scopeLab;\n\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\n\npublic class Main {\n    public static void main(String[] args) {\n        var context = new AnnotationConfigApplicationContext(AppConfig.class);\n        OrderService order = context.getBean(OrderService.class);\n        order.placeOrder();\n        context.close();\n    }\n}\nExpected:\nPayment done\nOrder placed",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-b-force-a-circular-dependency",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-b-force-a-circular-dependency",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Practice B — force a circular dependency",
+    "text": "Practice B — force a circular dependency\nMake PaymentService also need OrderService via constructor:\n@Component\npublic class PaymentService {\n    private final OrderService orderService;\n\n    public PaymentService(OrderService orderService) {\n        this.orderService = orderService;\n    }\n\n    public void pay() {\n        System.out.println(\"Payment done\");\n        orderService.getOrderDetails();\n    }\n}\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n\n    public void getOrderDetails() {\n        System.out.println(\"Order details\");\n    }\n}\nRun Main again.\nCheckpoint: context fails while creating beans. Read the stack trace — find the circular reference mention. Screenshot or copy the exception name into your notes.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-c-workarounds-then-undo-them",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-c-workarounds-then-undo-them",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Practice C — workarounds (then undo them)",
+    "text": "Practice C — workarounds (then undo them)\n\nC1 — @Lazy on one constructor parameter\nimport org.springframework.context.annotation.Lazy;\n\n@Component\npublic class PaymentService {\n    private final OrderService orderService;\n\n    public PaymentService(@Lazy OrderService orderService) {\n        this.orderService = orderService;\n    }\n    // pay() as above\n}\nKeep OrderService constructor injection as before. Restart — app may start and print:\nPayment done\nOrder details\nOrder placed\nYou “fixed” startup, but the design still couples two services in a loop. Prefer extracting something like OrderDetailsReader or having payment not call back into order.\n\n\nC2 — setter injection on one side (optional experiment)\nRemove the cycle from constructors: inject one dependency via setter/@Autowired method after construction. Observe that Spring can create a partial bean, then wire the rest.\nWhen finished experimenting, restore a clean one-way design (Practice A) before scopes — circular demos confuse later prints.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-d-singleton-vs-prototype",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-d-singleton-vs-prototype",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Practice D — singleton vs prototype",
+    "text": "Practice D — singleton vs prototype\nUse a simple bean with a constructor log:\npackage com.example.scopeLab;\n\nimport org.springframework.beans.factory.config.ConfigurableBeanFactory;\nimport org.springframework.context.annotation.Scope;\nimport org.springframework.stereotype.Component;\n\n@Component\n@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON) // default; can omit\npublic class ReportService {\n    public ReportService() {\n        System.out.println(\"ReportService created: \" + System.identityHashCode(this));\n    }\n\n    public void report() {\n        System.out.println(\"report from \" + System.identityHashCode(this));\n    }\n}\nIn Main:\nvar a = context.getBean(ReportService.class);\nvar b = context.getBean(ReportService.class);\na.report();\nb.report();\nSystem.out.println(\"same instance? \" + (a == b));\nSingleton expectation: one created line; a == b is true.\nNow change to prototype:\n@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)\nRe-run.\nPrototype expectation: two created lines; a == b is false.\n\nD2 — two bean definitions, both singleton (depth check)\nTemporarily drop @Component on ReportService and define in config:\n@Configuration\n@ComponentScan\npublic class AppConfig {\n\n    @Bean\n    public ReportService reportOne() {\n        return new ReportService();\n    }\n\n    @Bean\n    public ReportService reportTwo() {\n        return new ReportService();\n    }\n}\nStart the context (no getBean yet if you only want creation logs). You should see two constructor prints — two singleton definitions.\nAsking getBean(\"reportOne\") twice returns the same instance; getBean(\"reportTwo\") is a different singleton.\nIf another @Component needs a single ReportService type while two definitions exist, you get NoUniqueBeanDefinitionException — fix with @Primary / @Qualifier (lecture 5 exercise territory).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-e-eager-vs-lazy",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#practice-e-eager-vs-lazy",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Practice E — eager vs @Lazy",
+    "text": "Practice E — eager vs @Lazy\nAdd constructor logging to a @Component singleton you do not call from main:\n@Component\npublic class HeavyService {\n    public HeavyService() {\n        System.out.println(\"HeavyService created (eager?)\");\n    }\n}\nRun Main that only loads the context and exits (no getBean(HeavyService.class)).\n\nWithout @Lazy: you still see HeavyService created at startup (eager singleton).\nWith @Lazy on the class:\n\nimport org.springframework.context.annotation.Lazy;\n\n@Component\n@Lazy\npublic class HeavyService { /* ... */ }\n…creation log should not appear until something first requests that bean.\nCompare with prototype: prototypes are not pre-created at startup the way singletons are; they appear when requested.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#when-to-choose-which-scope-practical-rule",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#when-to-choose-which-scope-practical-rule",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "When to choose which scope (practical rule)",
+    "text": "When to choose which scope (practical rule)\n\n\n\n\n\n\n\nSituation\nPrefer\n\n\n\n\nStateless service (pay(), placeOrder() with no per-user fields)\nsingleton\n\n\nObject that holds request-specific mutable state\nprototype (or a web scope later)\n\n\nExpensive bean rarely used\nConsider @Lazy singleton\n\n\nYou want wiring mistakes at boot\nKeep important singletons eager",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#exercises",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#exercises",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Exercises",
+    "text": "Exercises\n\nDraw the bean creation order for Practice A vs the failing circular constructors in Practice B.\nBreak the Order↔︎Payment cycle by introducing a third class (e.g. OrderDetailsService) that both can use — no circular constructors.\nProve with == and constructor logs that prototype ≠ singleton.\nExplain in one sentence: why “singleton = one object in the container” is incomplete.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#self-check",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html#self-check",
+    "title": "Lecture 6 — Circular dependency, bean scope, lazy & eager",
+    "section": "Self-check",
+    "text": "Self-check\n\nWhy does constructor injection fail loudly on a circular dependency?\nDoes @Lazy mean the design is good?\nTwo @Bean methods return the same class type, both default scope. How many instances exist after context refresh (before any prototype talk)?\nAre prototype beans eagerly created at startup by default?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Circular dependency, bean scope, lazy & eager"
     ]
   },
   {
@@ -1491,7 +1623,7 @@
     "href": "courses/springboot/index.html#lectures",
     "title": "Spring Boot Full Course",
     "section": "Lectures",
-    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06+\nAdd next playlist lectures the same way",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07+\nAdd next playlist lectures the same way",
     "crumbs": [
       "Home",
       "Spring Boot Full Course"
@@ -1700,6 +1832,42 @@
     ]
   },
   {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html",
+    "title": "Lecture 6 — Self-check answers",
+    "section": "",
+    "text": "A: create PaymentService, then OrderService (needs payment), then use order. B: creating either service requires the other first → cycle / BeanCurrentlyInCreationException.\nExample: OrderDetailsService holds getOrderDetails(); PaymentService depends only on that; OrderService depends on PaymentService (and maybe details) — no mutual constructor pair.\nPrototype: two getBean calls → two constructor logs, a == b false. Singleton: one log, a == b true.\nSingleton means one instance per bean definition, not necessarily one instance of that Java class in the whole container.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html#exercises-sample",
+    "title": "Lecture 6 — Self-check answers",
+    "section": "",
+    "text": "A: create PaymentService, then OrderService (needs payment), then use order. B: creating either service requires the other first → cycle / BeanCurrentlyInCreationException.\nExample: OrderDetailsService holds getOrderDetails(); PaymentService depends only on that; OrderService depends on PaymentService (and maybe details) — no mutual constructor pair.\nPrototype: two getBean calls → two constructor logs, a == b false. Singleton: one log, a == b true.\nSingleton means one instance per bean definition, not necessarily one instance of that Java class in the whole container.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html#self-check",
+    "title": "Lecture 6 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nEach constructor needs the other bean fully constructed first — impossible without a proxy/partial instance. Spring detects the loop and fails fast.\nNo. @Lazy (or setter/field tricks) can start the app, but the circular design remains. Prefer removing the cycle.\nTwo singleton instances — one for each bean definition (reportOne, reportTwo).\nNo. Prototypes are created when requested (lazy relative to startup). Singletons are eager by default unless marked @Lazy.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 6 — Self-check answers"
+    ]
+  },
+  {
     "objectID": "docs/adding-a-course.html",
     "href": "docs/adding-a-course.html",
     "title": "Add a new lecture series",
@@ -1788,7 +1956,7 @@
     "href": "index.html#courses",
     "title": "Learn ML",
     "section": "Courses",
-    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–05\n\n\nNext series…\n—\nAdd via Add a course"
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–06\n\n\nNext series…\n—\nAdd via Add a course"
   },
   {
     "objectID": "index.html#how-this-site-is-organized",

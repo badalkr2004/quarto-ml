@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.20">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Practice notes based on Aditya Tandon (Coder Army)">
+
+<title>Lecture 6 — Circular dependency, bean scope, lazy &amp; eager – Learn ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<link href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html" rel="next">
+<link href="../../../../courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html" rel="prev">
+<script src="../../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap-cf5266e6a48d11b6509730021e715992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">Learn ML</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-courses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Courses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
+        <li>
+    <a class="dropdown-item" href="../../../../courses/index.html">
+ <span class="dropdown-text">All courses</span></a>
+  </li>  
+        <li class="dropdown-header">—</li>
+        <li>
+    <a class="dropdown-item" href="../../../../courses/mfml/index.html">
+ <span class="dropdown-text">Mathematical Foundations of ML</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../../courses/springboot/index.html">
+ <span class="dropdown-text">Spring Boot Full Course</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../references/index.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/adding-a-course.html"> 
+<span class="menu-text">Add a course</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html"> 
+<span class="menu-text">Attribution</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html">Lecture 6 — Circular dependency, bean scope, lazy &amp; eager</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Spring Boot Full Course</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Lectures</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Spring Framework intro</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/02-first-spring-boot-app/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — First Spring Boot application</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/03-apache-maven/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Master Apache Maven</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/03-apache-maven/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/04-dependency-injection-ioc/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Dependency Injection &amp; IoC</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5 — Spring IoC container</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 6 — Circular dependency, bean scope, lazy &amp; eager</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 6 — Self-check answers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Spring Boot — References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
+  <li><a href="#concepts" id="toc-concepts" class="nav-link" data-scroll-target="#concepts">Concepts</a>
+  <ul class="collapse">
+  <li><a href="#circular-dependency" id="toc-circular-dependency" class="nav-link" data-scroll-target="#circular-dependency">Circular dependency</a></li>
+  <li><a href="#side-note-from-the-lecture-configuration-is-a-component" id="toc-side-note-from-the-lecture-configuration-is-a-component" class="nav-link" data-scroll-target="#side-note-from-the-lecture-configuration-is-a-component">Side note from the lecture: <code>@Configuration</code> is a component</a></li>
+  <li><a href="#bean-scope" id="toc-bean-scope" class="nav-link" data-scroll-target="#bean-scope">Bean scope</a></li>
+  <li><a href="#eager-vs-lazy-initialization" id="toc-eager-vs-lazy-initialization" class="nav-link" data-scroll-target="#eager-vs-lazy-initialization">Eager vs lazy initialization</a></li>
+  </ul></li>
+  <li><a href="#practice-a-healthy-one-way-dependency-baseline" id="toc-practice-a-healthy-one-way-dependency-baseline" class="nav-link" data-scroll-target="#practice-a-healthy-one-way-dependency-baseline">Practice A — healthy one-way dependency (baseline)</a></li>
+  <li><a href="#practice-b-force-a-circular-dependency" id="toc-practice-b-force-a-circular-dependency" class="nav-link" data-scroll-target="#practice-b-force-a-circular-dependency">Practice B — force a circular dependency</a></li>
+  <li><a href="#practice-c-workarounds-then-undo-them" id="toc-practice-c-workarounds-then-undo-them" class="nav-link" data-scroll-target="#practice-c-workarounds-then-undo-them">Practice C — workarounds (then undo them)</a>
+  <ul class="collapse">
+  <li><a href="#c1-lazy-on-one-constructor-parameter" id="toc-c1-lazy-on-one-constructor-parameter" class="nav-link" data-scroll-target="#c1-lazy-on-one-constructor-parameter">C1 — <code>@Lazy</code> on one constructor parameter</a></li>
+  <li><a href="#c2-setter-injection-on-one-side-optional-experiment" id="toc-c2-setter-injection-on-one-side-optional-experiment" class="nav-link" data-scroll-target="#c2-setter-injection-on-one-side-optional-experiment">C2 — setter injection on one side (optional experiment)</a></li>
+  </ul></li>
+  <li><a href="#practice-d-singleton-vs-prototype" id="toc-practice-d-singleton-vs-prototype" class="nav-link" data-scroll-target="#practice-d-singleton-vs-prototype">Practice D — singleton vs prototype</a>
+  <ul class="collapse">
+  <li><a href="#d2-two-bean-definitions-both-singleton-depth-check" id="toc-d2-two-bean-definitions-both-singleton-depth-check" class="nav-link" data-scroll-target="#d2-two-bean-definitions-both-singleton-depth-check">D2 — two bean definitions, both singleton (depth check)</a></li>
+  </ul></li>
+  <li><a href="#practice-e-eager-vs-lazy" id="toc-practice-e-eager-vs-lazy" class="nav-link" data-scroll-target="#practice-e-eager-vs-lazy">Practice E — eager vs <code>@Lazy</code></a></li>
+  <li><a href="#when-to-choose-which-scope-practical-rule" id="toc-when-to-choose-which-scope-practical-rule" class="nav-link" data-scroll-target="#when-to-choose-which-scope-practical-rule">When to choose which scope (practical rule)</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#self-check" id="toc-self-check" class="nav-link" data-scroll-target="#self-check">Self-check</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html">Lecture 6 — Circular dependency, bean scope, lazy &amp; eager</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Lecture 6 — Circular dependency, bean scope, lazy &amp; eager</h1>
+<p class="subtitle lead">When beans need each other, and how many instances Spring creates</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Practice notes based on Aditya Tandon (Coder Army) </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Video:</strong> <a href="https://www.youtube.com/watch?v=ass8cR52Cf8">Circular Dependency in Spring | Bean Scope, Lazy &amp; Eager Beans | Full Course #6</a><br>
+<strong>Playlist index:</strong> 6<br>
+<strong>Builds on:</strong> <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/notes.html">Lecture 5 — IoC container</a></p>
+<hr>
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
+<p>In your editor, you will:</p>
+<ol type="1">
+<li><strong>Reproduce</strong> a circular dependency with constructor injection and read the failure.</li>
+<li>Try common <strong>workarounds</strong> (<code>@Lazy</code>, setter) — then understand why <strong>redesign is better</strong>.</li>
+<li>Compare <strong>singleton</strong> vs <strong>prototype</strong> scope with print statements in constructors.</li>
+<li>Contrast <strong>eager</strong> vs <strong>lazy</strong> initialization.</li>
+</ol>
+<p>Reuse the Spring Core / Boot lab from lecture 5 (<code>AnnotationConfigApplicationContext</code> + <code>@Configuration</code> + <code>@ComponentScan</code>, or a Boot app).</p>
+<hr>
+</section>
+<section id="concepts" class="level2">
+<h2 class="anchored" data-anchor-id="concepts">Concepts</h2>
+<section id="circular-dependency" class="level3">
+<h3 class="anchored" data-anchor-id="circular-dependency">Circular dependency</h3>
+<pre class="text"><code>OrderService  ──needs──►  PaymentService
+     ▲                         │
+     └──────── needs ──────────┘</code></pre>
+<p>Spring creates beans in dependency order. With <strong>constructor injection</strong> on both sides, neither bean can finish constructing → typically <code>BeanCurrentlyInCreationException</code> (or a clear circular-reference error at context startup).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 42%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>What happens</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Redesign (extract third type / events / break the cycle)</td>
+<td>No cycle</td>
+<td><strong>Preferred</strong></td>
+</tr>
+<tr class="even">
+<td><code>@Lazy</code> on one constructor parameter</td>
+<td>Injects a lazy proxy; real bean created later</td>
+<td>Workaround</td>
+</tr>
+<tr class="odd">
+<td>Setter / field injection</td>
+<td>Partial object published, then wired</td>
+<td>Workaround; hides design smell</td>
+</tr>
+</tbody>
+</table>
+<p>Constructor injection is not “wrong” here — it <strong>surfaces</strong> the cycle early. That is a feature.</p>
+</section>
+<section id="side-note-from-the-lecture-configuration-is-a-component" class="level3">
+<h3 class="anchored" data-anchor-id="side-note-from-the-lecture-configuration-is-a-component">Side note from the lecture: <code>@Configuration</code> is a component</h3>
+<p><code>@Configuration</code> is meta-annotated with <code>@Component</code>. The config class itself becomes a bean so Spring can invoke your <code>@Bean</code> methods. Component scanning + <code>@Bean</code> factories both live in the same container world you started in lecture 5.</p>
+</section>
+<section id="bean-scope" class="level3">
+<h3 class="anchored" data-anchor-id="bean-scope">Bean scope</h3>
+<p><strong>Scope</strong> = how many instances Spring creates for a <strong>bean definition</strong>, and when.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 35%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Scope</th>
+<th>Instances</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>singleton</strong> (default)</td>
+<td>One per bean definition</td>
+<td>Stateless services</td>
+</tr>
+<tr class="even">
+<td><strong>prototype</strong></td>
+<td>New instance every time the bean is requested</td>
+<td>Stateful / per-use objects</td>
+</tr>
+<tr class="odd">
+<td>request / session / application</td>
+<td>Web-aware (later)</td>
+<td>HTTP request/session lifetime</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Interview-depth point
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Singleton does not mean “only one object in the whole JVM / container.”</strong><br>
+It means <strong>one instance per bean definition</strong>.</p>
+<p>Two <code>@Bean</code> methods that both return <code>OrderService</code> → <strong>two</strong> singleton definitions → <strong>two</strong> instances, each reused when you ask for that definition.</p>
+</div>
+</div>
+</section>
+<section id="eager-vs-lazy-initialization" class="level3">
+<h3 class="anchored" data-anchor-id="eager-vs-lazy-initialization">Eager vs lazy initialization</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 46%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Eager</th>
+<th>Lazy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>When created</strong></td>
+<td>When the container starts (for singletons by default)</td>
+<td>On first request / first use</td>
+</tr>
+<tr class="even">
+<td><strong>Default</strong></td>
+<td>Singleton → eager</td>
+<td>Prototype → effectively lazy (created when asked)</td>
+</tr>
+<tr class="odd">
+<td><strong>Fail-fast</strong></td>
+<td>Config errors show at startup</td>
+<td>Errors may hide until first use</td>
+</tr>
+<tr class="even">
+<td><strong>Annotation</strong></td>
+<td>(default)</td>
+<td><code>@Lazy</code> on a bean or on an injection point</td>
+</tr>
+</tbody>
+</table>
+<p>Tradeoff: eager = slower startup, faster discovery of broken wiring; lazy = faster startup, later failures.</p>
+<hr>
+</section>
+</section>
+<section id="practice-a-healthy-one-way-dependency-baseline" class="level2">
+<h2 class="anchored" data-anchor-id="practice-a-healthy-one-way-dependency-baseline">Practice A — healthy one-way dependency (baseline)</h2>
+<p>Package e.g.&nbsp;<code>com.example.scopeLab</code>.</p>
+<p><strong><code>AppConfig.java</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">package</span><span class="im"> com</span><span class="op">.</span><span class="im">example</span><span class="op">.</span><span class="im">scopeLab</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">ComponentScan</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">Configuration</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">@ComponentScan</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppConfig <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong><code>PaymentService.java</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">package</span><span class="im"> com</span><span class="op">.</span><span class="im">example</span><span class="op">.</span><span class="im">scopeLab</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">stereotype</span><span class="op">.</span><span class="im">Component</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> PaymentService <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">pay</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Payment done"</span><span class="op">);</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong><code>OrderService.java</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">package</span><span class="im"> com</span><span class="op">.</span><span class="im">example</span><span class="op">.</span><span class="im">scopeLab</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">stereotype</span><span class="op">.</span><span class="im">Component</span><span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OrderService <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> PaymentService paymentService<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">OrderService</span><span class="op">(</span>PaymentService paymentService<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">paymentService</span> <span class="op">=</span> paymentService<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">placeOrder</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        paymentService<span class="op">.</span><span class="fu">pay</span><span class="op">();</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Order placed"</span><span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong><code>Main.java</code></strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">package</span><span class="im"> com</span><span class="op">.</span><span class="im">example</span><span class="op">.</span><span class="im">scopeLab</span><span class="op">;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">AnnotationConfigApplicationContext</span><span class="op">;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Main <span class="op">{</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">var</span> context <span class="op">=</span> <span class="kw">new</span> <span class="fu">AnnotationConfigApplicationContext</span><span class="op">(</span>AppConfig<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        OrderService order <span class="op">=</span> context<span class="op">.</span><span class="fu">getBean</span><span class="op">(</span>OrderService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        order<span class="op">.</span><span class="fu">placeOrder</span><span class="op">();</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        context<span class="op">.</span><span class="fu">close</span><span class="op">();</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Expected:</p>
+<pre class="text"><code>Payment done
+Order placed</code></pre>
+<hr>
+</section>
+<section id="practice-b-force-a-circular-dependency" class="level2">
+<h2 class="anchored" data-anchor-id="practice-b-force-a-circular-dependency">Practice B — force a circular dependency</h2>
+<p>Make <code>PaymentService</code> also need <code>OrderService</code> via <strong>constructor</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> PaymentService <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> OrderService orderService<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">PaymentService</span><span class="op">(</span>OrderService orderService<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">orderService</span> <span class="op">=</span> orderService<span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">pay</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Payment done"</span><span class="op">);</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        orderService<span class="op">.</span><span class="fu">getOrderDetails</span><span class="op">();</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OrderService <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> PaymentService paymentService<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">OrderService</span><span class="op">(</span>PaymentService paymentService<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">paymentService</span> <span class="op">=</span> paymentService<span class="op">;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">placeOrder</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        paymentService<span class="op">.</span><span class="fu">pay</span><span class="op">();</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Order placed"</span><span class="op">);</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">getOrderDetails</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Order details"</span><span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Run <code>Main</code> again.</p>
+<p><strong>Checkpoint:</strong> context fails while creating beans. Read the stack trace — find the circular reference mention. Screenshot or copy the exception name into your notes.</p>
+<hr>
+</section>
+<section id="practice-c-workarounds-then-undo-them" class="level2">
+<h2 class="anchored" data-anchor-id="practice-c-workarounds-then-undo-them">Practice C — workarounds (then undo them)</h2>
+<section id="c1-lazy-on-one-constructor-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="c1-lazy-on-one-constructor-parameter">C1 — <code>@Lazy</code> on one constructor parameter</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">Lazy</span><span class="op">;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> PaymentService <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">final</span> OrderService orderService<span class="op">;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">PaymentService</span><span class="op">(</span><span class="at">@Lazy</span> OrderService orderService<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">orderService</span> <span class="op">=</span> orderService<span class="op">;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// pay() as above</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Keep <code>OrderService</code> constructor injection as before. Restart — app may start and print:</p>
+<pre class="text"><code>Payment done
+Order details
+Order placed</code></pre>
+<p>You “fixed” startup, but the <strong>design still couples two services in a loop</strong>. Prefer extracting something like <code>OrderDetailsReader</code> or having payment not call back into order.</p>
+</section>
+<section id="c2-setter-injection-on-one-side-optional-experiment" class="level3">
+<h3 class="anchored" data-anchor-id="c2-setter-injection-on-one-side-optional-experiment">C2 — setter injection on one side (optional experiment)</h3>
+<p>Remove the cycle from constructors: inject one dependency via setter/<code>@Autowired</code> method after construction. Observe that Spring can create a partial bean, then wire the rest.</p>
+<p>When finished experimenting, <strong>restore a clean one-way design</strong> (Practice A) before scopes — circular demos confuse later prints.</p>
+<hr>
+</section>
+</section>
+<section id="practice-d-singleton-vs-prototype" class="level2">
+<h2 class="anchored" data-anchor-id="practice-d-singleton-vs-prototype">Practice D — singleton vs prototype</h2>
+<p>Use a simple bean with a constructor log:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">package</span><span class="im"> com</span><span class="op">.</span><span class="im">example</span><span class="op">.</span><span class="im">scopeLab</span><span class="op">;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">beans</span><span class="op">.</span><span class="im">factory</span><span class="op">.</span><span class="im">config</span><span class="op">.</span><span class="im">ConfigurableBeanFactory</span><span class="op">;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">Scope</span><span class="op">;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">stereotype</span><span class="op">.</span><span class="im">Component</span><span class="op">;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="at">@Scope</span><span class="op">(</span>ConfigurableBeanFactory<span class="op">.</span><span class="fu">SCOPE_SINGLETON</span><span class="op">)</span> <span class="co">// default; can omit</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ReportService <span class="op">{</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">ReportService</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"ReportService created: "</span> <span class="op">+</span> <span class="bu">System</span><span class="op">.</span><span class="fu">identityHashCode</span><span class="op">(</span><span class="kw">this</span><span class="op">));</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">report</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"report from "</span> <span class="op">+</span> <span class="bu">System</span><span class="op">.</span><span class="fu">identityHashCode</span><span class="op">(</span><span class="kw">this</span><span class="op">));</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In <code>Main</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> a <span class="op">=</span> context<span class="op">.</span><span class="fu">getBean</span><span class="op">(</span>ReportService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">var</span> b <span class="op">=</span> context<span class="op">.</span><span class="fu">getBean</span><span class="op">(</span>ReportService<span class="op">.</span><span class="fu">class</span><span class="op">);</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>a<span class="op">.</span><span class="fu">report</span><span class="op">();</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>b<span class="op">.</span><span class="fu">report</span><span class="op">();</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"same instance? "</span> <span class="op">+</span> <span class="op">(</span>a <span class="op">==</span> b<span class="op">));</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Singleton expectation:</strong> one <code>created</code> line; <code>a == b</code> is <code>true</code>.</p>
+<p>Now change to prototype:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Scope</span><span class="op">(</span>ConfigurableBeanFactory<span class="op">.</span><span class="fu">SCOPE_PROTOTYPE</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Re-run.</p>
+<p><strong>Prototype expectation:</strong> two <code>created</code> lines; <code>a == b</code> is <code>false</code>.</p>
+<section id="d2-two-bean-definitions-both-singleton-depth-check" class="level3">
+<h3 class="anchored" data-anchor-id="d2-two-bean-definitions-both-singleton-depth-check">D2 — two bean definitions, both singleton (depth check)</h3>
+<p>Temporarily drop <code>@Component</code> on <code>ReportService</code> and define in config:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Configuration</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">@ComponentScan</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> AppConfig <span class="op">{</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ReportService <span class="fu">reportOne</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">ReportService</span><span class="op">();</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Bean</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> ReportService <span class="fu">reportTwo</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">new</span> <span class="fu">ReportService</span><span class="op">();</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Start the context (no <code>getBean</code> yet if you only want creation logs). You should see <strong>two</strong> constructor prints — two singleton <strong>definitions</strong>.</p>
+<p>Asking <code>getBean("reportOne")</code> twice returns the same instance; <code>getBean("reportTwo")</code> is a different singleton.</p>
+<p>If another <code>@Component</code> needs a single <code>ReportService</code> type while two definitions exist, you get <strong>NoUniqueBeanDefinitionException</strong> — fix with <code>@Primary</code> / <code>@Qualifier</code> (lecture 5 exercise territory).</p>
+<hr>
+</section>
+</section>
+<section id="practice-e-eager-vs-lazy" class="level2">
+<h2 class="anchored" data-anchor-id="practice-e-eager-vs-lazy">Practice E — eager vs <code>@Lazy</code></h2>
+<p>Add constructor logging to a <code>@Component</code> singleton you do <strong>not</strong> call from <code>main</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> HeavyService <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">HeavyService</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"HeavyService created (eager?)"</span><span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Run <code>Main</code> that only loads the context and exits (no <code>getBean(HeavyService.class)</code>).</p>
+<ul>
+<li><strong>Without <code>@Lazy</code>:</strong> you still see <code>HeavyService created</code> at startup (eager singleton).</li>
+<li><strong>With <code>@Lazy</code> on the class:</strong></li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">org</span><span class="op">.</span><span class="im">springframework</span><span class="op">.</span><span class="im">context</span><span class="op">.</span><span class="im">annotation</span><span class="op">.</span><span class="im">Lazy</span><span class="op">;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="at">@Lazy</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> HeavyService <span class="op">{</span> <span class="co">/* ... */</span> <span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>…creation log should <strong>not</strong> appear until something first requests that bean.</p>
+<p>Compare with <strong>prototype</strong>: prototypes are not pre-created at startup the way singletons are; they appear when requested.</p>
+<hr>
+</section>
+<section id="when-to-choose-which-scope-practical-rule" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-choose-which-scope-practical-rule">When to choose which scope (practical rule)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 57%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Prefer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stateless service (<code>pay()</code>, <code>placeOrder()</code> with no per-user fields)</td>
+<td><strong>singleton</strong></td>
+</tr>
+<tr class="even">
+<td>Object that holds request-specific mutable state</td>
+<td><strong>prototype</strong> (or a web scope later)</td>
+</tr>
+<tr class="odd">
+<td>Expensive bean rarely used</td>
+<td>Consider <strong><code>@Lazy</code></strong> singleton</td>
+</tr>
+<tr class="even">
+<td>You want wiring mistakes at boot</td>
+<td>Keep important singletons <strong>eager</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Draw the bean creation order for Practice A vs the failing circular constructors in Practice B.</li>
+<li>Break the Order↔︎Payment cycle by introducing a third class (e.g.&nbsp;<code>OrderDetailsService</code>) that both can use — no circular constructors.</li>
+<li>Prove with <code>==</code> and constructor logs that prototype ≠ singleton.</li>
+<li>Explain in one sentence: why “singleton = one object in the container” is incomplete.</li>
+</ol>
+<hr>
+</section>
+<section id="self-check" class="level2">
+<h2 class="anchored" data-anchor-id="self-check">Self-check</h2>
+<ol type="1">
+<li>Why does constructor injection fail loudly on a circular dependency?</li>
+<li>Does <code>@Lazy</code> mean the design is good?</li>
+<li>Two <code>@Bean</code> methods return the same class type, both default scope. How many instances exist after context refresh (before any prototype talk)?</li>
+<li>Are prototype beans eagerly created at startup by default?</li>
+</ol>
+<p>Answers: <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html">self-check-answers</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/badalkr2004\.github\.io\/quarto-ml\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html" class="pagination-link" aria-label="Lecture 5 — Self-check answers">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Lecture 5 — Self-check answers</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html" class="pagination-link" aria-label="Lecture 6 — Self-check answers">
+        <span class="nav-page-text">Lecture 6 — Self-check answers</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Unofficial study notes · Not affiliated with NPTEL/IISc</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html">
+<p>Attribution</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
