@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.19">
+<meta name="generator" content="quarto-1.10.20">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -42,10 +42,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-17888a1159294d3eb470f19f6f52f5a5.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-55445fb78b2cd64450b289ef7332580f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-cf5266e6a48d11b6509730021e715992.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -111,6 +111,10 @@ ul.task-list li input[type="checkbox"] {
     <a class="dropdown-item" href="./courses/mfml/index.html">
  <span class="dropdown-text">Mathematical Foundations of ML</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./courses/springboot/index.html">
+ <span class="dropdown-text">Spring Boot Full Course</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item">
@@ -172,7 +176,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Personal learning space for <strong>machine learning</strong> and <strong>deep learning</strong> — starting with NPTEL courses, extensible to any future series.</p>
+<p>Personal learning space for lecture notes and <strong>practice-first</strong> tutorials — ML foundations plus hands-on engineering series. Extensible: add any new course without restructuring the site.</p>
 <section id="courses" class="level2">
 <h2 class="anchored" data-anchor-id="courses">Courses</h2>
 <table class="caption-top table">
@@ -190,6 +194,11 @@ ul.task-list li input[type="checkbox"] {
 <td>In progress</td>
 </tr>
 <tr class="even">
+<td><a href="./courses/springboot/index.html">Spring Boot Full Course</a></td>
+<td>Aditya Tandon (Coder Army)</td>
+<td>Lectures 01–05</td>
+</tr>
+<tr class="odd">
 <td><em>Next series…</em></td>
 <td>—</td>
 <td>Add via <a href="./docs/adding-a-course.html">Add a course</a></td>
@@ -203,16 +212,18 @@ ul.task-list li input[type="checkbox"] {
   mfml/                 ← one folder per lecture series
     lectures/01-.../
     references.qmd
+  springboot/           ← Spring Boot practice notes
   SERIES_ID/            ← copy template when you start a new series
 references/             ← shared reading list across courses</code></pre>
-<p>Each series has its <strong>own sidebar</strong>. The top <strong>Courses</strong> menu lists every series. When you begin a new NPTEL (or other) series, follow <a href="./docs/adding-a-course.html">Add a course</a>.</p>
+<p>Each series has its <strong>own sidebar</strong>. The top <strong>Courses</strong> menu lists every series. To add another, follow <a href="./docs/adding-a-course.html">Add a course</a>.</p>
 </section>
 <section id="quick-links" class="level2">
 <h2 class="anchored" data-anchor-id="quick-links">Quick links</h2>
 <ul>
 <li><a href="./courses/index.html">All courses</a></li>
 <li><a href="./references/index.html">Shared references</a></li>
-<li>Current lecture: <a href="./courses/mfml/lectures/01-overview-of-function-approximation/notes.html">MFML Lec 01 — Function Approximation</a></li>
+<li><a href="./courses/mfml/lectures/01-overview-of-function-approximation/notes.html">MFML Lec 01 — Function Approximation</a></li>
+<li><a href="./courses/springboot/lectures/04-dependency-injection-ioc/notes.html">Spring Boot Lec 04 — DI &amp; IoC (practice)</a></li>
 </ul>
 
 
@@ -292,7 +303,7 @@ references/             ← shared reading list across courses</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/badalkr2004\.github\.io\/quarto-ml\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -240,7 +240,7 @@
     "href": "docs/attribution.html",
     "title": "Attribution & copyright",
     "section": "",
-    "text": "Unofficial personal study notes for publicly available lecture series (starting with NPTEL Mathematical Foundations of Machine Learning).\nThis site is not affiliated with NPTEL, IISc, or the course instructors.",
+    "text": "Unofficial personal study notes for publicly available lecture series (NPTEL Mathematical Foundations of Machine Learning, Coder Army Spring Boot Full Course, and others as added).\nThis site is not affiliated with NPTEL, IISc, Coder Army, or the course instructors.",
     "crumbs": [
       "Home",
       "Attribution & copyright"
@@ -251,7 +251,7 @@
     "href": "docs/attribution.html#what-this-site-is",
     "title": "Attribution & copyright",
     "section": "",
-    "text": "Unofficial personal study notes for publicly available lecture series (starting with NPTEL Mathematical Foundations of Machine Learning).\nThis site is not affiliated with NPTEL, IISc, or the course instructors.",
+    "text": "Unofficial personal study notes for publicly available lecture series (NPTEL Mathematical Foundations of Machine Learning, Coder Army Spring Boot Full Course, and others as added).\nThis site is not affiliated with NPTEL, IISc, Coder Army, or the course instructors.",
     "crumbs": [
       "Home",
       "Attribution & copyright"
@@ -284,7 +284,7 @@
     "href": "docs/attribution.html#credit",
     "title": "Attribution & copyright",
     "section": "Credit",
-    "text": "Credit\nWhen notes follow a specific lecture, the page names the course, instructor, and links the source video.\nExample: Prof. Prathosh A.P., NPTEL / IISc — Mathematical Foundations of Machine Learning.",
+    "text": "Credit\nWhen notes follow a specific lecture, the page names the course, instructor, and links the source video.\nExamples:\n\nProf. Prathosh A.P., NPTEL / IISc — Mathematical Foundations of Machine Learning\nAditya Tandon, Coder Army — Spring Boot Full Course playlist",
     "crumbs": [
       "Home",
       "Attribution & copyright"
@@ -299,6 +299,518 @@
     "crumbs": [
       "Home",
       "Attribution & copyright"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/references.html",
+    "href": "courses/springboot/references.html",
+    "title": "Spring Boot — References",
+    "section": "",
+    "text": "Course-specific links. Shared site references: References.",
+    "crumbs": [
+      "Home",
+      "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/references.html#official-docs",
+    "href": "courses/springboot/references.html#official-docs",
+    "title": "Spring Boot — References",
+    "section": "Official docs",
+    "text": "Official docs\n\nSpring Framework — Core / IoC container\nSpring Boot reference\nSpring Initializr\nMaven — Getting Started\nMaven Central Repository",
+    "crumbs": [
+      "Home",
+      "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/references.html#playlist-instructor",
+    "href": "courses/springboot/references.html#playlist-instructor",
+    "title": "Spring Boot — References",
+    "section": "Playlist & instructor",
+    "text": "Playlist & instructor\n\nSpring Boot Full Course playlist (Coder Army)\nInstructor: Aditya Tandon",
+    "crumbs": [
+      "Home",
+      "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/references.html#concepts-to-keep-nearby",
+    "href": "courses/springboot/references.html#concepts-to-keep-nearby",
+    "title": "Spring Boot — References",
+    "section": "Concepts to keep nearby",
+    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05",
+    "crumbs": [
+      "Home",
+      "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "",
+    "text": "Video: Spring IOC Container | Beans, @Component, @Autowired & @Bean | Full Course #5\nPlaylist index: 5",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#goal",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#goal",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Goal",
+    "text": "Goal\nTake the manual DI idea from lecture 4 and let Spring create and wire objects.\nYou will practice two registration styles:\n\nStereotype + component scan — @Component (and friends)\nJava config — @Configuration + @Bean\n\nAnd you will inject collaborators with constructor injection (@Autowired when needed).\n\n\n\n\n\n\nTipProject setup for this lab\n\n\n\nCreate a small Spring project (not full Boot web app required):\n\nInitializr: Maven, Java 21, dependency Spring Boot is fine even with no Web — or add only what you need\nOr a plain Spring Core app with spring-context on the classpath\n\nPackage example: com.example.ioclab\nIf you use Spring Boot, @SpringBootApplication already includes component scanning from its package downward. For a pure Spring demo, you will use AnnotationConfigApplicationContext as shown below.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#concepts",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#concepts",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Concepts",
+    "text": "Concepts\n\nBean\nA bean is an object created and managed by the Spring IoC container.\nNot every Java object is a bean — only the ones the container knows about.\n\n\nWhat the container does (replaces main wiring)\nYou declare types + relationships\n            │\n            v\n   Spring IoC container\n     • instantiate beans\n     • inject dependencies\n     • manage lifecycle\n            │\n            v\n   Your code calls business methods\n\n\nTwo ways to tell Spring about beans\n\n\n\n\n\n\n\n\nApproach\nHow you mark types\nTypical use\n\n\n\n\nComponent scanning\n@Component / @Service / @Repository / @Controller\nYour own app classes\n\n\n@Bean methods\nMethods inside @Configuration\nThird-party types, explicit factory setup\n\n\n\n@Service, @Repository, @Controller are specializations of @Component (same scanning idea; clearer intent).\n\n\n@Autowired\nAsks Spring: “find a bean that matches this dependency and inject it.”\n\nMatch is usually by type\nOn a single constructor, Spring Boot / modern Spring can inject without writing @Autowired\nIf multiple constructors exist, mark the one Spring should use\nIf multiple beans of the same type exist, resolve with @Primary / @Qualifier (see exercises)\n\n\n\nComponent scan\nSpring looks in configured packages for stereotype annotations.\nBoot: scanning starts from the package of the @SpringBootApplication class — keep your components in that package or subpackages.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-a-manual-di-reminder-payment-order",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-a-manual-di-reminder-payment-order",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Practice A — manual DI reminder (Payment / Order)",
+    "text": "Practice A — manual DI reminder (Payment / Order)\nBefore Spring, the lecture rebuilds the idea with payment before order:\npackage com.example.ioclab;\n\npublic class PaymentService {\n    public void pay() {\n        System.out.println(\"Payment done\");\n    }\n}\npackage com.example.ioclab;\n\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\n// main still does IoC by hand\nPaymentService paymentService = new PaymentService();\nOrderService orderService = new OrderService(paymentService);\norderService.placeOrder();\nCheckpoint: output should be:\nPayment done\nOrder placed",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-b-let-spring-manage-beans-component",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-b-let-spring-manage-beans-component",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Practice B — let Spring manage beans (@Component)",
+    "text": "Practice B — let Spring manage beans (@Component)\n\nStep 1 — mark classes as components\npackage com.example.ioclab;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class PaymentService {\n    public void pay() {\n        System.out.println(\"Payment done\");\n    }\n}\npackage com.example.ioclab;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    // single constructor → Spring can autowire without @Autowired\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\n\n\nStep 2 — configuration / scan entry\nOption 1 — Spring Boot (simplest if you generated a Boot app)\nKeep PaymentService / OrderService under the same base package as:\n@SpringBootApplication\npublic class IocLabApplication {\n    public static void main(String[] args) {\n        var context = SpringApplication.run(IocLabApplication.class, args);\n        OrderService orderService = context.getBean(OrderService.class);\n        orderService.placeOrder();\n    }\n}\nOption 2 — plain Spring context\npackage com.example.ioclab;\n\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\n@ComponentScan(\"com.example.ioclab\")\npublic class AppConfig {\n}\npublic class Main {\n    public static void main(String[] args) {\n        var context = new AnnotationConfigApplicationContext(AppConfig.class);\n        OrderService orderService = context.getBean(OrderService.class);\n        orderService.placeOrder();\n        context.close();\n    }\n}\n\n\nStep 3 — verify\nRun. Same output as Practice A — but you did not new the services in main. Spring did.\n\n\nStep 4 — see what breaks (learning)\nTemporarily remove @Component from PaymentService, restart:\n\nExpect a failure creating OrderService (unsatisfied dependency).\nPut @Component back.\n\nThis error is your friend — it proves the container is doing the wiring.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-c-bean-configuration",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-c-bean-configuration",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Practice C — @Bean + @Configuration",
+    "text": "Practice C — @Bean + @Configuration\nUse this when you cannot (or should not) annotate a class with @Component — e.g. a library class — or when you want explicit factory code.\nRemove @Component from both services for this experiment (or use differently named demo classes) and configure:\npackage com.example.ioclab;\n\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\npublic class BeanConfig {\n\n    @Bean\n    public PaymentService paymentService() {\n        return new PaymentService();\n    }\n\n    @Bean\n    public OrderService orderService(PaymentService paymentService) {\n        return new OrderService(paymentService);\n    }\n}\nBootstrap with that config class:\nvar context = new AnnotationConfigApplicationContext(BeanConfig.class);\n// or include BeanConfig in Boot via @Import / component scan of the config class\nOrderService orderService = context.getBean(OrderService.class);\norderService.placeOrder();\nMental model\n\n\n\n\n\n\n\nAnnotation\nAnalogy\n\n\n\n\n@Component on a class\n“Spring, scan me and manage an instance.”\n\n\n@Bean on a method\n“Spring, call this method to obtain a managed instance.”",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-d-autowired-explicitly-optional",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#practice-d-autowired-explicitly-optional",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Practice D — @Autowired explicitly (optional)",
+    "text": "Practice D — @Autowired explicitly (optional)\nEquivalent constructor form:\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    @Autowired\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n    // ...\n}\nPrefer constructor injection. Avoid field injection while learning (@Autowired on fields) — it hides dependencies and complicates tests.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#common-mistakes-checklist",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#common-mistakes-checklist",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Common mistakes checklist",
+    "text": "Common mistakes checklist\n\n\n\n\n\n\n\nMistake\nSymptom / fix\n\n\n\n\nComponent outside scan package\nBean not found — move class or fix @ComponentScan\n\n\nForgot @Component / @Bean\nUnsatisfied dependency when creating consumer\n\n\nTwo beans of same type\nAmbiguity — add @Primary or @Qualifier\n\n\nCalling new OrderService(...) yourself\nBypasses container — dependencies won’t be injected into that instance",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#exercises",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#exercises",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Exercises",
+    "text": "Exercises\n\nRename mentally: map lecture-4 NotificationService example onto @Component + constructor injection. Implement it under Spring.\nCreate two @Component classes both implementing the same interface. Inject into a consumer — observe the error — fix with @Primary or @Qualifier(\"beanName\").\nExplain in two sentences when you would choose @Bean over @Component.\nTrue/False: every object created with new inside a @Component method body is automatically a Spring bean.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#bridge-to-later-lectures",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#bridge-to-later-lectures",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Bridge to later lectures",
+    "text": "Bridge to later lectures\nNext playlist topics build on this container:\n\nBean scopes, lazy vs eager, circular dependencies\nBean lifecycle (@PostConstruct, @PreDestroy)\nXML config (historical but still useful to read)\nBoot’s @SpringBootApplication = component scan + auto-config + more\n\nIf you can create two beans and inject one into the other without watching the video on mute-copy, you are ready to continue.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/notes.html#self-check",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/notes.html#self-check",
+    "title": "Lecture 5 — Spring IoC container",
+    "section": "Self-check",
+    "text": "Self-check\n\nWhat is a Spring bean?\nDoes a class with a single constructor need @Autowired for injection?\nWho replaces the wiring role that main played in lecture 4?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Spring IoC container"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "",
+    "text": "Video: Dependency Injection & IoC Explained | Loose Coupling | Full Course #4\nPlaylist index: 4",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#goal",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#goal",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "Goal",
+    "text": "Goal\nImplement the lecture’s Order / Notification example yourself in plain Java (no Spring yet).\nBy the end you will have felt:\n\nTight coupling pain (new EmailService() inside business code).\nProgramming to an interface.\nDependency Injection via constructor and setter.\nWhy this is called Inversion of Control — and what Spring will automate next lecture.\n\n\n\n\n\n\n\nImportantHow to use this page\n\n\n\nDo not only watch. Create a simple Maven (or plain Java) project named e.g. di-lab and type each stage. Keep stages in git commits or separate packages (stage1, stage2, …) so you can compare.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#concepts",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#concepts",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "Concepts",
+    "text": "Concepts\n\nDependency\nIf OrderService needs EmailService to finish placeOrder(), then EmailService is a dependency of OrderService.\n\n\nTight coupling (the problem)\nOrderService ──creates──► EmailService\nProblems:\n\nCannot switch to SMS/Popup without editing OrderService\nHard to unit-test without sending real emails\nOrderService does two jobs: business logic and object creation (SRP smell)\n\n\n\nLoose coupling via interface\nOrderService ──depends on──► NotificationService (interface)\n                                      ▲\n                      EmailService / SmsService / …\nStill incomplete if OrderService itself does new EmailService().\n\n\nDependency Injection (DI)\nSomeone outside creates the dependency and passes it in (constructor or setter).\nOrderService only uses NotificationService; it does not create it.\n\n\nInversion of Control (IoC)\nControl of creating and wiring objects moves from the class to an external assembler (main today, Spring container tomorrow).\nRough relationship used in the lecture:\n\n\n\n\n\n\n\nTerm\nRole\n\n\n\n\nIoC\nThe broader idea — control of wiring is inverted\n\n\nDI\nA practical technique to achieve IoC\n\n\nSpring IoC container\nAutomates creation, wiring, lifecycle of beans\n\n\n\n\n\nInjection styles (this lecture)\n\n\n\n\n\n\n\nStyle\nIdea\n\n\n\n\nConstructor injection\nPass dependency in constructor (preferred for required deps)\n\n\nSetter injection\nsetX(...) after construction\n\n\nField injection\nAnnotate fields — meaningful with Spring; deferred",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#practice-lab-type-this-in-your-editor",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#practice-lab-type-this-in-your-editor",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "Practice lab — type this in your editor",
+    "text": "Practice lab — type this in your editor\nCreate packages under src/main/java, e.g. com.example.dilab.\n\nStage 1 — tight coupling (baseline)\nEmailService.java\npackage com.example.dilab;\n\npublic class EmailService {\n    public void sendNotification() {\n        System.out.println(\"Email sent\");\n    }\n}\nOrderService.java (tightly coupled)\npackage com.example.dilab;\n\npublic class OrderService {\n    public void placeOrder() {\n        EmailService notification = new EmailService(); // problem\n        notification.sendNotification();\n        System.out.println(\"Order placed\");\n    }\n}\nMain.java\npackage com.example.dilab;\n\npublic class Main {\n    public static void main(String[] args) {\n        OrderService orderService = new OrderService();\n        orderService.placeOrder();\n    }\n}\nRun it. Then ask: What must I edit to notify via SMS instead?\n\n\n\nStage 2 — introduce the interface (still creating inside)\nNotificationService.java\npackage com.example.dilab;\n\npublic interface NotificationService {\n    void sendNotification();\n}\nImplementations\npackage com.example.dilab;\n\npublic class EmailService implements NotificationService {\n    @Override\n    public void sendNotification() {\n        System.out.println(\"Email sent\");\n    }\n}\npackage com.example.dilab;\n\npublic class SmsService implements NotificationService {\n    @Override\n    public void sendNotification() {\n        System.out.println(\"SMS sent\");\n    }\n}\npackage com.example.dilab;\n\npublic class PopUpNotificationService implements NotificationService {\n    @Override\n    public void sendNotification() {\n        System.out.println(\"Popup shown\");\n    }\n}\nUpdate OrderService to use the interface type, but still new a concrete class inside — notice the design is only half-fixed.\npublic class OrderService {\n    private NotificationService notification = new EmailService(); // still creates\n\n    public void placeOrder() {\n        notification.sendNotification();\n        System.out.println(\"Order placed\");\n    }\n}\n\n\n\nStage 3 — constructor injection (DI)\npackage com.example.dilab;\n\npublic class OrderService {\n    private final NotificationService notification;\n\n    public OrderService(NotificationService notification) {\n        this.notification = notification;\n    }\n\n    public void placeOrder() {\n        notification.sendNotification();\n        System.out.println(\"Order placed\");\n    }\n}\nMain becomes the assembler:\npublic class Main {\n    public static void main(String[] args) {\n        NotificationService notification = new EmailService();\n        // try: new SmsService(); new PopUpNotificationService();\n        OrderService orderService = new OrderService(notification);\n        orderService.placeOrder();\n    }\n}\nSwap implementations in main only — do not change OrderService.\n\n\n\nStage 4 — setter injection\npackage com.example.dilab;\n\npublic class OrderService {\n    private NotificationService notification;\n\n    public OrderService() {}\n\n    public void setNotification(NotificationService notification) {\n        this.notification = notification;\n    }\n\n    public void placeOrder() {\n        if (notification == null) {\n            throw new IllegalStateException(\"NotificationService not injected\");\n        }\n        notification.sendNotification();\n        System.out.println(\"Order placed\");\n    }\n}\nOrderService orderService = new OrderService();\norderService.setNotification(new SmsService());\norderService.placeOrder();\n\n\n\nStage 5 — testability win (dummy / stub)\npackage com.example.dilab;\n\npublic class DummyNotificationService implements NotificationService {\n    @Override\n    public void sendNotification() {\n        System.out.println(\"Dummy notification (test double)\");\n    }\n}\nIn tests (or a second main path), inject DummyNotificationService so order logic can be verified without real email/SMS.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#what-spring-will-replace-next",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#what-spring-will-replace-next",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "What Spring will replace next",
+    "text": "What Spring will replace next\nToday main is the IoC “container”:\n\nCreate objects\nWire dependencies\nCall business methods\n\nLecture 5: Spring’s IoC container does (1) and (2). Your code declares what depends on what; the container builds the graph.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#exercises",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#exercises",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "Exercises",
+    "text": "Exercises\n\nAdd SlackNotificationService implements NotificationService and inject it via constructor — without editing OrderService’s placeOrder body.\nWrite one paragraph: difference between depending on EmailService vs NotificationService.\nPrefer constructor or setter for a required dependency? Why?\nDraw the control-flow arrow: who creates EmailService in Stage 1 vs Stage 3?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#self-check",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/notes.html#self-check",
+    "title": "Lecture 4 — Dependency Injection & IoC",
+    "section": "Self-check",
+    "text": "Self-check\n\nIs Dependency Injection a Spring-only feature?\nWhat is inverted in “Inversion of Control” in this lecture’s sense?\nWhy does field injection not show up cleanly in plain Java the same way?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Dependency Injection & IoC"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "",
+    "text": "Video: Master Apache Maven | POM, Dependencies & Lifecycle | Full Course #3\nPlaylist index: 3",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#goal",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#goal",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "Goal",
+    "text": "Goal\nAfter this lecture you can:\n\nRead a pom.xml and explain groupId, artifactId, version.\nAdd a dependency and know where Maven downloads it from.\nRun key lifecycle phases (clean, compile, package) and know what target/ is.\n\nMaven is how almost every Spring Boot project is built. Tracking Boot code without Maven literacy is painful.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#concepts",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#concepts",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "Concepts",
+    "text": "Concepts\n\nWhy Maven exists\nHand-managing JARs does not scale:\n\nWrong versions\nMissing transitive libraries\n“Works on my machine” classpath chaos\n\nMaven is a build + dependency + project tool. It downloads libraries, compiles, tests, and packages your app using a standard layout.\n\n\nStandard project layout\nmy-app/\n  pom.xml\n  src/\n    main/\n      java/          ← application code\n      resources/     ← application.properties, etc.\n    test/\n      java/          ← tests\n  target/            ← build output (generated; do not edit)\n\n\nCoordinates (GAV)\nEvery artifact is identified by:\n\n\n\nField\nExample\nMeaning\n\n\n\n\ngroupId\ncom.example\nOrganization / namespace\n\n\nartifactId\ndemo\nProject name\n\n\nversion\n0.0.1-SNAPSHOT\nRelease version\n\n\n\nTogether: com.example:demo:0.0.1-SNAPSHOT.\n\n\nPOM (Project Object Model)\npom.xml is the project’s declaration: coordinates, packaging (jar/war/pom), dependencies, plugins, Java version, parent BOM (Spring Boot parent often manages versions for you).\n\n\nRepositories\n\n\n\n\n\n\n\nRepo\nRole\n\n\n\n\nMaven Central\nPublic default remote repository\n\n\nLocal ~/.m2/repository\nCache of downloaded artifacts on your machine\n\n\n\nFirst build downloads; later builds reuse the local cache.\n\n\nSuper POM vs effective POM\n\nSuper POM: Maven’s built-in defaults.\nYour POM: What you write.\nEffective POM: Merged result (your POM + parents + Super POM).\nInspect with: mvn help:effective-pom\n\n\n\nBuild lifecycle (default)\nImportant phases (in order):\nvalidate → compile → test → package → verify → install → deploy\n\n\n\nPhase\nWhat it roughly does\n\n\n\n\ncompile\nCompile main sources\n\n\ntest\nRun unit tests\n\n\npackage\nBuild the JAR/WAR in target/\n\n\ninstall\nPut the artifact into your local .m2\n\n\nclean\nDelete target/ (separate clean lifecycle)\n\n\n\nRunning a phase runs all previous phases in that lifecycle too (package implies compile + test, unless you skip tests).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#practice-hands-on-in-your-editor-terminal",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#practice-hands-on-in-your-editor-terminal",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "Practice — hands-on in your editor / terminal",
+    "text": "Practice — hands-on in your editor / terminal\nUse either:\n\nThe Spring Boot project from lecture 02, or\nA fresh Maven project from Initializr (Maven + Java, even without Web)\n\n\nStep 1 — open and read pom.xml\nFind and write down (in your notes):\n\ngroupId\nartifactId\nversion\nparent (if present — Boot projects usually inherit spring-boot-starter-parent)\nOne &lt;dependency&gt; block (e.g. spring-boot-starter-web)\n\n\n\nStep 2 — confirm Maven works\nIn the project root (folder that contains pom.xml):\nmvn -v\nIf the IDE bundles Maven, you can use the IDE’s Maven tool window instead of the CLI.\n\n\nStep 3 — compile\nmvn compile\nConfirm target/classes appears with .class files.\n\n\nStep 4 — package\nmvn package\nFind the JAR under target/ (name includes artifactId + version).\nFor Boot apps this is often an executable “fat” JAR.\n\n\nStep 5 — clean\nmvn clean\ntarget/ should be removed (or emptied). Run package again to regenerate it.\n\n\nStep 6 — see the effective POM (optional but useful)\nmvn help:effective-pom &gt; effective-pom.xml\nSkim it: notice how much configuration came from the parent, not your short pom.xml.\n\n\nStep 7 — add a dependency deliberately\n\nPick a small library on Maven Central (or Maven Repository), e.g. a JSON helper you are curious about.\nCopy the &lt;dependency&gt;…&lt;/dependency&gt; snippet into your pom.xml &lt;dependencies&gt; section.\nReload Maven in the IDE / run mvn compile.\nConfirm the JAR appears under External Libraries (IDE) or in ~/.m2/repository/....\n\nThen remove the dependency if you do not need it — the point is learning the workflow.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#how-this-connects-to-spring-boot",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#how-this-connects-to-spring-boot",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "How this connects to Spring Boot",
+    "text": "How this connects to Spring Boot\nWhen Initializr added Spring Web, it added a dependency like spring-boot-starter-web to the POM. That starter pulls Tomcat, Spring MVC, Jackson, etc. Maven resolved that graph; Boot did not magically invent JARs on disk.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#exercises",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#exercises",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "Exercises",
+    "text": "Exercises\n\nWithout looking, write the meaning of groupId, artifactId, version.\nExplain the difference between mvn compile and mvn package.\nWhere does Maven store downloaded JARs on your machine?\nWhy should you usually not commit the entire target/ folder to git?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/notes.html#self-check",
+    "href": "courses/springboot/lectures/03-apache-maven/notes.html#self-check",
+    "title": "Lecture 3 — Master Apache Maven",
+    "section": "Self-check",
+    "text": "Self-check\n\nWhat does SNAPSHOT in a version often signal?\nTrue/False: mvn package always uploads your JAR to Maven Central.\nName three default-lifecycle phases in order.\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Master Apache Maven"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "",
+    "text": "Video: Build Your First Spring Boot Application | REST API | Full Course #2\nPlaylist index: 2",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#goal",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#goal",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Goal",
+    "text": "Goal\nBuild a tiny Spring Boot app that responds to:\nGET http://localhost:8080/hello  →  Hello World\nYou will type every step in your IDE. Pause the video and implement here — that is the point of these notes.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#concepts-you-need-while-coding",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#concepts-you-need-while-coding",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Concepts you need while coding",
+    "text": "Concepts you need while coding\n\nLocalhost, IP, and port\n\n\n\n\n\n\n\nIdea\nPlain meaning\n\n\n\n\nIP address\nUnique address of a machine on a network\n\n\nlocalhost / 127.0.0.1\n“This same computer”\n\n\nPort\nNumber that routes traffic to one process on that machine (Chrome, Spotify, your app…)\n\n\nDefault Spring Boot port\n8080 (changeable)\n\n\n\nOn the public internet, browsers often hit 443 (HTTPS). A reverse proxy may forward that to your app’s internal port (e.g. 8080). Locally you call the app port directly.\n\n\nSpring Initializr\nstart.spring.io generates a ready project skeleton: folders, Java version, Spring Boot version, and pom.xml dependencies — so you are not stuck on setup before writing business code.\n\n\nEmbedded Tomcat\nAdding Spring Web pulls in an embedded Apache Tomcat. When you run the main class, Tomcat listens on a port. You do not install Tomcat separately for this hello-world.\n\n\nAnnotations you will use (names only — depth later)\n\n\n\n\n\n\n\nAnnotation\nRole in this lecture\n\n\n\n\n@SpringBootApplication\nOn the generated main class — Boot entry point\n\n\n@RestController\nMarks a class as an HTTP API “gateway”\n\n\n@GetMapping(\"/hello\")\nMaps HTTP GET /hello to a method",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#practice-build-it-step-by-step",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#practice-build-it-step-by-step",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Practice — build it step by step",
+    "text": "Practice — build it step by step\n\nStep 0 — prerequisites\n\nJDK installed\nIDE ready\nVideo paused after the Initializr section if you prefer typing first\n\n\n\nStep 1 — generate the project\n\nOpen https://start.spring.io\nChoose roughly:\n\n\n\n\n\n\n\n\nField\nSuggested choice\n\n\n\n\nProject\nMaven\n\n\nLanguage\nJava\n\n\nSpring Boot\nA stable release (avoid SNAPSHOT / RC while learning)\n\n\nPackaging\nJar\n\n\nJava\n21 (or 17+)\n\n\nDependencies\nSpring Web\n\n\n\n\nClick Generate, unzip the project, open the folder in your IDE.\n\n\n\n\n\n\n\nNote\n\n\n\nExact Boot version numbers change over time. Prefer the newest stable release Initializr offers. Concepts stay the same.\n\n\n\n\nStep 2 — run the skeleton once\nOpen the generated *Application.java (has public static void main).\nOptionally add one line inside main before understanding Boot:\nSystem.out.println(\"Hello World\");\nRun the main class. In the console logs you should see something like Tomcat started on port(s): 8080.\nOpen a browser:\nhttp://localhost:8080\nYou will likely see a Whitelabel Error Page — that is OK. It proves the server is up, but no endpoint is mapped yet.\n\n\nStep 3 — create HelloController\nIn the same package as your main application class (e.g. com.example.demo), create:\nimport org.springframework.web.bind.annotation.GetMapping;\nimport org.springframework.web.bind.annotation.RestController;\n\n@RestController\npublic class HelloController {\n\n    @GetMapping(\"/hello\")\n    public String hello() {\n        return \"Hello World\";\n    }\n}\nWhat you are doing\n\n@RestController → “this class exposes HTTP endpoints”\n@GetMapping(\"/hello\") → “when someone GETs /hello, run this method”\nReturning a String → Spring writes that string as the HTTP response body\n\n\n\nStep 4 — verify in the browser\n\nRe-run the application (restart so changes load).\nVisit:\n\nhttp://localhost:8080/hello\nExpected: page shows Hello World.\n\n\nStep 5 — change the port\nOpen src/main/resources/application.properties and add:\nserver.port=9090\nRestart. Tomcat should start on 9090. Now:\nhttp://localhost:8080/hello   → fails (nothing listening)\nhttp://localhost:9090/hello   → Hello World\nSet the port back to 8080 (or delete the line) when you are done experimenting.\n\n\nStep 6 — second endpoint\nAdd another method (method name does not have to match the path):\n@GetMapping(\"/bye\")\npublic String greetBye() {\n    return \"Bye\";\n}\nRestart and test both /hello and /bye.\n\n\nStep 7 — optional HTML in the response\n@GetMapping(\"/hello\")\npublic String hello() {\n    return \"&lt;h1&gt;Hello World&lt;/h1&gt;\";\n}\nThe browser will render the heading. (Real apps usually return JSON and let a frontend render HTML — that comes later.)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#mental-model-after-this-lecture",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#mental-model-after-this-lecture",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Mental model after this lecture",
+    "text": "Mental model after this lecture\nBrowser  --GET /hello--&gt;  Embedded Tomcat (port 8080)\n                              |\n                              v\n                         Spring MVC mapping\n                              |\n                              v\n                         HelloController.hello()\n                              |\n                              v\n                         \"Hello World\" response body\nYou have not yet learned how mapping works internally. That is intentional. Lecture 1–2 show the destination; later lectures open the engine.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#exercises",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#exercises",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Exercises",
+    "text": "Exercises\n\nAdd GET /ping that returns pong.\nChange server.port to 7070 and update your browser URL.\nTemporarily remove @RestController, restart, hit /hello — what happens? Put it back.\nWrite three bullet points: What did Initializr save you from doing by hand?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#self-check",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/notes.html#self-check",
+    "title": "Lecture 2 — First Spring Boot application",
+    "section": "Self-check",
+    "text": "Self-check\n\nWhy do you hit localhost in this lecture instead of a public domain?\nWho starts Tomcat when you run the main class?\nDoes the Java method name have to equal the URL path?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — First Spring Boot application"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "",
+    "text": "Video: Spring Boot & Spring Framework Full Course #1\nPlaylist: Spring Boot Full Course · index 1",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#goal",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#goal",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "Goal",
+    "text": "Goal\nAfter this lecture you should be able to explain, in your own words:\n\nWhat happens when a browser talks to a website (client–server).\nWhy “only memorizing Spring Boot annotations” is not enough.\nWhat Spring Framework vs Spring Boot roughly means at a high level.\n\nThis lecture is conceptual. You still practice by writing short explanations and a tiny diagram — so you can track the ideas before code arrives in lecture 2.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#clientserver-in-one-picture",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#clientserver-in-one-picture",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "1. Client–server in one picture",
+    "text": "1. Client–server in one picture\n  Browser (CLIENT)                    Machine hosting the site (SERVER)\n  ─────────────────                   ────────────────────────────────\n         |  HTTP request (e.g. GET /)              |\n         | --------------------------------------&gt; |\n         |                                         |  process request\n         |  HTTP response (HTML / JSON / …)        |\n         | &lt;-------------------------------------- |\n         |  render page                            |\n\n\n\n\n\n\n\nTerm\nMeaning\n\n\n\n\nClient\nWho sends the request (browser, mobile app, Postman, another service)\n\n\nServer\nComputer where the application is hosted; sends the response\n\n\nHTTP / HTTPS\nThe protocol carrying the request and response\n\n\n\nPractice A — narrate the flow\nWrite 4–6 bullet points in a notebook (or a notes.md in any folder) answering:\n\nI open https://www.example.com in Chrome. What happens end-to-end?\n\nInclude: client, server, request, response. Do not copy jargon — use plain language first.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#why-spring-at-all",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#why-spring-at-all",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "2. Why Spring at all?",
+    "text": "2. Why Spring at all?\nYou can build Java web apps with raw servlets, manual wiring, and lots of boilerplate. Teams adopted Spring because it helps with:\n\nObject wiring (who creates whom) — later: IoC / DI\nWeb request handling — later: Spring MVC\nConsistent patterns for data access, transactions, security, etc.\n\nSpring Boot sits on top of Spring: starters + auto-configuration so you start with business code faster.\nSpring Framework (core + MVC + …) is what Boot is configuring for you.\n\nLearning only Boot syntax without core ideas is like driving without knowing what a clutch does — fine until something breaks.\n\nPractice B — vocabulary card\nFill this table yourself (answers in self-check):\n\n\n\nPhrase\nYour one-line meaning\n\n\n\n\nSpring Framework\n\n\n\nSpring Boot\n\n\n\nSpring MVC\n\n\n\nSpring Core / IoC",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#series-roadmap-so-you-know-where-you-are",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#series-roadmap-so-you-know-where-you-are",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "3. Series roadmap (so you know where you are)",
+    "text": "3. Series roadmap (so you know where you are)\n\n\n\n\n\n\n\nBlock\nWhat you build / learn\n\n\n\n\nIntro + first app + Maven\nRun something; understand the project file\n\n\nDI / IoC / beans\nHow objects are created and connected\n\n\nBoot internals, properties\nWhat Boot auto-configures\n\n\nCRUD + JPA + MVC\nReal APIs and persistence\n\n\nSecurity, AOP, testing, projects\nProduction-style topics\n\n\n\nLectures 04 and 05 are where tracking “code vs video” usually gets hard — this site slows those down into editor steps.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#setup-checklist-do-this-before-lecture-2",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#setup-checklist-do-this-before-lecture-2",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "4. Setup checklist (do this before lecture 2)",
+    "text": "4. Setup checklist (do this before lecture 2)\nComplete these once. Tick them off:\n\nJDK 17+ installed; java -version works in a terminal\nIDE installed (IntelliJ Community recommended in the series)\nBrowser ready for http://localhost:8080\nOptional: bookmark start.spring.io\n\nPractice C — prove Java works\nCreate a single file Hello.java anywhere:\npublic class Hello {\n    public static void main(String[] args) {\n        System.out.println(\"JDK ready\");\n    }\n}\nCompile and run (javac Hello.java then java Hello, or Run in the IDE). You should see JDK ready.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/notes.html#self-check",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/notes.html#self-check",
+    "title": "Lecture 1 — Spring Framework intro",
+    "section": "Self-check",
+    "text": "Self-check\n\nIn client–server terms, is your browser the client or the server when you visit Amazon?\nWhy does the instructor insist on learning Spring Framework, not only Spring Boot syntax?\nName one responsibility of a server in the HTTP request/response cycle.\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Spring Framework intro"
     ]
   },
   {
@@ -873,14 +1385,14 @@
     "href": "courses/index.html#active",
     "title": "Courses",
     "section": "Active",
-    "text": "Active\n\nMathematical Foundations of Machine Learning\n\nID: mfml\nInstructor: Prof. Prathosh A.P. (IISc)\nPlatform: NPTEL\nFocus: Probability-first mathematical foundations of classical ML and deep learning"
+    "text": "Active\n\nMathematical Foundations of Machine Learning\n\nID: mfml\nInstructor: Prof. Prathosh A.P. (IISc)\nPlatform: NPTEL\nFocus: Probability-first mathematical foundations of classical ML and deep learning\n\n\n\nSpring Boot Full Course\n\nID: springboot\nInstructor: Aditya Tandon (Coder Army)\nPlatform: YouTube playlist\nFocus: Practice-first Spring Boot / Spring Framework notes — type code in your editor lecture by lecture"
   },
   {
     "objectID": "courses/index.html#planned-next",
     "href": "courses/index.html#planned-next",
     "title": "Courses",
     "section": "Planned / next",
-    "text": "Planned / next\nWhen you start the next series (e.g. Mathematical Foundations of Generative AI), create courses/&lt;id&gt;/ and register it in _quarto.yml. Step-by-step: Add a course."
+    "text": "Planned / next\nWhen you start another series, create courses/&lt;id&gt;/ and register it in _quarto.yml. Step-by-step: Add a course."
   },
   {
     "objectID": "courses/mfml/index.html",
@@ -961,6 +1473,230 @@
       "Home",
       "Lectures",
       "Lecture 4 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/index.html",
+    "href": "courses/springboot/index.html",
+    "title": "Spring Boot Full Course",
+    "section": "",
+    "text": "Unofficial practice notes for the Spring Boot Full Course playlist.\nThese pages are written so anyone can type code in their own editor, one step at a time — not just rewatch the video.",
+    "crumbs": [
+      "Home",
+      "Spring Boot Full Course"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/index.html#lectures",
+    "href": "courses/springboot/index.html#lectures",
+    "title": "Spring Boot Full Course",
+    "section": "Lectures",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06+\nAdd next playlist lectures the same way",
+    "crumbs": [
+      "Home",
+      "Spring Boot Full Course"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/index.html#prerequisites",
+    "href": "courses/springboot/index.html#prerequisites",
+    "title": "Spring Boot Full Course",
+    "section": "Prerequisites",
+    "text": "Prerequisites\n\nComfortable with Java basics (classes, interfaces, constructors, packages)\nJDK 17+ installed (java -version)\nAn IDE (IntelliJ IDEA Community is what the series uses)",
+    "crumbs": [
+      "Home",
+      "Spring Boot Full Course"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/index.html#course-references",
+    "href": "courses/springboot/index.html#course-references",
+    "title": "Spring Boot Full Course",
+    "section": "Course references",
+    "text": "Course references\nSee Spring Boot references for docs and related reading.",
+    "crumbs": [
+      "Home",
+      "Spring Boot Full Course"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html",
+    "title": "Lecture 1 — Self-check answers",
+    "section": "",
+    "text": "Phrase\nOne-line meaning\n\n\n\n\nSpring Framework\nFamily of libraries for building Java apps (core IoC, MVC, data, …)\n\n\nSpring Boot\nOpinionated layer on Spring that auto-configures and packs starters so you start faster\n\n\nSpring MVC\nSpring’s web stack for mapping HTTP requests to Java handlers\n\n\nSpring Core / IoC\nContainer that creates and wires application objects (“beans”)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html#practice-b-sample-vocabulary",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html#practice-b-sample-vocabulary",
+    "title": "Lecture 1 — Self-check answers",
+    "section": "",
+    "text": "Phrase\nOne-line meaning\n\n\n\n\nSpring Framework\nFamily of libraries for building Java apps (core IoC, MVC, data, …)\n\n\nSpring Boot\nOpinionated layer on Spring that auto-configures and packs starters so you start faster\n\n\nSpring MVC\nSpring’s web stack for mapping HTTP requests to Java handlers\n\n\nSpring Core / IoC\nContainer that creates and wires application objects (“beans”)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html#self-check",
+    "title": "Lecture 1 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nClient. Your browser sends the HTTP request; Amazon’s machines are the server.\nBoot hides wiring and server setup. Without core/MVC ideas, debugging failed mappings, missing beans, or config issues is guesswork.\nReceive the request, process it (business logic / DB / …), and return an HTTP response.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 1 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html",
+    "title": "Lecture 2 — Self-check answers",
+    "section": "",
+    "text": "@GetMapping(\"/ping\") public String ping() { return \"pong\"; }\nserver.port=7070 then open http://localhost:7070/hello.\nWithout @RestController, /hello is not exposed as a REST endpoint — expect 404 / whitelabel error. With the annotation restored, it works again.\nExamples: folder layout, choosing compatible dependency versions, generating pom.xml, wiring a basic Boot main class.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html#exercises-sample",
+    "title": "Lecture 2 — Self-check answers",
+    "section": "",
+    "text": "@GetMapping(\"/ping\") public String ping() { return \"pong\"; }\nserver.port=7070 then open http://localhost:7070/hello.\nWithout @RestController, /hello is not exposed as a REST endpoint — expect 404 / whitelabel error. With the annotation restored, it works again.\nExamples: folder layout, choosing compatible dependency versions, generating pom.xml, wiring a basic Boot main class.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html#self-check",
+    "title": "Lecture 2 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nClient and server are the same machine. localhost / 127.0.0.1 means “talk to myself.”\nSpring Boot, via the Spring Web starter’s embedded Tomcat, starts when the application runs — you did not install Tomcat separately.\nNo. The path comes from @GetMapping(\"...\"); the method can be named anything legal in Java.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 2 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/self-check-answers.html",
+    "href": "courses/springboot/lectures/03-apache-maven/self-check-answers.html",
+    "title": "Lecture 3 — Self-check answers",
+    "section": "",
+    "text": "groupId — org/namespace; artifactId — project name; version — release id.\ncompile produces .class files; package also builds the distributable JAR/WAR in target/ (and runs earlier phases including tests by default).\nLocal Maven repository, typically ~/.m2/repository (Windows: C:\\Users\\&lt;you&gt;\\.m2\\repository).\nIt is generated output; regenerable via Maven; committing it clutters git and causes merge noise.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/03-apache-maven/self-check-answers.html#exercises-sample",
+    "title": "Lecture 3 — Self-check answers",
+    "section": "",
+    "text": "groupId — org/namespace; artifactId — project name; version — release id.\ncompile produces .class files; package also builds the distributable JAR/WAR in target/ (and runs earlier phases including tests by default).\nLocal Maven repository, typically ~/.m2/repository (Windows: C:\\Users\\&lt;you&gt;\\.m2\\repository).\nIt is generated output; regenerable via Maven; committing it clutters git and causes merge noise.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/03-apache-maven/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/03-apache-maven/self-check-answers.html#self-check",
+    "title": "Lecture 3 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nA work-in-progress / not a final release (changing artifact). Prefer stable releases while learning.\nFalse. package builds locally. Publishing to Central is a separate, intentional process (deploy + credentials / publishing setup).\nExample order: validate → compile → test → package → verify → install → deploy.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 3 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html",
+    "title": "Lecture 4 — Self-check answers",
+    "section": "",
+    "text": "Create the class, then new OrderService(new SlackNotificationService()) in main.\nDepending on EmailService couples you to one channel; depending on NotificationService lets any implementation be substituted (email, SMS, stub, …).\nConstructor — required deps are non-null after construction; object can be immutable (final fields); always fully wired when used.\nStage 1: OrderService creates EmailService. Stage 3: main (external assembler) creates it and injects it.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html#exercises-sample",
+    "title": "Lecture 4 — Self-check answers",
+    "section": "",
+    "text": "Create the class, then new OrderService(new SlackNotificationService()) in main.\nDepending on EmailService couples you to one channel; depending on NotificationService lets any implementation be substituted (email, SMS, stub, …).\nConstructor — required deps are non-null after construction; object can be immutable (final fields); always fully wired when used.\nStage 1: OrderService creates EmailService. Stage 3: main (external assembler) creates it and injects it.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html#self-check",
+    "title": "Lecture 4 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nNo. DI is a general design technique. Spring automates it.\nControl of creating / wiring dependencies moves out of the dependent class to an external assembler / container.\nPlain Java has no container reading annotations to set private fields after construction. Field injection becomes practical when a framework (Spring) processes those annotations.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 4 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html",
+    "title": "Lecture 5 — Self-check answers",
+    "section": "",
+    "text": "Mark EmailService / SmsService / OrderService with @Component (implementations + consumer), inject NotificationService into OrderService via constructor, fetch OrderService from the context.\nWithout disambiguation Spring fails with a non-unique bean error. @Primary picks a default; @Qualifier(\"smsService\") picks by name (default bean name is usually the camelCase class name).\nUse @Bean for types you do not own / cannot annotate, or when construction needs custom factory logic. Use @Component for your own everyday app classes.\nFalse. Only objects registered with the container (component scan or @Bean, etc.) are beans. A plain new inside business code is a normal Java object unless returned from a @Bean method (or otherwise registered).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html#exercises-sample",
+    "title": "Lecture 5 — Self-check answers",
+    "section": "",
+    "text": "Mark EmailService / SmsService / OrderService with @Component (implementations + consumer), inject NotificationService into OrderService via constructor, fetch OrderService from the context.\nWithout disambiguation Spring fails with a non-unique bean error. @Primary picks a default; @Qualifier(\"smsService\") picks by name (default bean name is usually the camelCase class name).\nUse @Bean for types you do not own / cannot annotate, or when construction needs custom factory logic. Use @Component for your own everyday app classes.\nFalse. Only objects registered with the container (component scan or @Bean, etc.) are beans. A plain new inside business code is a normal Java object unless returned from a @Bean method (or otherwise registered).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html#self-check",
+    "title": "Lecture 5 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nAn object instantiated and managed by the Spring IoC container.\nNo (in modern Spring / Boot) — a single constructor is enough for the container to use it. Multiple constructors → mark the chosen one with @Autowired.\nThe Spring IoC container (ApplicationContext), based on your annotations / config metadata.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 5 — Self-check answers"
     ]
   },
   {
@@ -1045,28 +1781,28 @@
     "href": "index.html",
     "title": "Learn ML",
     "section": "",
-    "text": "Personal learning space for machine learning and deep learning — starting with NPTEL courses, extensible to any future series."
+    "text": "Personal learning space for lecture notes and practice-first tutorials — ML foundations plus hands-on engineering series. Extensible: add any new course without restructuring the site."
   },
   {
     "objectID": "index.html#courses",
     "href": "index.html#courses",
     "title": "Learn ML",
     "section": "Courses",
-    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nNext series…\n—\nAdd via Add a course"
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–05\n\n\nNext series…\n—\nAdd via Add a course"
   },
   {
     "objectID": "index.html#how-this-site-is-organized",
     "href": "index.html#how-this-site-is-organized",
     "title": "Learn ML",
     "section": "How this site is organized",
-    "text": "How this site is organized\ncourses/\n  mfml/                 ← one folder per lecture series\n    lectures/01-.../\n    references.qmd\n  SERIES_ID/            ← copy template when you start a new series\nreferences/             ← shared reading list across courses\nEach series has its own sidebar. The top Courses menu lists every series. When you begin a new NPTEL (or other) series, follow Add a course."
+    "text": "How this site is organized\ncourses/\n  mfml/                 ← one folder per lecture series\n    lectures/01-.../\n    references.qmd\n  springboot/           ← Spring Boot practice notes\n  SERIES_ID/            ← copy template when you start a new series\nreferences/             ← shared reading list across courses\nEach series has its own sidebar. The top Courses menu lists every series. To add another, follow Add a course."
   },
   {
     "objectID": "index.html#quick-links",
     "href": "index.html#quick-links",
     "title": "Learn ML",
     "section": "Quick links",
-    "text": "Quick links\n\nAll courses\nShared references\nCurrent lecture: MFML Lec 01 — Function Approximation"
+    "text": "Quick links\n\nAll courses\nShared references\nMFML Lec 01 — Function Approximation\nSpring Boot Lec 04 — DI & IoC (practice)"
   },
   {
     "objectID": "courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html",
