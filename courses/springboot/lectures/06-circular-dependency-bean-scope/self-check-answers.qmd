@@ -1,0 +1,19 @@
+---
+title: "Lecture 6 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. **A:** create `PaymentService`, then `OrderService` (needs payment), then use order. **B:** creating either service requires the other first → cycle / `BeanCurrentlyInCreationException`.
+2. Example: `OrderDetailsService` holds `getOrderDetails()`; `PaymentService` depends only on that; `OrderService` depends on `PaymentService` (and maybe details) — no mutual constructor pair.
+3. Prototype: two `getBean` calls → two constructor logs, `a == b` false. Singleton: one log, `a == b` true.
+4. Singleton means one instance **per bean definition**, not necessarily one instance of that Java class in the whole container.
+
+## Self-check
+
+1. Each constructor needs the other bean fully constructed first — impossible without a proxy/partial instance. Spring detects the loop and fails fast.
+2. **No.** `@Lazy` (or setter/field tricks) can start the app, but the circular design remains. Prefer removing the cycle.
+3. **Two** singleton instances — one for each bean definition (`reportOne`, `reportTwo`).
+4. **No.** Prototypes are created when requested (lazy relative to startup). Singletons are eager by default unless marked `@Lazy`.

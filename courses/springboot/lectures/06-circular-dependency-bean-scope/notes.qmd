@@ -1,0 +1,381 @@
+---
+title: "Lecture 6 — Circular dependency, bean scope, lazy & eager"
+subtitle: "When beans need each other, and how many instances Spring creates"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Circular Dependency in Spring \| Bean Scope, Lazy & Eager Beans \| Full Course #6](https://www.youtube.com/watch?v=ass8cR52Cf8)  
+**Playlist index:** 6  
+**Builds on:** [Lecture 5 — IoC container](../05-spring-ioc-container/notes.qmd)
+
+---
+
+## Goal
+
+In your editor, you will:
+
+1. **Reproduce** a circular dependency with constructor injection and read the failure.
+2. Try common **workarounds** (`@Lazy`, setter) — then understand why **redesign is better**.
+3. Compare **singleton** vs **prototype** scope with print statements in constructors.
+4. Contrast **eager** vs **lazy** initialization.
+
+Reuse the Spring Core / Boot lab from lecture 5 (`AnnotationConfigApplicationContext` + `@Configuration` + `@ComponentScan`, or a Boot app).
+
+---
+
+## Concepts
+
+### Circular dependency
+
+```text
+OrderService  ──needs──►  PaymentService
+     ▲                         │
+     └──────── needs ──────────┘
+```
+
+Spring creates beans in dependency order. With **constructor injection** on both sides, neither bean can finish constructing → typically `BeanCurrentlyInCreationException` (or a clear circular-reference error at context startup).
+
+| Approach | What happens | Verdict |
+|----------|--------------|---------|
+| Redesign (extract third type / events / break the cycle) | No cycle | **Preferred** |
+| `@Lazy` on one constructor parameter | Injects a lazy proxy; real bean created later | Workaround |
+| Setter / field injection | Partial object published, then wired | Workaround; hides design smell |
+
+Constructor injection is not “wrong” here — it **surfaces** the cycle early. That is a feature.
+
+### Side note from the lecture: `@Configuration` is a component
+
+`@Configuration` is meta-annotated with `@Component`. The config class itself becomes a bean so Spring can invoke your `@Bean` methods. Component scanning + `@Bean` factories both live in the same container world you started in lecture 5.
+
+### Bean scope
+
+**Scope** = how many instances Spring creates for a **bean definition**, and when.
+
+| Scope | Instances | Typical use |
+|-------|-----------|-------------|
+| **singleton** (default) | One per bean definition | Stateless services |
+| **prototype** | New instance every time the bean is requested | Stateful / per-use objects |
+| request / session / application | Web-aware (later) | HTTP request/session lifetime |
+
+::: {.callout-important}
+## Interview-depth point
+
+**Singleton does not mean “only one object in the whole JVM / container.”**  
+It means **one instance per bean definition**.
+
+Two `@Bean` methods that both return `OrderService` → **two** singleton definitions → **two** instances, each reused when you ask for that definition.
+:::
+
+### Eager vs lazy initialization
+
+| | Eager | Lazy |
+|--|-------|------|
+| **When created** | When the container starts (for singletons by default) | On first request / first use |
+| **Default** | Singleton → eager | Prototype → effectively lazy (created when asked) |
+| **Fail-fast** | Config errors show at startup | Errors may hide until first use |
+| **Annotation** | (default) | `@Lazy` on a bean or on an injection point |
+
+Tradeoff: eager = slower startup, faster discovery of broken wiring; lazy = faster startup, later failures.
+
+---
+
+## Practice A — healthy one-way dependency (baseline)
+
+Package e.g. `com.example.scopeLab`.
+
+**`AppConfig.java`**
+
+```java
+package com.example.scopeLab;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan
+public class AppConfig {
+}
+```
+
+**`PaymentService.java`**
+
+```java
+package com.example.scopeLab;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class PaymentService {
+    public void pay() {
+        System.out.println("Payment done");
+    }
+}
+```
+
+**`OrderService.java`**
+
+```java
+package com.example.scopeLab;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+**`Main.java`**
+
+```java
+package com.example.scopeLab;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        var context = new AnnotationConfigApplicationContext(AppConfig.class);
+        OrderService order = context.getBean(OrderService.class);
+        order.placeOrder();
+        context.close();
+    }
+}
+```
+
+Expected:
+
+```text
+Payment done
+Order placed
+```
+
+---
+
+## Practice B — force a circular dependency
+
+Make `PaymentService` also need `OrderService` via **constructor**:
+
+```java
+@Component
+public class PaymentService {
+    private final OrderService orderService;
+
+    public PaymentService(OrderService orderService) {
+        this.orderService = orderService;
+    }
+
+    public void pay() {
+        System.out.println("Payment done");
+        orderService.getOrderDetails();
+    }
+}
+```
+
+```java
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+
+    public void getOrderDetails() {
+        System.out.println("Order details");
+    }
+}
+```
+
+Run `Main` again.
+
+**Checkpoint:** context fails while creating beans. Read the stack trace — find the circular reference mention. Screenshot or copy the exception name into your notes.
+
+---
+
+## Practice C — workarounds (then undo them)
+
+### C1 — `@Lazy` on one constructor parameter
+
+```java
+import org.springframework.context.annotation.Lazy;
+
+@Component
+public class PaymentService {
+    private final OrderService orderService;
+
+    public PaymentService(@Lazy OrderService orderService) {
+        this.orderService = orderService;
+    }
+    // pay() as above
+}
+```
+
+Keep `OrderService` constructor injection as before. Restart — app may start and print:
+
+```text
+Payment done
+Order details
+Order placed
+```
+
+You “fixed” startup, but the **design still couples two services in a loop**. Prefer extracting something like `OrderDetailsReader` or having payment not call back into order.
+
+### C2 — setter injection on one side (optional experiment)
+
+Remove the cycle from constructors: inject one dependency via setter/`@Autowired` method after construction. Observe that Spring can create a partial bean, then wire the rest.
+
+When finished experimenting, **restore a clean one-way design** (Practice A) before scopes — circular demos confuse later prints.
+
+---
+
+## Practice D — singleton vs prototype
+
+Use a simple bean with a constructor log:
+
+```java
+package com.example.scopeLab;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON) // default; can omit
+public class ReportService {
+    public ReportService() {
+        System.out.println("ReportService created: " + System.identityHashCode(this));
+    }
+
+    public void report() {
+        System.out.println("report from " + System.identityHashCode(this));
+    }
+}
+```
+
+In `Main`:
+
+```java
+var a = context.getBean(ReportService.class);
+var b = context.getBean(ReportService.class);
+a.report();
+b.report();
+System.out.println("same instance? " + (a == b));
+```
+
+**Singleton expectation:** one `created` line; `a == b` is `true`.
+
+Now change to prototype:
+
+```java
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+```
+
+Re-run.
+
+**Prototype expectation:** two `created` lines; `a == b` is `false`.
+
+### D2 — two bean definitions, both singleton (depth check)
+
+Temporarily drop `@Component` on `ReportService` and define in config:
+
+```java
+@Configuration
+@ComponentScan
+public class AppConfig {
+
+    @Bean
+    public ReportService reportOne() {
+        return new ReportService();
+    }
+
+    @Bean
+    public ReportService reportTwo() {
+        return new ReportService();
+    }
+}
+```
+
+Start the context (no `getBean` yet if you only want creation logs). You should see **two** constructor prints — two singleton **definitions**.
+
+Asking `getBean("reportOne")` twice returns the same instance; `getBean("reportTwo")` is a different singleton.
+
+If another `@Component` needs a single `ReportService` type while two definitions exist, you get **NoUniqueBeanDefinitionException** — fix with `@Primary` / `@Qualifier` (lecture 5 exercise territory).
+
+---
+
+## Practice E — eager vs `@Lazy`
+
+Add constructor logging to a `@Component` singleton you do **not** call from `main`:
+
+```java
+@Component
+public class HeavyService {
+    public HeavyService() {
+        System.out.println("HeavyService created (eager?)");
+    }
+}
+```
+
+Run `Main` that only loads the context and exits (no `getBean(HeavyService.class)`).
+
+- **Without `@Lazy`:** you still see `HeavyService created` at startup (eager singleton).
+- **With `@Lazy` on the class:**
+
+```java
+import org.springframework.context.annotation.Lazy;
+
+@Component
+@Lazy
+public class HeavyService { /* ... */ }
+```
+
+…creation log should **not** appear until something first requests that bean.
+
+Compare with **prototype**: prototypes are not pre-created at startup the way singletons are; they appear when requested.
+
+---
+
+## When to choose which scope (practical rule)
+
+| Situation | Prefer |
+|-----------|--------|
+| Stateless service (`pay()`, `placeOrder()` with no per-user fields) | **singleton** |
+| Object that holds request-specific mutable state | **prototype** (or a web scope later) |
+| Expensive bean rarely used | Consider **`@Lazy`** singleton |
+| You want wiring mistakes at boot | Keep important singletons **eager** |
+
+---
+
+## Exercises
+
+1. Draw the bean creation order for Practice A vs the failing circular constructors in Practice B.
+2. Break the Order↔Payment cycle by introducing a third class (e.g. `OrderDetailsService`) that both can use — no circular constructors.
+3. Prove with `==` and constructor logs that prototype ≠ singleton.
+4. Explain in one sentence: why “singleton = one object in the container” is incomplete.
+
+---
+
+## Self-check
+
+1. Why does constructor injection fail loudly on a circular dependency?
+2. Does `@Lazy` mean the design is good?
+3. Two `@Bean` methods return the same class type, both default scope. How many instances exist after context refresh (before any prototype talk)?
+4. Are prototype beans eagerly created at startup by default?
+
+Answers: [self-check-answers](self-check-answers.qmd)

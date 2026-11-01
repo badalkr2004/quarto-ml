@@ -34,7 +34,8 @@ These pages are written so anyone can **type code in their own editor**, one ste
 | 03 | [Apache Maven — POM, dependencies & lifecycle](lectures/03-apache-maven/notes.qmd) | [Self-check](lectures/03-apache-maven/self-check-answers.qmd) |
 | 04 | [Dependency Injection & IoC — loose coupling (plain Java)](lectures/04-dependency-injection-ioc/notes.qmd) | [Self-check](lectures/04-dependency-injection-ioc/self-check-answers.qmd) |
 | 05 | [Spring IoC container — beans, `@Component`, `@Autowired`, `@Bean`](lectures/05-spring-ioc-container/notes.qmd) | [Self-check](lectures/05-spring-ioc-container/self-check-answers.qmd) |
-| 06+ | *Add next playlist lectures the same way* | |
+| 06 | [Circular dependency, bean scope, lazy & eager](lectures/06-circular-dependency-bean-scope/notes.qmd) | [Self-check](lectures/06-circular-dependency-bean-scope/self-check-answers.qmd) |
+| 07+ | *Add next playlist lectures the same way* | |
 
 ## Prerequisites
 

@@ -94,6 +94,8 @@ website:
             - courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.qmd
             - courses/springboot/lectures/05-spring-ioc-container/notes.qmd
             - courses/springboot/lectures/05-spring-ioc-container/self-check-answers.qmd
+            - courses/springboot/lectures/06-circular-dependency-bean-scope/notes.qmd
+            - courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.qmd
         - courses/springboot/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID
