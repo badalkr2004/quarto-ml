@@ -339,10 +339,202 @@
     "href": "courses/springboot/references.html#concepts-to-keep-nearby",
     "title": "Spring Boot — References",
     "section": "Concepts to keep nearby",
-    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06",
+    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06\n\n\nBean lifecycle, @PostConstruct / @PreDestroy\nLecture 07",
     "crumbs": [
       "Home",
       "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "",
+    "text": "Video: Bean Lifecycle Explained | @PostConstruct, @PreDestroy, Scopes & @Lazy | Full Course #7\nPlaylist index: 7\nBuilds on: Lecture 5 · Lecture 6",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#why-this-lecture-matters-not-syntax-tourism",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#why-this-lecture-matters-not-syntax-tourism",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Why this lecture matters (not syntax tourism)",
+    "text": "Why this lecture matters (not syntax tourism)\nIf you only memorize annotations, you will still get lost when:\n\nA dependency is null in a constructor but fine later\nResources leak on shutdown (DB pools, file handles, threads)\nA prototype bean’s cleanup “never runs”\nA @Lazy bean hides a wiring bug until production traffic hits it\n\nTarget outcome: you can draw the lifecycle from memory, predict when each line of your code runs, and choose init/destroy hooks the way you would when teaching or reviewing a PR.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#master-mindmap-singleton-bean-default-path",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#master-mindmap-singleton-bean-default-path",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Master mindmap — singleton bean (default path)",
+    "text": "Master mindmap — singleton bean (default path)\nRead this top-to-bottom. Every practice below hangs off this map.\n┌─────────────────────────────────────────────────────────────┐\n│ 1. IoC container starts                                     │\n│    new AnnotationConfigApplicationContext(AppConfig.class)  │\n│    (or SpringApplication.run …)                             │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 2. Read configuration metadata (reflection)                 │\n│    @Configuration · @ComponentScan · @Bean methods          │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 3. Build ALL bean definitions FIRST                         │\n│    Blueprint per type: name, class, scope, lazy flag,       │\n│    dependency list — NO business objects yet for lazy/proto │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 4. Instantiate non-lazy singletons (dependency order)       │\n│    constructor runs here                                    │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 5. Populate remaining DI (setter / field if any)            │\n│    (constructor DI already happened in step 4)              │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 6. Aware callbacks (optional)                               │\n│    BeanNameAware · ApplicationContextAware · …              │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 7. Initialization callbacks                                 │\n│    @PostConstruct → InitializingBean.afterPropertiesSet()   │\n│    → @Bean(initMethod=…)                                    │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 8. Bean ready — your app calls business methods             │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 9. Destruction callbacks (on context.close / shutdown)      │\n│    @PreDestroy → DisposableBean.destroy()                   │\n│    → @Bean(destroyMethod=…)                                 │\n└───────────────────────────┬─────────────────────────────────┘\n                            ▼\n┌─────────────────────────────────────────────────────────────┐\n│ 10. Bean destroyed / removed from active use                │\n└─────────────────────────────────────────────────────────────┘\nVariants (same map, different cut-points):\n@Lazy singleton\n  steps 1–3 always\n  steps 4–8 deferred until first getBean / first injection use\n  steps 9–10 still apply when context closes (if bean was created)\n\nprototype\n  steps 1–3 always\n  steps 4–7 when requested\n  then Spring HANDS OBJECT TO CLIENT and stops managing it\n  ⇒ steps 9–10 DO NOT run for that instance",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-1-container-start-configuration-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-1-container-start-configuration-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 1 — Container start & configuration (complete)",
+    "text": "Topic 1 — Container start & configuration (complete)\n\nWhat “passing AppConfig.class” actually means\nYou do not pass an AppConfig instance into the container. You pass class metadata. Spring uses Java reflection to discover:\n\nannotations on the class (@Configuration, @ComponentScan)\n@Bean methods\nwhich packages to scan\n\nvar context = new AnnotationConfigApplicationContext(AppConfig.class);\n\n\nMinimal config you already know\n@Configuration\n@ComponentScan // same package as AppConfig if no basePackages given\npublic class AppConfig {\n}\n\n\nReasoning checkpoint\n\n\n\n\n\n\n\nQuestion\nAnswer you should be able to give\n\n\n\n\nWhy reflection?\nContainer must discover annotations without you calling every setter by hand\n\n\nWhen does scanning happen?\nDuring context refresh / construction — before you call business methods\n\n\nIs AppConfig itself a bean?\nYes — @Configuration is a @Component; Spring needs an instance to invoke @Bean methods\n\n\n\nDo not leave this half-baked: until the context exists and config is read, no @PostConstruct on your services can run.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-2-bean-definition-phase-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-2-bean-definition-phase-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 2 — Bean definition phase (complete)",
+    "text": "Topic 2 — Bean definition phase (complete)\n\nWhat a bean definition is\nA bean definition is the container’s blueprint for a bean — metadata before (or independent of) creating the instance:\n\n\n\nMetadata\nExamples\n\n\n\n\nBean name\ndefault: camelCase class name (orderService)\n\n\nType\nOrderService.class\n\n\nScope\nsingleton / prototype / …\n\n\nLazy flag\ndefault false for singleton\n\n\nDependencies\nconstructor args, @Autowired points\n\n\n\n\n\nCritical ordering rule\nSpring builds definitions for all managed types first, then decides which objects to instantiate now.\nWhy?\n\nPrototype → must not create at startup\n@Lazy singleton → must not create at startup\nDependency graph → must know “Order needs Payment” before creating Order\n\nScan components\n      │\n      ▼\nCreate definitions for OrderService AND PaymentService\n      │\n      ▼\nOnly THEN instantiate the eager singletons (in dependency order)\n\n\nInstantiation order is dependency-aware\nNot random. If OrderService’s constructor needs PaymentService, Spring creates Payment first, then Order — even if scan discovered Order first.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-3-instantiation-vs-dependency-injection-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-3-instantiation-vs-dependency-injection-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 3 — Instantiation vs dependency injection (complete)",
+    "text": "Topic 3 — Instantiation vs dependency injection (complete)\n\nConstructor injection merges two steps\nWith constructor injection, “create object” and “inject required deps” happen together: the constructor cannot finish without collaborators.\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService; // already injected here\n        System.out.println(\"OrderService constructor\");\n    }\n}\n\n\nField / setter injection splits the steps\n1) call no-arg constructor  →  object exists, fields still null\n2) later: inject via reflection into fields / setters\nThat is why this pattern bites beginners:\n@Component\npublic class BrokenExample {\n    @Autowired\n    private PaymentService paymentService;\n\n    public BrokenExample() {\n        // paymentService is still null HERE with field injection\n        // paymentService.pay(); // NPE\n    }\n}\nReasoning rule: anything that needs collaborators belongs in:\n\nthe constructor (if constructor-injected), or\n\n@PostConstruct / init callbacks (after all injection styles have finished)\n\nKeep constructors light. Heavy work (load files, warm caches, open connections) → init callbacks.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-4-aware-interfaces-complete-including-when-not-to-use",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-4-aware-interfaces-complete-including-when-not-to-use",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 4 — Aware interfaces (complete, including when not to use)",
+    "text": "Topic 4 — Aware interfaces (complete, including when not to use)\nAfter DI, Spring may call Aware callbacks if you implement the interfaces.\n\n\n\n\n\n\n\n\nInterface\nCallback\nGives you\n\n\n\n\nBeanNameAware\nsetBeanName(String name)\nThe bean’s name in the container\n\n\nApplicationContextAware\nsetApplicationContext(...)\nThe context that owns this bean\n\n\n\n@Component\npublic class UserService implements BeanNameAware, ApplicationContextAware {\n    private String beanName;\n\n    public UserService() {\n        System.out.println(\"UserService constructor\");\n    }\n\n    @Override\n    public void setBeanName(String name) {\n        this.beanName = name;\n        System.out.println(\"BeanNameAware: \" + name);\n    }\n\n    @Override\n    public void setApplicationContext(ApplicationContext context) {\n        System.out.println(\"Context type: \" + context.getClass().getName());\n    }\n}\n\nWhat these are for\n\nFramework / infrastructure needs (logging that tags messages with bean name, advanced context lookup)\nNot day-to-day business logic\n\nCalling setBeanName yourself from main does not rename the bean in the container. Spring already set the real name; your manual call only confuses you.\n\n\nProduction judgment\nPrefer constructor injection of the collaborators you need over grabbing the whole ApplicationContext (service-locator smell). Use Aware APIs rarely and consciously.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-5-initialization-callbacks-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-5-initialization-callbacks-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 5 — Initialization callbacks (complete)",
+    "text": "Topic 5 — Initialization callbacks (complete)\nThree equivalent-ish hooks (prefer @PostConstruct in modern apps):\n\n\n\n\n\n\n\nHook\nWhere\n\n\n\n\n@PostConstruct\nmethod on the bean class (jakarta.annotation.PostConstruct)\n\n\nInitializingBean\nimplement afterPropertiesSet()\n\n\n@Bean(initMethod = \"warmUp\")\nnamed method when defining via @Bean\n\n\n\n\n@PostConstruct — the workhorse\nimport jakarta.annotation.PostConstruct;\nimport org.springframework.stereotype.Component;\n\nimport java.util.HashMap;\nimport java.util.Map;\n\n@Component\npublic class CartService {\n    private final Map&lt;Integer, String&gt; cache = new HashMap&lt;&gt;();\n\n    public CartService() {\n        System.out.println(\"CartService constructor\");\n    }\n\n    @PostConstruct\n    void warmCache() {\n        System.out.println(\"Initialization callback (@PostConstruct)\");\n        cache.put(1, \"Aditya\");\n        cache.put(2, \"Rohit\");\n    }\n\n    public String getValue(int key) {\n        return cache.get(key);\n    }\n}\n\n\nWhy not put cache.put in the constructor?\nBoth can “work” for this tiny map. The reasons @PostConstruct exists are deeper:\n\nTiming: it runs after full DI (constructor + setter + field) and Aware callbacks — safe to use every injected collaborator.\nConstructor discipline: keep construction cheap; defer expensive init (files, remote calls, big caches) so object creation stays predictable and testable.\n\n\n\nMinimal Spring Core note\nIn a bare spring-context project you may need the Jakarta annotations API on the classpath for @PostConstruct / @PreDestroy. Spring Boot starters usually already bring this transitively.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-6-ready-use-phase-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-6-ready-use-phase-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 6 — Ready / use phase (complete)",
+    "text": "Topic 6 — Ready / use phase (complete)\nAfter init callbacks, the bean is in the singleton registry (for singletons) and ready.\nCartService cart = context.getBean(CartService.class);\nSystem.out.println(cart.getValue(1)); // Aditya\nThis is the phase of normal application traffic: controllers call services, services call repositories, etc.\nMental model: steps 1–7 are “Spring assembling the machine.” Step 8 is “you driving it.”",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-7-destruction-callbacks-complete",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-7-destruction-callbacks-complete",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 7 — Destruction callbacks (complete)",
+    "text": "Topic 7 — Destruction callbacks (complete)\nSingletons Spring still owns get a chance to clean up when the context shuts down.\n\n\n\n\n\n\n\nHook\nRole\n\n\n\n\n@PreDestroy\npreferred annotation style\n\n\nDisposableBean.destroy()\ninterface style\n\n\n@Bean(destroyMethod = \"close\")\nfactory style; Spring also infers close/shutdown often\n\n\n\nimport jakarta.annotation.PreDestroy;\n\n@Component\npublic class CartService {\n    // ...\n\n    @PreDestroy\n    void onShutdown() {\n        System.out.println(\"Destruction callback (@PreDestroy)\");\n        cache.clear();\n        // close files, stop executors, flush buffers, etc.\n    }\n}\n\nYou must close the context\nvar context = new AnnotationConfigApplicationContext(AppConfig.class);\ntry {\n    // use beans\n} finally {\n    context.close(); // triggers @PreDestroy for managed singletons\n}\nBoot apps register a shutdown hook when run as a normal process; for labs, call close() so you see destroy callbacks.\nRobust-app reasoning: acquire in @PostConstruct (or constructor if trivial) ↔︎ release in @PreDestroy. Mirrors try-with-resources at bean scale.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-8-lazy-singleton-complete-variant",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-8-lazy-singleton-complete-variant",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 8 — @Lazy singleton (complete variant)",
+    "text": "Topic 8 — @Lazy singleton (complete variant)\nEager singleton:  definition → create now → … → ready at startup\nLazy singleton:   definition → WAIT → create on first use → … → ready\n@Component\n@Lazy\npublic class CartService { /* same as above */ }\nExperiment\n\nMark CartService @Lazy.\nStart context but do not getBean(CartService.class).\nObserve: no constructor / @PostConstruct logs.\nThen getBean → full remaining lifecycle runs.\ncontext.close() → @PreDestroy runs if the bean was created.\n\nWhen it is justified\n\nExpensive bean rarely touched\nBreaking a circular dependency with a lazy proxy (workaround — redesign still better)\n\nWhen it is dangerous\n\nHides misconfiguration until first request (fails late)\n“Make everything lazy for performance” is not a strategy",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-9-prototype-scope-complete-variant",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#topic-9-prototype-scope-complete-variant",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Topic 9 — Prototype scope (complete variant)",
+    "text": "Topic 9 — Prototype scope (complete variant)\nimport org.springframework.beans.factory.config.ConfigurableBeanFactory;\nimport org.springframework.context.annotation.Scope;\n\n@Component\n@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)\npublic class CartService { /* ... */ }\n\nLifecycle difference — finish this idea fully\nPrototype request:\n  create → inject → Aware → @PostConstruct → HAND OVER TO YOU\n                                              │\n                                              ▼\n                         Spring forgets this instance\n                         (no @PreDestroy from container)\nWhy? If Spring kept every prototype forever to call @PreDestroy later, it would retain references and risk memory leaks. So Spring initializes prototypes, then releases ownership.\n\n\n\nCallback\nSingleton\nPrototype\n\n\n\n\nConstructor\nyes\nyes (each instance)\n\n\n@PostConstruct\nyes\nyes (each instance)\n\n\n@PreDestroy\nyes (on context close)\nno (you clean up)\n\n\n\nRobust-app rule: if a prototype holds a file/socket/pool, you must close it in your code (try-with-resources, explicit close(), custom tracking). Do not expect @PreDestroy.\nProve it in the lab: add @PreDestroy logging, use prototype scope, getBean twice, context.close() — destroy log should not appear for those instances.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#end-to-end-practice-lab-type-this",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#end-to-end-practice-lab-type-this",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "End-to-end practice lab (type this)",
+    "text": "End-to-end practice lab (type this)\nPackage: com.example.lifecycleLab\n\n1. Config + main harness\npackage com.example.lifecycleLab;\n\nimport org.springframework.context.annotation.ComponentScan;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\n@ComponentScan\npublic class AppConfig {\n}\npackage com.example.lifecycleLab;\n\nimport org.springframework.context.annotation.AnnotationConfigApplicationContext;\n\npublic class Main {\n    public static void main(String[] args) {\n        var context = new AnnotationConfigApplicationContext(AppConfig.class);\n        System.out.println(\"--- context up ---\");\n\n        CartService cart = context.getBean(CartService.class);\n        System.out.println(\"getValue(1) = \" + cart.getValue(1));\n\n        System.out.println(\"--- closing ---\");\n        context.close();\n        System.out.println(\"--- closed ---\");\n    }\n}\n\n\n2. Full-lifecycle bean\nUse the CartService listing from Topic 5 + @PreDestroy from Topic 7.\nExpected order (eager singleton):\nCartService constructor\nInitialization callback (@PostConstruct)\n--- context up ---\ngetValue(1) = Aditya\n--- closing ---\nDestruction callback (@PreDestroy)\n--- closed ---\n(Exact interleaving of “context up” vs constructor depends on when Spring creates the bean during refresh; the important invariant is: constructor → @PostConstruct → business use → @PreDestroy on close.)\n\n\n3. Forced comparisons (do all three)\n\n\n\n\n\n\n\n\nExperiment\nChange\nWhat you must observe\n\n\n\n\nA\nField-inject a collaborator; touch it in constructor\nNPE or null — then move that use to @PostConstruct and see it work\n\n\nB\nAdd @Lazy\nNo create logs until getBean\n\n\nC\n@Scope(\"prototype\") + @PreDestroy\nInit runs per getBean; destroy does not run on close",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#reasoning-toolkit-teach-review-mode",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#reasoning-toolkit-teach-review-mode",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Reasoning toolkit (teach / review mode)",
+    "text": "Reasoning toolkit (teach / review mode)\nWhen you see a Spring class, ask in order:\n\nScope? singleton or prototype (or web scope)?\nLazy? created at startup or on demand?\nHow are deps injected? constructor (safe in ctor) vs field/setter (wait for @PostConstruct)?\nWhat must run once after wiring? → @PostConstruct\nWhat resource must be released? → @PreDestroy only if Spring still manages this instance\nIs this prototype? → plan manual cleanup\n\n\nRobust application checklist\n\nStateless services → singleton; no request-specific mutable fields\nConstructors stay light\nInit that needs deps → @PostConstruct\nEvery acquired resource has a matching release path\nPrototypes: document who closes what\n@Lazy used deliberately, not as default cargo-cult",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#exercises",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#exercises",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Exercises",
+    "text": "Exercises\n\nDraw the singleton mindmap from memory; mark where @PostConstruct and @PreDestroy sit.\nExplain why Spring reads all bean definitions before creating eager singletons.\nWrite a FileReporter bean that opens a PrintWriter in @PostConstruct and closes it in @PreDestroy. Prove close runs.\nRepeat exercise 3 as prototype. Show that @PreDestroy does not run; fix cleanup in Main after use.\n“Constructor vs @PostConstruct” — teach it in ≤5 sentences with one field-injection example.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/notes.html#self-check",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/notes.html#self-check",
+    "title": "Lecture 7 — Bean lifecycle",
+    "section": "Self-check",
+    "text": "Self-check\n\nAt which lifecycle step are field-injected dependencies guaranteed available?\nDoes implementing BeanNameAware let you rename a bean by calling setBeanName from main?\nWhy doesn’t Spring call @PreDestroy on prototype instances it handed out?\nWhat is the failure-mode downside of marking many beans @Lazy?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Bean lifecycle"
     ]
   },
   {
@@ -1623,7 +1815,7 @@
     "href": "courses/springboot/index.html#lectures",
     "title": "Spring Boot Full Course",
     "section": "Lectures",
-    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07+\nAdd next playlist lectures the same way",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07\nBean lifecycle — @PostConstruct, @PreDestroy, scopes, @Lazy\nSelf-check\n\n\n08+\nAdd next playlist lectures the same way",
     "crumbs": [
       "Home",
       "Spring Boot Full Course"
@@ -1868,6 +2060,42 @@
     ]
   },
   {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html",
+    "title": "Lecture 7 — Self-check answers",
+    "section": "",
+    "text": "Container → config → definitions → instantiate → DI → Aware → @PostConstruct → use → @PreDestroy → destroy.\nSo it knows scope/lazy/deps for every type before creating anything — otherwise it could eagerly create prototypes/lazy beans or create dependents before dependencies.\nOpen writer in @PostConstruct, write a line from a business method, close in @PreDestroy, call context.close(), confirm file handle released / destroy log printed.\nSame open in @PostConstruct; after getBean + use, you call a public close() (or try-with-resources pattern); context.close() will not print @PreDestroy.\nField injection leaves deps null in the constructor; @PostConstruct runs after all injection, so it is the safe “after wiring” hook. Prefer constructor injection so required deps exist even earlier.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html#exercises-sample-direction",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html#exercises-sample-direction",
+    "title": "Lecture 7 — Self-check answers",
+    "section": "",
+    "text": "Container → config → definitions → instantiate → DI → Aware → @PostConstruct → use → @PreDestroy → destroy.\nSo it knows scope/lazy/deps for every type before creating anything — otherwise it could eagerly create prototypes/lazy beans or create dependents before dependencies.\nOpen writer in @PostConstruct, write a line from a business method, close in @PreDestroy, call context.close(), confirm file handle released / destroy log printed.\nSame open in @PostConstruct; after getBean + use, you call a public close() (or try-with-resources pattern); context.close() will not print @PreDestroy.\nField injection leaves deps null in the constructor; @PostConstruct runs after all injection, so it is the safe “after wiring” hook. Prefer constructor injection so required deps exist even earlier.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html#self-check",
+    "title": "Lecture 7 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nAfter dependency population — i.e. by the time @PostConstruct runs (not in the constructor when using field/setter injection).\nNo. Aware callbacks are Spring informing you. Manually calling them does not change the container’s bean definition name.\nAfter init, Spring hands ownership to the client and drops tracking so it does not retain every prototype (memory-leak risk). Destroy callbacks require container ownership.\nMisconfiguration and expensive failures surface late (first use), not at startup — harder to detect in deploy health checks.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 7 — Self-check answers"
+    ]
+  },
+  {
     "objectID": "docs/adding-a-course.html",
     "href": "docs/adding-a-course.html",
     "title": "Add a new lecture series",
@@ -1956,7 +2184,7 @@
     "href": "index.html#courses",
     "title": "Learn ML",
     "section": "Courses",
-    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–06\n\n\nNext series…\n—\nAdd via Add a course"
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–07\n\n\nNext series…\n—\nAdd via Add a course"
   },
   {
     "objectID": "index.html#how-this-site-is-organized",
