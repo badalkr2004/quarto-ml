@@ -11,7 +11,7 @@ Personal learning space for lecture notes and **practice-first** tutorials — M
 | Course | Instructor | Status |
 |--------|------------|--------|
 | [Mathematical Foundations of ML](courses/mfml/index.qmd) | Prof. Prathosh A.P. (IISc / NPTEL) | In progress |
-| [Spring Boot Full Course](courses/springboot/index.qmd) | Aditya Tandon (Coder Army) | Lectures 01–06 |
+| [Spring Boot Full Course](courses/springboot/index.qmd) | Aditya Tandon (Coder Army) | Lectures 01–07 |
 | *Next series…* | — | Add via [Add a course](docs/adding-a-course.qmd) |
 
 ## How this site is organized

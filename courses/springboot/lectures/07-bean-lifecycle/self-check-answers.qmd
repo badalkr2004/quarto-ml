@@ -1,0 +1,20 @@
+---
+title: "Lecture 7 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample direction)
+
+1. Container → config → definitions → instantiate → DI → Aware → **`@PostConstruct`** → use → **`@PreDestroy`** → destroy.
+2. So it knows scope/lazy/deps for *every* type before creating anything — otherwise it could eagerly create prototypes/lazy beans or create dependents before dependencies.
+3. Open writer in `@PostConstruct`, write a line from a business method, close in `@PreDestroy`, call `context.close()`, confirm file handle released / destroy log printed.
+4. Same open in `@PostConstruct`; after `getBean` + use, **you** call a public `close()` (or try-with-resources pattern); `context.close()` will not print `@PreDestroy`.
+5. Field injection leaves deps null in the constructor; `@PostConstruct` runs after all injection, so it is the safe “after wiring” hook. Prefer constructor injection so required deps exist even earlier.
+
+## Self-check
+
+1. **After dependency population** — i.e. by the time **`@PostConstruct`** runs (not in the constructor when using field/setter injection).
+2. **No.** Aware callbacks are Spring informing *you*. Manually calling them does not change the container’s bean definition name.
+3. After init, Spring **hands ownership to the client** and drops tracking so it does not retain every prototype (memory-leak risk). Destroy callbacks require container ownership.
+4. Misconfiguration and expensive failures surface **late** (first use), not at startup — harder to detect in deploy health checks.

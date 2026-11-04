@@ -28,3 +28,4 @@ Course-specific links. Shared site references: [References](../../references/ind
 | DI, IoC, loose coupling | Lecture 04 |
 | Beans, `@Component`, `@Bean`, `@Autowired` | Lecture 05 |
 | Circular deps, scopes, `@Lazy` / eager | Lecture 06 |
+| Bean lifecycle, `@PostConstruct` / `@PreDestroy` | Lecture 07 |

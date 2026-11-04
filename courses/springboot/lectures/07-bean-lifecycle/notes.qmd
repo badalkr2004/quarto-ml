@@ -1,0 +1,556 @@
+---
+title: "Lecture 7 — Bean lifecycle"
+subtitle: "@PostConstruct, @PreDestroy, scopes, @Lazy — and how to reason about them"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Bean Lifecycle Explained \| @PostConstruct, @PreDestroy, Scopes & @Lazy \| Full Course #7](https://www.youtube.com/watch?v=WXg3uyZPqYI)  
+**Playlist index:** 7  
+**Builds on:** [Lecture 5](../05-spring-ioc-container/notes.qmd) · [Lecture 6](../06-circular-dependency-bean-scope/notes.qmd)
+
+---
+
+## Why this lecture matters (not syntax tourism)
+
+If you only memorize annotations, you will still get lost when:
+
+- A dependency is `null` in a constructor but fine later
+- Resources leak on shutdown (DB pools, file handles, threads)
+- A prototype bean’s cleanup “never runs”
+- A `@Lazy` bean hides a wiring bug until production traffic hits it
+
+**Target outcome:** you can draw the lifecycle from memory, predict *when* each line of your code runs, and choose init/destroy hooks the way you would when teaching or reviewing a PR.
+
+---
+
+## Master mindmap — singleton bean (default path)
+
+Read this top-to-bottom. Every practice below hangs off this map.
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ 1. IoC container starts                                     │
+│    new AnnotationConfigApplicationContext(AppConfig.class)  │
+│    (or SpringApplication.run …)                             │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Read configuration metadata (reflection)                 │
+│    @Configuration · @ComponentScan · @Bean methods          │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 3. Build ALL bean definitions FIRST                         │
+│    Blueprint per type: name, class, scope, lazy flag,       │
+│    dependency list — NO business objects yet for lazy/proto │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 4. Instantiate non-lazy singletons (dependency order)       │
+│    constructor runs here                                    │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 5. Populate remaining DI (setter / field if any)            │
+│    (constructor DI already happened in step 4)              │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 6. Aware callbacks (optional)                               │
+│    BeanNameAware · ApplicationContextAware · …              │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 7. Initialization callbacks                                 │
+│    @PostConstruct → InitializingBean.afterPropertiesSet()   │
+│    → @Bean(initMethod=…)                                    │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 8. Bean ready — your app calls business methods             │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 9. Destruction callbacks (on context.close / shutdown)      │
+│    @PreDestroy → DisposableBean.destroy()                   │
+│    → @Bean(destroyMethod=…)                                 │
+└───────────────────────────┬─────────────────────────────────┘
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 10. Bean destroyed / removed from active use                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Variants (same map, different cut-points):**
+
+```text
+@Lazy singleton
+  steps 1–3 always
+  steps 4–8 deferred until first getBean / first injection use
+  steps 9–10 still apply when context closes (if bean was created)
+
+prototype
+  steps 1–3 always
+  steps 4–7 when requested
+  then Spring HANDS OBJECT TO CLIENT and stops managing it
+  ⇒ steps 9–10 DO NOT run for that instance
+```
+
+---
+
+## Topic 1 — Container start & configuration (complete)
+
+### What “passing `AppConfig.class`” actually means
+
+You do **not** pass an `AppConfig` instance into the container. You pass **class metadata**. Spring uses Java **reflection** to discover:
+
+- annotations on the class (`@Configuration`, `@ComponentScan`)
+- `@Bean` methods
+- which packages to scan
+
+```java
+var context = new AnnotationConfigApplicationContext(AppConfig.class);
+```
+
+### Minimal config you already know
+
+```java
+@Configuration
+@ComponentScan // same package as AppConfig if no basePackages given
+public class AppConfig {
+}
+```
+
+### Reasoning checkpoint
+
+| Question | Answer you should be able to give |
+|----------|-----------------------------------|
+| Why reflection? | Container must discover annotations without you calling every setter by hand |
+| When does scanning happen? | During context refresh / construction — before you call business methods |
+| Is `AppConfig` itself a bean? | Yes — `@Configuration` is a `@Component`; Spring needs an instance to invoke `@Bean` methods |
+
+**Do not leave this half-baked:** until the context exists and config is read, *no* `@PostConstruct` on your services can run.
+
+---
+
+## Topic 2 — Bean definition phase (complete)
+
+### What a bean definition is
+
+A **bean definition** is the container’s *blueprint* for a bean — metadata **before** (or independent of) creating the instance:
+
+| Metadata | Examples |
+|----------|----------|
+| Bean name | default: camelCase class name (`orderService`) |
+| Type | `OrderService.class` |
+| Scope | singleton / prototype / … |
+| Lazy flag | default false for singleton |
+| Dependencies | constructor args, `@Autowired` points |
+
+### Critical ordering rule
+
+Spring builds **definitions for all managed types first**, then decides which objects to instantiate now.
+
+Why?
+
+- Prototype → must not create at startup
+- `@Lazy` singleton → must not create at startup
+- Dependency graph → must know “Order needs Payment” before creating Order
+
+```text
+Scan components
+      │
+      ▼
+Create definitions for OrderService AND PaymentService
+      │
+      ▼
+Only THEN instantiate the eager singletons (in dependency order)
+```
+
+### Instantiation order is dependency-aware
+
+Not random. If `OrderService`’s constructor needs `PaymentService`, Spring creates **Payment first**, then Order — even if scan discovered Order first.
+
+---
+
+## Topic 3 — Instantiation vs dependency injection (complete)
+
+### Constructor injection merges two steps
+
+With **constructor injection**, “create object” and “inject required deps” happen together: the constructor cannot finish without collaborators.
+
+```java
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService; // already injected here
+        System.out.println("OrderService constructor");
+    }
+}
+```
+
+### Field / setter injection splits the steps
+
+```text
+1) call no-arg constructor  →  object exists, fields still null
+2) later: inject via reflection into fields / setters
+```
+
+That is why this pattern bites beginners:
+
+```java
+@Component
+public class BrokenExample {
+    @Autowired
+    private PaymentService paymentService;
+
+    public BrokenExample() {
+        // paymentService is still null HERE with field injection
+        // paymentService.pay(); // NPE
+    }
+}
+```
+
+**Reasoning rule:** anything that needs collaborators belongs in:
+
+1. the constructor (if constructor-injected), or  
+2. `@PostConstruct` / init callbacks (after *all* injection styles have finished)
+
+Keep constructors **light**. Heavy work (load files, warm caches, open connections) → init callbacks.
+
+---
+
+## Topic 4 — Aware interfaces (complete, including when *not* to use)
+
+After DI, Spring may call **Aware** callbacks if you implement the interfaces.
+
+| Interface | Callback | Gives you |
+|-----------|----------|-----------|
+| `BeanNameAware` | `setBeanName(String name)` | The bean’s name in the container |
+| `ApplicationContextAware` | `setApplicationContext(...)` | The context that owns this bean |
+
+```java
+@Component
+public class UserService implements BeanNameAware, ApplicationContextAware {
+    private String beanName;
+
+    public UserService() {
+        System.out.println("UserService constructor");
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
+        System.out.println("BeanNameAware: " + name);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) {
+        System.out.println("Context type: " + context.getClass().getName());
+    }
+}
+```
+
+### What these are *for*
+
+- Framework / infrastructure needs (logging that tags messages with bean name, advanced context lookup)
+- **Not** day-to-day business logic
+
+Calling `setBeanName` yourself from `main` does **not** rename the bean in the container. Spring already set the real name; your manual call only confuses you.
+
+### Production judgment
+
+Prefer constructor injection of the collaborators you need over grabbing the whole `ApplicationContext` (service-locator smell). Use Aware APIs rarely and consciously.
+
+---
+
+## Topic 5 — Initialization callbacks (complete)
+
+Three equivalent-ish hooks (prefer `@PostConstruct` in modern apps):
+
+| Hook | Where |
+|------|--------|
+| `@PostConstruct` | method on the bean class (`jakarta.annotation.PostConstruct`) |
+| `InitializingBean` | implement `afterPropertiesSet()` |
+| `@Bean(initMethod = "warmUp")` | named method when defining via `@Bean` |
+
+### `@PostConstruct` — the workhorse
+
+```java
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class CartService {
+    private final Map<Integer, String> cache = new HashMap<>();
+
+    public CartService() {
+        System.out.println("CartService constructor");
+    }
+
+    @PostConstruct
+    void warmCache() {
+        System.out.println("Initialization callback (@PostConstruct)");
+        cache.put(1, "Aditya");
+        cache.put(2, "Rohit");
+    }
+
+    public String getValue(int key) {
+        return cache.get(key);
+    }
+}
+```
+
+### Why not put `cache.put` in the constructor?
+
+Both can “work” for this tiny map. The **reasons `@PostConstruct` exists** are deeper:
+
+1. **Timing:** it runs *after* full DI (constructor + setter + field) and Aware callbacks — safe to use every injected collaborator.
+2. **Constructor discipline:** keep construction cheap; defer expensive init (files, remote calls, big caches) so object creation stays predictable and testable.
+
+### Minimal Spring Core note
+
+In a bare `spring-context` project you may need the Jakarta annotations API on the classpath for `@PostConstruct` / `@PreDestroy`. Spring Boot starters usually already bring this transitively.
+
+---
+
+## Topic 6 — Ready / use phase (complete)
+
+After init callbacks, the bean is in the singleton registry (for singletons) and ready.
+
+```java
+CartService cart = context.getBean(CartService.class);
+System.out.println(cart.getValue(1)); // Aditya
+```
+
+This is the phase of normal application traffic: controllers call services, services call repositories, etc.
+
+**Mental model:** steps 1–7 are “Spring assembling the machine.” Step 8 is “you driving it.”
+
+---
+
+## Topic 7 — Destruction callbacks (complete)
+
+Singletons Spring still owns get a chance to clean up when the context shuts down.
+
+| Hook | Role |
+|------|------|
+| `@PreDestroy` | preferred annotation style |
+| `DisposableBean.destroy()` | interface style |
+| `@Bean(destroyMethod = "close")` | factory style; Spring also *infers* `close`/`shutdown` often |
+
+```java
+import jakarta.annotation.PreDestroy;
+
+@Component
+public class CartService {
+    // ...
+
+    @PreDestroy
+    void onShutdown() {
+        System.out.println("Destruction callback (@PreDestroy)");
+        cache.clear();
+        // close files, stop executors, flush buffers, etc.
+    }
+}
+```
+
+### You must close the context
+
+```java
+var context = new AnnotationConfigApplicationContext(AppConfig.class);
+try {
+    // use beans
+} finally {
+    context.close(); // triggers @PreDestroy for managed singletons
+}
+```
+
+Boot apps register a shutdown hook when run as a normal process; for labs, **call `close()`** so you *see* destroy callbacks.
+
+**Robust-app reasoning:** acquire in `@PostConstruct` (or constructor if trivial) ↔ release in `@PreDestroy`. Mirrors try-with-resources at bean scale.
+
+---
+
+## Topic 8 — `@Lazy` singleton (complete variant)
+
+```text
+Eager singleton:  definition → create now → … → ready at startup
+Lazy singleton:   definition → WAIT → create on first use → … → ready
+```
+
+```java
+@Component
+@Lazy
+public class CartService { /* same as above */ }
+```
+
+**Experiment**
+
+1. Mark `CartService` `@Lazy`.
+2. Start context but **do not** `getBean(CartService.class)`.
+3. Observe: no constructor / `@PostConstruct` logs.
+4. Then `getBean` → full remaining lifecycle runs.
+5. `context.close()` → `@PreDestroy` runs **if** the bean was created.
+
+**When it is justified**
+
+- Expensive bean rarely touched
+- Breaking a circular dependency with a lazy proxy (workaround — redesign still better)
+
+**When it is dangerous**
+
+- Hides misconfiguration until first request (fails late)
+- “Make everything lazy for performance” is not a strategy
+
+---
+
+## Topic 9 — Prototype scope (complete variant)
+
+```java
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+
+@Component
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class CartService { /* ... */ }
+```
+
+### Lifecycle difference — finish this idea fully
+
+```text
+Prototype request:
+  create → inject → Aware → @PostConstruct → HAND OVER TO YOU
+                                              │
+                                              ▼
+                         Spring forgets this instance
+                         (no @PreDestroy from container)
+```
+
+Why? If Spring kept every prototype forever to call `@PreDestroy` later, it would **retain references** and risk memory leaks. So Spring initializes prototypes, then **releases ownership**.
+
+| Callback | Singleton | Prototype |
+|----------|-----------|-----------|
+| Constructor | yes | yes (each instance) |
+| `@PostConstruct` | yes | yes (each instance) |
+| `@PreDestroy` | yes (on context close) | **no** (you clean up) |
+
+**Robust-app rule:** if a prototype holds a file/socket/pool, **you** must close it in your code (try-with-resources, explicit `close()`, custom tracking). Do not expect `@PreDestroy`.
+
+Prove it in the lab: add `@PreDestroy` logging, use prototype scope, `getBean` twice, `context.close()` — destroy log should **not** appear for those instances.
+
+---
+
+## End-to-end practice lab (type this)
+
+Package: `com.example.lifecycleLab`
+
+### 1. Config + main harness
+
+```java
+package com.example.lifecycleLab;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan
+public class AppConfig {
+}
+```
+
+```java
+package com.example.lifecycleLab;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        var context = new AnnotationConfigApplicationContext(AppConfig.class);
+        System.out.println("--- context up ---");
+
+        CartService cart = context.getBean(CartService.class);
+        System.out.println("getValue(1) = " + cart.getValue(1));
+
+        System.out.println("--- closing ---");
+        context.close();
+        System.out.println("--- closed ---");
+    }
+}
+```
+
+### 2. Full-lifecycle bean
+
+Use the `CartService` listing from Topic 5 + `@PreDestroy` from Topic 7.
+
+**Expected order (eager singleton):**
+
+```text
+CartService constructor
+Initialization callback (@PostConstruct)
+--- context up ---
+getValue(1) = Aditya
+--- closing ---
+Destruction callback (@PreDestroy)
+--- closed ---
+```
+
+(Exact interleaving of “context up” vs constructor depends on when Spring creates the bean during refresh; the important invariant is: **constructor → `@PostConstruct` → business use → `@PreDestroy` on close**.)
+
+### 3. Forced comparisons (do all three)
+
+| Experiment | Change | What you must observe |
+|------------|--------|------------------------|
+| A | Field-inject a collaborator; touch it in constructor | NPE or null — then move that use to `@PostConstruct` and see it work |
+| B | Add `@Lazy` | No create logs until `getBean` |
+| C | `@Scope("prototype")` + `@PreDestroy` | Init runs per `getBean`; destroy does **not** run on `close` |
+
+---
+
+## Reasoning toolkit (teach / review mode)
+
+When you see a Spring class, ask in order:
+
+1. **Scope?** singleton or prototype (or web scope)?
+2. **Lazy?** created at startup or on demand?
+3. **How are deps injected?** constructor (safe in ctor) vs field/setter (wait for `@PostConstruct`)?
+4. **What must run once after wiring?** → `@PostConstruct`
+5. **What resource must be released?** → `@PreDestroy` *only if Spring still manages this instance*
+6. **Is this prototype?** → plan manual cleanup
+
+### Robust application checklist
+
+- [ ] Stateless services → singleton; no request-specific mutable fields
+- [ ] Constructors stay light
+- [ ] Init that needs deps → `@PostConstruct`
+- [ ] Every acquired resource has a matching release path
+- [ ] Prototypes: document who closes what
+- [ ] `@Lazy` used deliberately, not as default cargo-cult
+
+---
+
+## Exercises
+
+1. Draw the singleton mindmap from memory; mark where `@PostConstruct` and `@PreDestroy` sit.
+2. Explain why Spring reads **all** bean definitions before creating eager singletons.
+3. Write a `FileReporter` bean that opens a `PrintWriter` in `@PostConstruct` and closes it in `@PreDestroy`. Prove close runs.
+4. Repeat exercise 3 as **prototype**. Show that `@PreDestroy` does not run; fix cleanup in `Main` after use.
+5. “Constructor vs `@PostConstruct`” — teach it in ≤5 sentences with one field-injection example.
+
+---
+
+## Self-check
+
+1. At which lifecycle step are field-injected dependencies guaranteed available?
+2. Does implementing `BeanNameAware` let you rename a bean by calling `setBeanName` from `main`?
+3. Why doesn’t Spring call `@PreDestroy` on prototype instances it handed out?
+4. What is the failure-mode downside of marking many beans `@Lazy`?
+
+Answers: [self-check-answers](self-check-answers.qmd)

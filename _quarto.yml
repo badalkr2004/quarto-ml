@@ -96,6 +96,8 @@ website:
             - courses/springboot/lectures/05-spring-ioc-container/self-check-answers.qmd
             - courses/springboot/lectures/06-circular-dependency-bean-scope/notes.qmd
             - courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.qmd
+            - courses/springboot/lectures/07-bean-lifecycle/notes.qmd
+            - courses/springboot/lectures/07-bean-lifecycle/self-check-answers.qmd
         - courses/springboot/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID
