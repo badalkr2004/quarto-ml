@@ -30,3 +30,4 @@ Course-specific links. Shared site references: [References](../../references/ind
 | Circular deps, scopes, `@Lazy` / eager | Lecture 06 |
 | Bean lifecycle, `@PostConstruct` / `@PreDestroy` | Lecture 07 |
 | XML config, `ClassPathXmlApplicationContext` | Lecture 08 |
+| `@SpringBootApplication`, starters, auto-config | Lecture 09 |

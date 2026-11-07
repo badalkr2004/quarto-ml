@@ -1,0 +1,20 @@
+---
+title: "Lecture 9 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Boot is Spring Core plus a shorter startup and smart defaults based on your dependencies.
+2. `@SpringBootConfiguration`, `@EnableAutoConfiguration`, `@ComponentScan`.
+3. Because `spring-boot-starter-parent` already defines matching versions.
+4. Package location / component scan — class must be in the main package or a sub-package.
+5. Web starter puts web/Tomcat-related libraries on the classpath, so auto-config can start an embedded server.
+
+## Self-check
+
+1. **No.** Same IoC idea; Boot starts and configures it for you.
+2. Your freedom to **override** Boot defaults by defining your own bean first.
+3. **False.** Tomcat shows up when web-related dependencies/auto-config apply (typically `spring-boot-starter-web`).
+4. In the **root application package**, so scanning picks up all sub-packages.

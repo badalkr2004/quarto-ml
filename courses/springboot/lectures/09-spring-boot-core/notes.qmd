@@ -1,0 +1,401 @@
+---
+title: "Lecture 9 — Spring Boot core"
+subtitle: "@SpringBootApplication, starters, and auto-configuration (in plain words)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot Core \| @SpringBootApplication, Auto Configurations \| Full Course #9](https://www.youtube.com/watch?v=a06KMY209AA)  
+**Playlist index:** 9  
+**Builds on:** Lectures [05](../05-spring-ioc-container/notes.qmd)–[08](../08-spring-xml-configuration/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**Spring Boot is still Spring.**  
+It does not replace the IoC container. It starts the container for you and turns on smart defaults based on what JARs are on your classpath.
+
+```text
+Spring Core (what you already learned)
+  create context → scan components → make beans → inject deps
+
+Spring Boot
+  same steps
+  + less startup code
+  + "starters" (ready dependency packs)
+  + auto-configuration (Boot adds useful beans when it makes sense)
+```
+
+---
+
+## Why Boot after Core?
+
+In Core you kept writing the same startup again and again:
+
+1. Make `ApplicationContext`
+2. Point it at a config class / XML
+3. Put `@ComponentScan` (or list beans in XML)
+4. Call `getBean(...)` yourself
+
+That is fine for learning. In real apps it gets boring and easy to get wrong.
+
+**Boot’s job:** keep the useful Spring Core behavior, remove the repeated setup.
+
+---
+
+## Picture: Core startup vs Boot startup
+
+```text
+SPRING CORE                              SPRING BOOT
+────────────                             ───────────
+main                                     main
+  │                                        │
+  ├─ new AnnotationConfig...               ├─ SpringApplication.run(App.class, args)
+  │    (AppConfig.class)                   │
+  ├─ @Configuration                        ├─ @SpringBootApplication on App
+  ├─ @ComponentScan                        │     (includes scan + config + auto-config)
+  ├─ beans created                         ├─ beans created (yours + Boot’s)
+  └─ you call getBean / business code      └─ app keeps running (web server if web starter)
+```
+
+Same engine. Shorter ignition key.
+
+---
+
+## Topic 1 — Make a Boot project (hands-on)
+
+### Option A (recommended): Spring Initializr
+
+1. Open [start.spring.io](https://start.spring.io/)
+2. Maven · Java · a stable Boot version · packaging **Jar**
+3. Add dependency: **Spring Boot Starter** is enough for this lecture (no Web yet)
+4. Generate → unzip → open in IDE
+
+### Option B: empty Maven + parent
+
+If you build by hand, your `pom.xml` needs at least:
+
+- a **`spring-boot-starter-parent`** parent (versions)
+- a **`spring-boot-starter`** dependency (core Boot on the classpath)
+
+You already saw Initializr do this in lecture 02. Today we explain *why* those lines exist.
+
+---
+
+## Topic 2 — `spring-boot-starter-parent` (simple meaning)
+
+**Problem:** many libraries must use matching versions.  
+If Web is version A and JDBC is version B, things break. Checking that by hand is painful.
+
+**Fix:** Boot gives you a **parent POM**.
+
+```xml
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version><!-- Boot version --></version>
+</parent>
+```
+
+### What the parent does for you
+
+| Without parent | With parent |
+|----------------|-------------|
+| You pick versions for every Spring-related dependency | Parent already knows a tested set of versions |
+| Easy to mix incompatible JARs | Add starters **without** writing `<version>` most of the time |
+
+**Plain words:** the parent is a “version menu” Boot maintains so you do not fight dependency hell.
+
+---
+
+## Topic 3 — `spring-boot-starter` (simple meaning)
+
+A **starter** is a ready-made dependency pack.
+
+| Starter | Rough meaning |
+|---------|----------------|
+| `spring-boot-starter` | Core Boot support (logging, auto-config engine, …) |
+| `spring-boot-starter-web` | Web apps + embedded Tomcat + Spring MVC |
+| `spring-boot-starter-test` | Testing tools |
+
+When you only add `spring-boot-starter` (no web), **Tomcat does not start**.  
+That is normal. Boot only pulls Tomcat when a **web** starter puts those classes on the classpath.
+
+**Remember:** starters change what is *available*. Auto-config decides what Boot *creates* from that.
+
+---
+
+## Topic 4 — `SpringApplication.run(...)` (what main really does)
+
+Generated main class looks like:
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+### What `run` is doing (no magic)
+
+1. Prepare the environment (settings, profiles — more in later lectures)
+2. Create the Spring **ApplicationContext** (your IoC container)
+3. Read `@SpringBootApplication` on the class you passed
+4. Scan for your components
+5. Apply auto-configuration
+6. Create beans and inject dependencies
+7. Return the context (and keep the process alive if a web server started)
+
+Compare to Core:
+
+```java
+// Core style you wrote by hand
+new AnnotationConfigApplicationContext(AppConfig.class);
+```
+
+Boot wraps that idea inside `SpringApplication.run`.
+
+---
+
+## Topic 5 — Break open `@SpringBootApplication`
+
+This one annotation is **three** annotations stacked together:
+
+```text
+@SpringBootApplication
+        │
+        ├── @SpringBootConfiguration   ≈ "@Configuration for the main Boot class"
+        ├── @EnableAutoConfiguration   ≈ "turn on Boot’s automatic setup"
+        └── @ComponentScan             ≈ "find my @Component classes"
+```
+
+You can write the three separately. Boot gives one short name so main stays clean.
+
+### 5.1 `@SpringBootConfiguration`
+
+- Marks the main class as a **configuration class**
+- Same idea as `@Configuration` in Core
+- Because of this, you may even put `@Bean` methods on the main class (possible, but many teams still prefer a separate config class for clarity)
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+
+    @Bean
+    UserService userService() {
+        return new UserService();
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+### 5.2 `@ComponentScan`
+
+- Scans the **package of the main class** and **sub-packages**
+- Finds `@Component`, `@Service`, `@Repository`, `@Controller`, …
+
+**Practical rule:** put your main class in the **root package** of the app.
+
+```text
+com.example.demo          ← DemoApplication here
+com.example.demo.order    ← scanned
+com.example.demo.payment  ← scanned
+com.other.stuff           ← NOT scanned (different root)
+```
+
+If beans “mysteriously” are missing, check the package first.
+
+### 5.3 `@EnableAutoConfiguration`
+
+- Tells Boot: look at the classpath and **register helpful default beans** when conditions match
+- Those Boot setup classes are often marked as auto-configuration
+- You did not write them; Boot ships them
+
+---
+
+## Topic 6 — Auto-configuration (the part that feels like magic)
+
+### Plain explanation
+
+1. You add a starter → JARs appear on the classpath  
+2. Boot has a list of “if you have X, I can set up Y” rules  
+3. For each rule, Boot asks: **should I turn this on?**  
+4. If yes, Boot adds beans into **the same** IoC container as your beans  
+
+```text
+Classpath has Jackson?  ──yes──► maybe create JSON-related beans
+Classpath has Tomcat + web? ──yes──► start embedded server setup
+You already defined MyService? ──yes──► skip Boot’s default MyService
+```
+
+### Two conditions you should know by name
+
+| Annotation | Plain meaning |
+|------------|----------------|
+| `@ConditionalOnClass` | “Only if this class exists on the classpath” |
+| `@ConditionalOnMissingBean` | “Only if you did **not** already define this bean” |
+
+**Why `@ConditionalOnMissingBean` matters:**  
+Boot gives defaults. You can override them by declaring your own `@Bean` / `@Component` of the same type. Boot then steps aside.
+
+```text
+You define DataSource bean  → Boot’s default DataSource auto-config backs off
+You define nothing          → Boot may create a default (when DB starter is present)
+```
+
+### Your beans vs Boot’s beans
+
+| Kind | Who wrote the class | How it got into the container |
+|------|---------------------|-------------------------------|
+| App beans | You | `@Component` / your `@Bean` |
+| Auto-config beans | Spring Boot / libraries | Enabled by `@EnableAutoConfiguration` + conditions |
+
+Same container. Different authors.
+
+---
+
+## Topic 7 — Why no Tomcat without Web?
+
+Common surprise:
+
+> “I run Boot, but there is no Tomcat on 8080.”
+
+Because:
+
+1. Auto-config looks at the classpath  
+2. Without `spring-boot-starter-web`, Tomcat / web MVC pieces are not there (or not selected)  
+3. So Boot does not start a web server  
+
+Add Web starter → Tomcat-related auto-config can turn on → you see a port again (like lecture 02).
+
+**Takeaway:** Boot is not “always a web framework.” It becomes a web app when you pull web dependencies.
+
+---
+
+## Practice lab (type this)
+
+Use a Boot project **without** Web starter first.
+
+### Step 1 — Add your own components
+
+```java
+package com.example.demo;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class PaymentService {
+    public void pay() {
+        System.out.println("Payment done");
+    }
+}
+```
+
+```java
+package com.example.demo;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+### Step 2 — Use them from `main` via the context Boot returns
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        var context = SpringApplication.run(DemoApplication.class, args);
+
+        OrderService order = context.getBean(OrderService.class);
+        order.placeOrder();
+
+        // optional: see how many beans Boot created
+        System.out.println("Bean count = " + context.getBeanDefinitionCount());
+
+        context.close();
+    }
+}
+```
+
+**Expected:** `Payment done` then `Order placed`.  
+Notice: you did **not** write `AppConfig` or `AnnotationConfigApplicationContext`.
+
+### Step 3 — Compare bean count (Core vs Boot)
+
+Optional: open a tiny Core project from lecture 5 with only Order + Payment.  
+Print `getBeanDefinitionCount()` there too.
+
+Boot’s number is usually **much larger**. Those extras are auto-configured infrastructure beans — proof that Boot added more than your two classes.
+
+### Step 4 — Add Web starter and re-run
+
+Add `spring-boot-starter-web`, run again (you can remove `context.close()` for a long-running server).  
+You should see Tomcat start. Remove Web starter → Tomcat gone again.
+
+---
+
+## How to reason when something fails
+
+Ask in this order:
+
+1. **Is the class under the main package (or a sub-package)?** → component scan  
+2. **Is the starter on the classpath?** → check `pom.xml`  
+3. **Did I already define my own bean that blocks Boot’s default?** → `@ConditionalOnMissingBean`  
+4. **Am I expecting a web server without the web starter?** → add Web or stop expecting port 8080  
+
+This is how you debug Boot without calling it “magic.”
+
+---
+
+## Short map to keep
+
+```text
+pom parent     → compatible versions
+starters       → which libraries exist
+@SpringBootApplication
+   ├─ configuration (your @Bean allowed on main)
+   ├─ component scan (your @Component)
+   └─ enable auto-config (Boot’s conditional beans)
+SpringApplication.run → start container + apply all of the above
+```
+
+---
+
+## Exercises
+
+1. Explain Boot in one sentence to a friend who only knows Core.  
+2. Name the three annotations inside `@SpringBootApplication`.  
+3. Why can you usually omit `<version>` on Boot starters?  
+4. You have Order/Payment components but Boot says no such bean. What do you check first?  
+5. Why does adding Web starter change runtime behavior so much?
+
+---
+
+## Self-check
+
+1. Does Spring Boot replace the IoC container?  
+2. What does `@ConditionalOnMissingBean` protect?  
+3. True/False: Boot always starts Tomcat.  
+4. Where should the `@SpringBootApplication` class live in the package tree?
+
+Answers: [self-check-answers](self-check-answers.qmd)

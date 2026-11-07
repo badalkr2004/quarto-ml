@@ -100,6 +100,8 @@ website:
             - courses/springboot/lectures/07-bean-lifecycle/self-check-answers.qmd
             - courses/springboot/lectures/08-spring-xml-configuration/notes.qmd
             - courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.qmd
+            - courses/springboot/lectures/09-spring-boot-core/notes.qmd
+            - courses/springboot/lectures/09-spring-boot-core/self-check-answers.qmd
         - courses/springboot/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID

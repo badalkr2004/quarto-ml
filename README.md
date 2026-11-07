@@ -27,7 +27,7 @@ Free hosted static sites: [docs](https://quarto.org/docs/publishing/posit-connec
 - **MFML** — Mathematical Foundations of Machine Learning (Prof. Prathosh A.P.)
   - Notes + beginner notebook under `courses/mfml/`
 - **Spring Boot** — Coder Army / Aditya Tandon practice notes
-  - Editor-first labs under `courses/springboot/` (lectures 01–08)
+  - Editor-first labs under `courses/springboot/` (lectures 01–09)
 
 ## Add the next lecture series
 

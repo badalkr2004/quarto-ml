@@ -37,7 +37,8 @@ These pages are written so anyone can **type code in their own editor**, one ste
 | 06 | [Circular dependency, bean scope, lazy & eager](lectures/06-circular-dependency-bean-scope/notes.qmd) | [Self-check](lectures/06-circular-dependency-bean-scope/self-check-answers.qmd) |
 | 07 | [Bean lifecycle — `@PostConstruct`, `@PreDestroy`, scopes, `@Lazy`](lectures/07-bean-lifecycle/notes.qmd) | [Self-check](lectures/07-bean-lifecycle/self-check-answers.qmd) |
 | 08 | [Spring XML configuration — beans, DI, scopes, lifecycle](lectures/08-spring-xml-configuration/notes.qmd) | [Self-check](lectures/08-spring-xml-configuration/self-check-answers.qmd) |
-| 09+ | *Add next playlist lectures the same way* | |
+| 09 | [Spring Boot core — `@SpringBootApplication`, starters, auto-config](lectures/09-spring-boot-core/notes.qmd) | [Self-check](lectures/09-spring-boot-core/self-check-answers.qmd) |
+| 10+ | *Add next playlist lectures the same way* | |
 
 ## Prerequisites
 
