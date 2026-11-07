@@ -1,1 +1,1 @@
-Sitemap: https://badalkr2004.github.io/quarto-ml/sitemap.xml
+Sitemap: https://mlmf.badalkrdev.in/sitemap.xml
