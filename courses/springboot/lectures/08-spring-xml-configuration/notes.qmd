@@ -1,0 +1,593 @@
+---
+title: "Lecture 8 — Spring XML configuration"
+subtitle: "Beans, DI, scopes, lifecycle — same IoC, different metadata"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring XML Configuration Explained \| Beans, DI, Scopes & Lifecycle \| Full Course #8](https://www.youtube.com/watch?v=HqBh9hV7rik)  
+**Playlist index:** 8  
+**Builds on:** [Lecture 5](../05-spring-ioc-container/notes.qmd) · [Lecture 6](../06-circular-dependency-bean-scope/notes.qmd) · [Lecture 7](../07-bean-lifecycle/notes.qmd)
+
+---
+
+## Why learn XML if Boot uses annotations?
+
+Finish this motivation fully — it is the point of the lecture:
+
+| Reason | What it buys you |
+|--------|------------------|
+| **Legacy codebases** | Many enterprise apps still declare beans in XML; you must read and change them |
+| **Mental model** | XML makes *bean definitions* visible as documents — same blueprints annotations build invisibly |
+| **Same container** | `ApplicationContext` does not care whether metadata came from XML, `@Configuration`, or stereotypes |
+
+**Do not memorize every tag.** Learn the *mapping*: each XML construct ↔ the annotation / Java-config idea you already know. Syntax is searchable; reasoning is not.
+
+```text
+                    configuration metadata
+                 ┌──────────┼──────────┐
+                 ▼          ▼          ▼
+            XML files   @Configuration  @Component scan
+                 \          |          /
+                  \         |         /
+                   ▼        ▼        ▼
+                 BeanDefinition(s) in the IoC container
+                              │
+                              ▼
+                    create · inject · lifecycle
+```
+
+---
+
+## Master mindmap — XML vs annotation (same engine)
+
+```text
+Annotation path                         XML path
+─────────────────                        ────────
+AnnotationConfigApplicationContext       ClassPathXmlApplicationContext
+         │                                        │
+AppConfig.class + @ComponentScan         beans.xml on the classpath
+         │                                        │
+@Component on OrderService               <bean id="orderService" class="...OrderService"/>
+@Autowired / ctor injection              <constructor-arg ref="..."/> or <property .../>
+@Scope("prototype")                      scope="prototype"
+@PostConstruct / @PreDestroy             init-method="..." / destroy-method="..."
+@Lazy                                    lazy-init="true"
+```
+
+If you can redraw this table from memory, you understand the lecture.
+
+---
+
+## Topic 1 — Project setup for XML labs (complete)
+
+Same kind of **Spring Core** Maven project as lectures 5–7:
+
+1. Maven project + `spring-context` dependency  
+2. Plain Java classes (**no** `@Component` for the pure-XML path)  
+3. An XML file on the classpath, typically:
+
+```text
+src/main/resources/beans.xml
+```
+
+### Bootstrap the container from XML
+
+```java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("beans.xml");
+
+        OrderService order = context.getBean("orderService", OrderService.class);
+        order.placeOrder();
+
+        ((ClassPathXmlApplicationContext) context).close();
+    }
+}
+```
+
+**Reasoning**
+
+| Piece | Role |
+|-------|------|
+| `ClassPathXmlApplicationContext` | IoC container that reads **XML** metadata |
+| `"beans.xml"` | Resource on classpath (`src/main/resources`) |
+| `getBean("orderService", OrderService.class)` | Fetch by **id/name** + type (safer than name-only) |
+| `close()` | Triggers destroy callbacks for managed singletons |
+
+Contrast with what you used before: `new AnnotationConfigApplicationContext(AppConfig.class)`.
+
+---
+
+## Topic 2 — Anatomy of `beans.xml` (complete)
+
+Minimal shape (namespaces/schema header can be copied from Spring docs — nobody memorizes it):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="paymentService"
+          class="com.example.xmlLab.PaymentService"/>
+
+    <bean id="orderService"
+          class="com.example.xmlLab.OrderService">
+        <constructor-arg ref="paymentService"/>
+    </bean>
+
+</beans>
+```
+
+### What each part means
+
+| XML | Meaning |
+|-----|---------|
+| `<beans>` | Root: the set of bean definitions |
+| `<bean>` | One **BeanDefinition** |
+| `id` | Unique identifier inside this container |
+| `class` | Fully qualified class name Spring should instantiate |
+| `ref` | Reference to **another bean’s id** (not a string payload) |
+
+**POJO classes stay clean** — no Spring annotations required for this path:
+
+```java
+package com.example.xmlLab;
+
+public class PaymentService {
+    public void pay() {
+        System.out.println("Payment done");
+    }
+}
+```
+
+```java
+package com.example.xmlLab;
+
+public class OrderService {
+    private final PaymentService paymentService;
+
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+**Practice A:** Create the two classes + `beans.xml` + `Main` above. Run until you see both print lines. This is your baseline for the rest of the lecture.
+
+---
+
+## Topic 3 — `id`, `name`, and aliases (complete)
+
+### Rules
+
+| Attribute | Rule |
+|-----------|------|
+| `id` | **Unique** bean id |
+| `name` | One or more alternate names (**aliases**), space/comma-separated depending on style |
+
+```xml
+<bean id="orderService"
+      name="orderServiceBean orderBean o"
+      class="com.example.xmlLab.OrderService">
+    <constructor-arg ref="paymentService"/>
+</bean>
+```
+
+Any of these fetch the **same** singleton instance:
+
+```java
+context.getBean("orderService", OrderService.class);
+context.getBean("orderServiceBean", OrderService.class);
+context.getBean("o", OrderService.class);
+```
+
+### Why aliases exist
+
+Different modules historically used different names for the same collaborator. Aliases avoid duplicate bean instances just to satisfy naming.
+
+**Reasoning check:** Changing `name` does not create a second object. Scope still decides instance count; names are lookup keys into the same definition.
+
+---
+
+## Topic 4 — Constructor injection in XML (complete)
+
+### Collaborator → `ref`
+
+```xml
+<bean id="orderService" class="com.example.xmlLab.OrderService">
+    <constructor-arg ref="paymentService"/>
+</bean>
+```
+
+Maps to: `new OrderService(paymentServiceBean)`.
+
+### Literal → `value`
+
+```java
+public class BankAccount {
+    private final String owner;
+    private final int balance;
+
+    public BankAccount(String owner, int balance) {
+        this.owner = owner;
+        this.balance = balance;
+    }
+}
+```
+
+```xml
+<bean id="account" class="com.example.xmlLab.BankAccount">
+    <constructor-arg value="Aditya"/>
+    <constructor-arg value="1000"/>
+</bean>
+```
+
+When types can be ambiguous, be explicit:
+
+```xml
+<constructor-arg index="0" value="Aditya"/>
+<constructor-arg index="1" type="int" value="1000"/>
+```
+
+or by parameter name (needs `-parameters` compiler flag in some setups):
+
+```xml
+<constructor-arg name="owner" value="Aditya"/>
+<constructor-arg name="balance" value="1000"/>
+```
+
+### `value` vs `ref` — finish the distinction
+
+| Attribute | Passes | Use when |
+|-----------|--------|----------|
+| `value` | Converted literal (String, int, …) | Primitives / strings / simple config |
+| `ref` | Another **bean** in the container | Collaborators / services |
+
+Mixing them up is a classic bug: `value="paymentService"` injects the **string** `"paymentService"`, not the bean.
+
+---
+
+## Topic 5 — Setter injection in XML (complete)
+
+Needs a setter (or JavaBeans property) on the class:
+
+```java
+public class OrderService {
+    private PaymentService paymentService;
+
+    public OrderService() {}
+
+    public void setPaymentService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void placeOrder() {
+        paymentService.pay();
+        System.out.println("Order placed");
+    }
+}
+```
+
+```xml
+<bean id="orderService" class="com.example.xmlLab.OrderService">
+    <property name="paymentService" ref="paymentService"/>
+</bean>
+```
+
+| XML | Java |
+|-----|------|
+| `name="paymentService"` | calls `setPaymentService(...)` |
+| `ref="paymentService"` | passes the bean with that id |
+
+Prefer **constructor injection** for required deps (same judgment as annotation world). Use setter for optional deps or legacy APIs.
+
+**Lifecycle reminder (lecture 7):** with setter/field-style wiring, deps are **not** available inside the constructor body — only after property population.
+
+---
+
+## Topic 6 — Multiple candidates & explicit wiring (complete)
+
+When two implementations share a type:
+
+```text
+PaymentService (interface)
+   ▲                ▲
+UpiPaymentService  CardPaymentService
+```
+
+```java
+public interface PaymentService {
+    void pay();
+}
+
+public class UpiPaymentService implements PaymentService {
+    public void pay() { System.out.println("UPI payment done"); }
+}
+
+public class CardPaymentService implements PaymentService {
+    public void pay() { System.out.println("Card payment done"); }
+}
+```
+
+```xml
+<bean id="upiPaymentService" class="com.example.xmlLab.UpiPaymentService"/>
+<bean id="cardPaymentService" class="com.example.xmlLab.CardPaymentService"/>
+
+<bean id="orderService" class="com.example.xmlLab.OrderService">
+    <!-- YOU choose — no ambiguity -->
+    <constructor-arg ref="upiPaymentService"/>
+</bean>
+```
+
+### How this maps to annotations
+
+| Situation | Annotation world | XML world |
+|-----------|------------------|-----------|
+| Two `@Component` impls of same interface | often need `@Primary` / `@Qualifier` | **`ref` already names the exact bean** |
+| Autowire by type alone | can fail with NoUniqueBeanDefinition | same risk if you use XML `autowire="byType"` |
+
+**Practice B:** Define both payment beans; wire Order → UPI; run; switch `ref` to card; run again. `OrderService` Java code stays unchanged — only XML changes. That is loose coupling made visible.
+
+---
+
+## Topic 7 — XML autowiring modes (complete)
+
+Instead of writing every `ref`, you can ask Spring to guess:
+
+```xml
+<bean id="orderService"
+      class="com.example.xmlLab.OrderService"
+      autowire="byType"/>
+```
+
+| Mode | Behavior | Failure mode |
+|------|----------|--------------|
+| `no` (default) | Only explicit `ref` / `value` | You forgot a dependency → null / missing ctor arg |
+| `byName` | Match property name to bean id | Rename breakages |
+| `byType` | Match property/ctor type to a unique bean | **Ambiguity** if 2 beans of that type |
+| `constructor` | Like byType on constructor args | Same ambiguity risk |
+
+**Teaching judgment:** Autowiring reduces XML noise but hides the wiring graph. Explicit `ref` is clearer for learning and for tricky graphs. Modern annotation config has the same tradeoff (`@Autowired` by type vs `@Qualifier`).
+
+---
+
+## Topic 8 — Scopes in XML (complete)
+
+```xml
+<!-- default -->
+<bean id="orderService" class="..." scope="singleton"/>
+
+<bean id="userService"
+      class="com.example.xmlLab.UserService"
+      scope="prototype"/>
+```
+
+Same semantics as lecture 6:
+
+| Scope | Instances | Destroy callbacks |
+|-------|-----------|-------------------|
+| `singleton` | one per definition | yes on context close |
+| `prototype` | new each request | **no** container `@PreDestroy` / destroy-method for handed-out instances |
+
+```java
+var a = context.getBean("userService", UserService.class);
+var b = context.getBean("userService", UserService.class);
+System.out.println(a == b); // false for prototype
+```
+
+Optional: `lazy-init="true"` on a singleton ↔ `@Lazy`.
+
+---
+
+## Topic 9 — Lifecycle callbacks in XML (complete)
+
+Annotation world used `@PostConstruct` / `@PreDestroy`. XML names the methods:
+
+```java
+public class CartService {
+    public void init() {
+        System.out.println("init-method: warm cache");
+    }
+
+    public void cleanup() {
+        System.out.println("destroy-method: clear cache");
+    }
+}
+```
+
+```xml
+<bean id="cartService"
+      class="com.example.xmlLab.CartService"
+      init-method="init"
+      destroy-method="cleanup"/>
+```
+
+**Order still matches lecture 7:** create → inject → **init-method** → use → **destroy-method** on `close()`.
+
+| Annotation / API | XML |
+|------------------|-----|
+| `@PostConstruct` | `init-method` |
+| `@PreDestroy` | `destroy-method` |
+| `InitializingBean` / `DisposableBean` | still work if the class implements them |
+
+**Practice C:** Add init/destroy logging; call `close()`; confirm both fire for a singleton. Repeat with `scope="prototype"` and confirm destroy does **not** fire for retrieved instances.
+
+---
+
+## Topic 10 — Collection injection (complete)
+
+### List into constructor
+
+```java
+public class DirectoryService {
+    private final List<String> userNames;
+
+    public DirectoryService(List<String> userNames) {
+        this.userNames = userNames;
+    }
+
+    public List<String> getUserNames() {
+        return userNames;
+    }
+}
+```
+
+```xml
+<bean id="directoryService" class="com.example.xmlLab.DirectoryService">
+    <constructor-arg>
+        <list>
+            <value>Aditya</value>
+            <value>Rohit</value>
+            <value>Badal</value>
+        </list>
+    </constructor-arg>
+</bean>
+```
+
+### Map via property
+
+```xml
+<property name="roles">
+    <map>
+        <entry key="1" value="ADMIN"/>
+        <entry key="2" value="USER"/>
+    </map>
+</property>
+```
+
+You can also `<ref bean="someBean"/>` inside list/map entries when elements are collaborators, not literals.
+
+---
+
+## Topic 11 — Split config with `<import>` (complete)
+
+Large apps split XML by feature:
+
+```text
+resources/
+  beans.xml          ← root
+  payments-beans.xml
+  order-beans.xml
+```
+
+**`beans.xml`**
+
+```xml
+<beans ...>
+    <import resource="payments-beans.xml"/>
+    <import resource="order-beans.xml"/>
+</beans>
+```
+
+Still one logical container when you load the root file. Same idea as `@Import` on `@Configuration` classes.
+
+---
+
+## Topic 12 — Mixing XML and annotations (complete)
+
+You are not forced to pick one forever.
+
+Common hybrid:
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         https://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+         https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- turn on @Autowired / @Value processing -->
+    <context:annotation-config/>
+
+    <!-- pick up @Component classes -->
+    <context:component-scan base-package="com.example.xmlLab"/>
+
+    <!-- still declare some beans explicitly in XML if needed -->
+    <bean id="legacyClient" class="com.example.xmlLab.LegacyClient"/>
+</beans>
+```
+
+| Element | Effect |
+|---------|--------|
+| `annotation-config` | Process injection annotations on beans already defined |
+| `component-scan` | Discover `@Component` / `@Service` / … and register them |
+
+**Boot connection:** Spring Boot’s auto-config is “configuration metadata” too — mostly Java `@Configuration` classes on the classpath. XML is the historical, readable cousin of that idea.
+
+---
+
+## End-to-end practice lab (do in order)
+
+Create package `com.example.xmlLab` and `src/main/resources/beans.xml`.
+
+1. **Baseline:** Payment + Order with constructor-arg `ref` (Topic 2).  
+2. **Alias:** Add a second name; fetch with both ids (Topic 3).  
+3. **Two payments:** UPI + Card; switch `ref` without touching Order Java (Topic 6).  
+4. **Setter path:** Temporarily switch Order to setter + `<property>` (Topic 5).  
+5. **Prototype UserService:** prove `a != b` (Topic 8).  
+6. **Lifecycle:** `init-method` / `destroy-method` + `close()` (Topic 9).  
+7. **Collections:** inject a `List<String>` (Topic 10).  
+8. **Optional stretch:** split payments into `payments-beans.xml` and `<import>` it (Topic 11).
+
+After the lab you should be able to open a foreign `applicationContext.xml` and answer: *What beans exist? How are they wired? What scope? What runs on startup/shutdown?*
+
+---
+
+## Reasoning toolkit (teach / review)
+
+When reading XML config, walk this checklist:
+
+1. Which context class loads it? (`ClassPathXmlApplicationContext` vs annotation)  
+2. List every `<bean id>` — those are your definitions  
+3. For each dependency: is it `value` or `ref`?  
+4. Constructor-arg or property? (required timing differs)  
+5. Any duplicate types without explicit `ref` / with `autowire="byType"`?  
+6. Scope + lazy-init?  
+7. init/destroy method names?  
+8. Imports — is this file the root or a fragment?
+
+### Robust-app notes
+
+- Prefer constructor injection in XML and in annotations  
+- Prefer explicit `ref` over clever autowire while learning  
+- Keep XML modules small (`import`) so ownership is clear  
+- Never assume prototype destroy-method runs  
+- Treat XML as *documentation of the object graph* — that skill transfers to Boot auto-config debugging
+
+---
+
+## Exercises
+
+1. Translate this annotation setup into XML (on paper, then in the lab): `@Component` Order + Payment, constructor injection.  
+2. Show a failing case: two payment beans + `autowire="byType"` on Order — explain the error, then fix with explicit `ref`.  
+3. Map `@PostConstruct` / `@PreDestroy` to XML attributes; prove with logs.  
+4. Explain in ≤6 sentences why `value="paymentService"` is wrong when you meant the bean.  
+5. Draw the mindmap (annotation column vs XML column) from memory.
+
+---
+
+## Self-check
+
+1. What is the XML equivalent of `AnnotationConfigApplicationContext`?  
+2. When do you use `ref` vs `value`?  
+3. Can one bean have multiple `name` aliases but only one `id`?  
+4. Does `destroy-method` run for every prototype instance when the context closes?
+
+Answers: [self-check-answers](self-check-answers.qmd)

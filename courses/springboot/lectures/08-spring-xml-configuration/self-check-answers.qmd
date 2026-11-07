@@ -1,0 +1,20 @@
+---
+title: "Lecture 8 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample direction)
+
+1. Two `<bean>` entries; Order’s `<constructor-arg ref="paymentService"/>`; no `@Component`. Load with `ClassPathXmlApplicationContext`.
+2. `byType` finds two `PaymentService` beans → ambiguity exception. Fix: remove autowire and set `ref="upiPaymentService"` (or `card…`).
+3. `init-method="init"` / `destroy-method="cleanup"`; call `close()`; singleton prints both. Prototype retrieved instances skip destroy.
+4. `value` injects a literal string; the field/ctor would get `"paymentService"` text (or fail type conversion), not the collaborator object. Collaborators need `ref`.
+5. Same IoC steps; only the metadata syntax changes (table in the notes).
+
+## Self-check
+
+1. **`ClassPathXmlApplicationContext`** (XML on the classpath). Related: `FileSystemXmlApplicationContext` for a filesystem path.
+2. **`ref`** → another bean; **`value`** → literal / convertible simple value.
+3. **Yes** — `id` is the unique primary id; `name` can list aliases.
+4. **No** — Spring does not manage prototype destruction the way it does singletons; destroy callbacks are not applied to handed-out prototype instances on context close.
