@@ -2,150 +2,158 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/references/index.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/docs/attribution.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/references.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/09-spring-boot-core/notes.html</loc>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/08-spring-xml-configuration/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/07-bean-lifecycle/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/05-spring-ioc-container/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/04-dependency-injection-ioc/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/03-apache-maven/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/02-first-spring-boot-app/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/01-spring-framework-intro/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/references.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/notes.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/index.html</loc>
-    <lastmod>2026-11-07T22:09:23.984Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.782Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/index.html</loc>
-    <lastmod>2026-11-07T22:09:23.985Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.783Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/index.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/03-apache-maven/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.987Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/09-spring-boot-core/self-check-answers.html</loc>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/docs/adding-a-course.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/index.html</loc>
-    <lastmod>2026-11-07T22:09:23.988Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html</loc>
-    <lastmod>2026-11-07T22:09:23.986Z</lastmod>
+    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
   </url>
 </urlset>

@@ -339,10 +339,202 @@
     "href": "courses/springboot/references.html#concepts-to-keep-nearby",
     "title": "Spring Boot — References",
     "section": "Concepts to keep nearby",
-    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06\n\n\nBean lifecycle, @PostConstruct / @PreDestroy\nLecture 07\n\n\nXML config, ClassPathXmlApplicationContext\nLecture 08",
+    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06\n\n\nBean lifecycle, @PostConstruct / @PreDestroy\nLecture 07\n\n\nXML config, ClassPathXmlApplicationContext\nLecture 08\n\n\n@SpringBootApplication, starters, auto-config\nLecture 09",
     "crumbs": [
       "Home",
       "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "",
+    "text": "Video: Spring Boot Core | @SpringBootApplication, Auto Configurations | Full Course #9\nPlaylist index: 9\nBuilds on: Lectures 05–08",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#big-idea-in-one-line",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#big-idea-in-one-line",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Big idea in one line",
+    "text": "Big idea in one line\nSpring Boot is still Spring.\nIt does not replace the IoC container. It starts the container for you and turns on smart defaults based on what JARs are on your classpath.\nSpring Core (what you already learned)\n  create context → scan components → make beans → inject deps\n\nSpring Boot\n  same steps\n  + less startup code\n  + \"starters\" (ready dependency packs)\n  + auto-configuration (Boot adds useful beans when it makes sense)",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#why-boot-after-core",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#why-boot-after-core",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Why Boot after Core?",
+    "text": "Why Boot after Core?\nIn Core you kept writing the same startup again and again:\n\nMake ApplicationContext\nPoint it at a config class / XML\nPut @ComponentScan (or list beans in XML)\nCall getBean(...) yourself\n\nThat is fine for learning. In real apps it gets boring and easy to get wrong.\nBoot’s job: keep the useful Spring Core behavior, remove the repeated setup.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#picture-core-startup-vs-boot-startup",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#picture-core-startup-vs-boot-startup",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Picture: Core startup vs Boot startup",
+    "text": "Picture: Core startup vs Boot startup\nSPRING CORE                              SPRING BOOT\n────────────                             ───────────\nmain                                     main\n  │                                        │\n  ├─ new AnnotationConfig...               ├─ SpringApplication.run(App.class, args)\n  │    (AppConfig.class)                   │\n  ├─ @Configuration                        ├─ @SpringBootApplication on App\n  ├─ @ComponentScan                        │     (includes scan + config + auto-config)\n  ├─ beans created                         ├─ beans created (yours + Boot’s)\n  └─ you call getBean / business code      └─ app keeps running (web server if web starter)\nSame engine. Shorter ignition key.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-1-make-a-boot-project-hands-on",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-1-make-a-boot-project-hands-on",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 1 — Make a Boot project (hands-on)",
+    "text": "Topic 1 — Make a Boot project (hands-on)\n\nOption A (recommended): Spring Initializr\n\nOpen start.spring.io\nMaven · Java · a stable Boot version · packaging Jar\nAdd dependency: Spring Boot Starter is enough for this lecture (no Web yet)\nGenerate → unzip → open in IDE\n\n\n\nOption B: empty Maven + parent\nIf you build by hand, your pom.xml needs at least:\n\na spring-boot-starter-parent parent (versions)\na spring-boot-starter dependency (core Boot on the classpath)\n\nYou already saw Initializr do this in lecture 02. Today we explain why those lines exist.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-2-spring-boot-starter-parent-simple-meaning",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-2-spring-boot-starter-parent-simple-meaning",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 2 — spring-boot-starter-parent (simple meaning)",
+    "text": "Topic 2 — spring-boot-starter-parent (simple meaning)\nProblem: many libraries must use matching versions.\nIf Web is version A and JDBC is version B, things break. Checking that by hand is painful.\nFix: Boot gives you a parent POM.\n&lt;parent&gt;\n  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;\n  &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;\n  &lt;version&gt;&lt;!-- Boot version --&gt;&lt;/version&gt;\n&lt;/parent&gt;\n\nWhat the parent does for you\n\n\n\n\n\n\n\nWithout parent\nWith parent\n\n\n\n\nYou pick versions for every Spring-related dependency\nParent already knows a tested set of versions\n\n\nEasy to mix incompatible JARs\nAdd starters without writing &lt;version&gt; most of the time\n\n\n\nPlain words: the parent is a “version menu” Boot maintains so you do not fight dependency hell.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-3-spring-boot-starter-simple-meaning",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-3-spring-boot-starter-simple-meaning",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 3 — spring-boot-starter (simple meaning)",
+    "text": "Topic 3 — spring-boot-starter (simple meaning)\nA starter is a ready-made dependency pack.\n\n\n\n\n\n\n\nStarter\nRough meaning\n\n\n\n\nspring-boot-starter\nCore Boot support (logging, auto-config engine, …)\n\n\nspring-boot-starter-web\nWeb apps + embedded Tomcat + Spring MVC\n\n\nspring-boot-starter-test\nTesting tools\n\n\n\nWhen you only add spring-boot-starter (no web), Tomcat does not start.\nThat is normal. Boot only pulls Tomcat when a web starter puts those classes on the classpath.\nRemember: starters change what is available. Auto-config decides what Boot creates from that.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-4-springapplication.run...-what-main-really-does",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-4-springapplication.run...-what-main-really-does",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 4 — SpringApplication.run(...) (what main really does)",
+    "text": "Topic 4 — SpringApplication.run(...) (what main really does)\nGenerated main class looks like:\n@SpringBootApplication\npublic class DemoApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(DemoApplication.class, args);\n    }\n}\n\nWhat run is doing (no magic)\n\nPrepare the environment (settings, profiles — more in later lectures)\nCreate the Spring ApplicationContext (your IoC container)\nRead @SpringBootApplication on the class you passed\nScan for your components\nApply auto-configuration\nCreate beans and inject dependencies\nReturn the context (and keep the process alive if a web server started)\n\nCompare to Core:\n// Core style you wrote by hand\nnew AnnotationConfigApplicationContext(AppConfig.class);\nBoot wraps that idea inside SpringApplication.run.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-5-break-open-springbootapplication",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-5-break-open-springbootapplication",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 5 — Break open @SpringBootApplication",
+    "text": "Topic 5 — Break open @SpringBootApplication\nThis one annotation is three annotations stacked together:\n@SpringBootApplication\n        │\n        ├── @SpringBootConfiguration   ≈ \"@Configuration for the main Boot class\"\n        ├── @EnableAutoConfiguration   ≈ \"turn on Boot’s automatic setup\"\n        └── @ComponentScan             ≈ \"find my @Component classes\"\nYou can write the three separately. Boot gives one short name so main stays clean.\n\n5.1 @SpringBootConfiguration\n\nMarks the main class as a configuration class\nSame idea as @Configuration in Core\nBecause of this, you may even put @Bean methods on the main class (possible, but many teams still prefer a separate config class for clarity)\n\n@SpringBootApplication\npublic class DemoApplication {\n\n    @Bean\n    UserService userService() {\n        return new UserService();\n    }\n\n    public static void main(String[] args) {\n        SpringApplication.run(DemoApplication.class, args);\n    }\n}\n\n\n5.2 @ComponentScan\n\nScans the package of the main class and sub-packages\nFinds @Component, @Service, @Repository, @Controller, …\n\nPractical rule: put your main class in the root package of the app.\ncom.example.demo          ← DemoApplication here\ncom.example.demo.order    ← scanned\ncom.example.demo.payment  ← scanned\ncom.other.stuff           ← NOT scanned (different root)\nIf beans “mysteriously” are missing, check the package first.\n\n\n5.3 @EnableAutoConfiguration\n\nTells Boot: look at the classpath and register helpful default beans when conditions match\nThose Boot setup classes are often marked as auto-configuration\nYou did not write them; Boot ships them",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-6-auto-configuration-the-part-that-feels-like-magic",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-6-auto-configuration-the-part-that-feels-like-magic",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 6 — Auto-configuration (the part that feels like magic)",
+    "text": "Topic 6 — Auto-configuration (the part that feels like magic)\n\nPlain explanation\n\nYou add a starter → JARs appear on the classpath\n\nBoot has a list of “if you have X, I can set up Y” rules\n\nFor each rule, Boot asks: should I turn this on?\n\nIf yes, Boot adds beans into the same IoC container as your beans\n\nClasspath has Jackson?  ──yes──► maybe create JSON-related beans\nClasspath has Tomcat + web? ──yes──► start embedded server setup\nYou already defined MyService? ──yes──► skip Boot’s default MyService\n\n\nTwo conditions you should know by name\n\n\n\n\n\n\n\nAnnotation\nPlain meaning\n\n\n\n\n@ConditionalOnClass\n“Only if this class exists on the classpath”\n\n\n@ConditionalOnMissingBean\n“Only if you did not already define this bean”\n\n\n\nWhy @ConditionalOnMissingBean matters:\nBoot gives defaults. You can override them by declaring your own @Bean / @Component of the same type. Boot then steps aside.\nYou define DataSource bean  → Boot’s default DataSource auto-config backs off\nYou define nothing          → Boot may create a default (when DB starter is present)\n\n\nYour beans vs Boot’s beans\n\n\n\n\n\n\n\n\nKind\nWho wrote the class\nHow it got into the container\n\n\n\n\nApp beans\nYou\n@Component / your @Bean\n\n\nAuto-config beans\nSpring Boot / libraries\nEnabled by @EnableAutoConfiguration + conditions\n\n\n\nSame container. Different authors.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-7-why-no-tomcat-without-web",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#topic-7-why-no-tomcat-without-web",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Topic 7 — Why no Tomcat without Web?",
+    "text": "Topic 7 — Why no Tomcat without Web?\nCommon surprise:\n\n“I run Boot, but there is no Tomcat on 8080.”\n\nBecause:\n\nAuto-config looks at the classpath\n\nWithout spring-boot-starter-web, Tomcat / web MVC pieces are not there (or not selected)\n\nSo Boot does not start a web server\n\nAdd Web starter → Tomcat-related auto-config can turn on → you see a port again (like lecture 02).\nTakeaway: Boot is not “always a web framework.” It becomes a web app when you pull web dependencies.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#practice-lab-type-this",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#practice-lab-type-this",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Practice lab (type this)",
+    "text": "Practice lab (type this)\nUse a Boot project without Web starter first.\n\nStep 1 — Add your own components\npackage com.example.demo;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class PaymentService {\n    public void pay() {\n        System.out.println(\"Payment done\");\n    }\n}\npackage com.example.demo;\n\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\n\n\nStep 2 — Use them from main via the context Boot returns\n@SpringBootApplication\npublic class DemoApplication {\n    public static void main(String[] args) {\n        var context = SpringApplication.run(DemoApplication.class, args);\n\n        OrderService order = context.getBean(OrderService.class);\n        order.placeOrder();\n\n        // optional: see how many beans Boot created\n        System.out.println(\"Bean count = \" + context.getBeanDefinitionCount());\n\n        context.close();\n    }\n}\nExpected: Payment done then Order placed.\nNotice: you did not write AppConfig or AnnotationConfigApplicationContext.\n\n\nStep 3 — Compare bean count (Core vs Boot)\nOptional: open a tiny Core project from lecture 5 with only Order + Payment.\nPrint getBeanDefinitionCount() there too.\nBoot’s number is usually much larger. Those extras are auto-configured infrastructure beans — proof that Boot added more than your two classes.\n\n\nStep 4 — Add Web starter and re-run\nAdd spring-boot-starter-web, run again (you can remove context.close() for a long-running server).\nYou should see Tomcat start. Remove Web starter → Tomcat gone again.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#how-to-reason-when-something-fails",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#how-to-reason-when-something-fails",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "How to reason when something fails",
+    "text": "How to reason when something fails\nAsk in this order:\n\nIs the class under the main package (or a sub-package)? → component scan\n\nIs the starter on the classpath? → check pom.xml\n\nDid I already define my own bean that blocks Boot’s default? → @ConditionalOnMissingBean\n\nAm I expecting a web server without the web starter? → add Web or stop expecting port 8080\n\nThis is how you debug Boot without calling it “magic.”",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#short-map-to-keep",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#short-map-to-keep",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Short map to keep",
+    "text": "Short map to keep\npom parent     → compatible versions\nstarters       → which libraries exist\n@SpringBootApplication\n   ├─ configuration (your @Bean allowed on main)\n   ├─ component scan (your @Component)\n   └─ enable auto-config (Boot’s conditional beans)\nSpringApplication.run → start container + apply all of the above",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#exercises",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#exercises",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Exercises",
+    "text": "Exercises\n\nExplain Boot in one sentence to a friend who only knows Core.\n\nName the three annotations inside @SpringBootApplication.\n\nWhy can you usually omit &lt;version&gt; on Boot starters?\n\nYou have Order/Payment components but Boot says no such bean. What do you check first?\n\nWhy does adding Web starter change runtime behavior so much?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/notes.html#self-check",
+    "href": "courses/springboot/lectures/09-spring-boot-core/notes.html#self-check",
+    "title": "Lecture 9 — Spring Boot core",
+    "section": "Self-check",
+    "text": "Self-check\n\nDoes Spring Boot replace the IoC container?\n\nWhat does @ConditionalOnMissingBean protect?\n\nTrue/False: Boot always starts Tomcat.\n\nWhere should the @SpringBootApplication class live in the package tree?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Spring Boot core"
     ]
   },
   {
@@ -2043,7 +2235,7 @@
     "href": "courses/springboot/index.html#lectures",
     "title": "Spring Boot Full Course",
     "section": "Lectures",
-    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07\nBean lifecycle — @PostConstruct, @PreDestroy, scopes, @Lazy\nSelf-check\n\n\n08\nSpring XML configuration — beans, DI, scopes, lifecycle\nSelf-check\n\n\n09+\nAdd next playlist lectures the same way",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07\nBean lifecycle — @PostConstruct, @PreDestroy, scopes, @Lazy\nSelf-check\n\n\n08\nSpring XML configuration — beans, DI, scopes, lifecycle\nSelf-check\n\n\n09\nSpring Boot core — @SpringBootApplication, starters, auto-config\nSelf-check\n\n\n10+\nAdd next playlist lectures the same way",
     "crumbs": [
       "Home",
       "Spring Boot Full Course"
@@ -2360,6 +2552,42 @@
     ]
   },
   {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html",
+    "href": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html",
+    "title": "Lecture 9 — Self-check answers",
+    "section": "",
+    "text": "Boot is Spring Core plus a shorter startup and smart defaults based on your dependencies.\n@SpringBootConfiguration, @EnableAutoConfiguration, @ComponentScan.\nBecause spring-boot-starter-parent already defines matching versions.\nPackage location / component scan — class must be in the main package or a sub-package.\nWeb starter puts web/Tomcat-related libraries on the classpath, so auto-config can start an embedded server.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html#exercises-sample",
+    "href": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html#exercises-sample",
+    "title": "Lecture 9 — Self-check answers",
+    "section": "",
+    "text": "Boot is Spring Core plus a shorter startup and smart defaults based on your dependencies.\n@SpringBootConfiguration, @EnableAutoConfiguration, @ComponentScan.\nBecause spring-boot-starter-parent already defines matching versions.\nPackage location / component scan — class must be in the main package or a sub-package.\nWeb starter puts web/Tomcat-related libraries on the classpath, so auto-config can start an embedded server.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/09-spring-boot-core/self-check-answers.html#self-check",
+    "title": "Lecture 9 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nNo. Same IoC idea; Boot starts and configures it for you.\nYour freedom to override Boot defaults by defining your own bean first.\nFalse. Tomcat shows up when web-related dependencies/auto-config apply (typically spring-boot-starter-web).\nIn the root application package, so scanning picks up all sub-packages.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 9 — Self-check answers"
+    ]
+  },
+  {
     "objectID": "docs/adding-a-course.html",
     "href": "docs/adding-a-course.html",
     "title": "Add a new lecture series",
@@ -2448,7 +2676,7 @@
     "href": "index.html#courses",
     "title": "Learn ML",
     "section": "Courses",
-    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–08\n\n\nNext series…\n—\nAdd via Add a course"
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–09\n\n\nNext series…\n—\nAdd via Add a course"
   },
   {
     "objectID": "index.html#how-this-site-is-organized",
