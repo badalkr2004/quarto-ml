@@ -2,142 +2,150 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/references/index.html</loc>
-    <lastmod>2026-11-04T21:02:25.373Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.754Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/docs/attribution.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.754Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/references.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
+  </url>
+  <url>
+    <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/08-spring-xml-configuration/notes.html</loc>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/07-bean-lifecycle/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/05-spring-ioc-container/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/04-dependency-injection-ioc/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/03-apache-maven/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/02-first-spring-boot-app/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/01-spring-framework-intro/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/references.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.369Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.750Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/01-overview-of-function-approximation/notes.html</loc>
-    <lastmod>2026-11-04T21:02:25.369Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.750Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/index.html</loc>
-    <lastmod>2026-11-04T21:02:25.368Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.748Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/index.html</loc>
-    <lastmod>2026-11-04T21:02:25.368Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.750Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.369Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.750Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/index.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/03-apache-maven/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.752Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.371Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
+  </url>
+  <url>
+    <loc>https://badalkr2004.github.io/quarto-ml/courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html</loc>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/docs/adding-a-course.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.753Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/index.html</loc>
-    <lastmod>2026-11-04T21:02:25.372Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.754Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html</loc>
-    <lastmod>2026-11-04T21:02:25.369Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.750Z</lastmod>
   </url>
   <url>
     <loc>https://badalkr2004.github.io/quarto-ml/courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html</loc>
-    <lastmod>2026-11-04T21:02:25.370Z</lastmod>
+    <lastmod>2026-11-07T22:07:28.751Z</lastmod>
   </url>
 </urlset>

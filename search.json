@@ -339,10 +339,238 @@
     "href": "courses/springboot/references.html#concepts-to-keep-nearby",
     "title": "Spring Boot — References",
     "section": "Concepts to keep nearby",
-    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06\n\n\nBean lifecycle, @PostConstruct / @PreDestroy\nLecture 07",
+    "text": "Concepts to keep nearby\n\n\n\nConcept\nFirst covered in\n\n\n\n\nClient–server, HTTP, ports\nLecture 01–02\n\n\nEmbedded Tomcat, @RestController\nLecture 02\n\n\nPOM, GAV, lifecycle\nLecture 03\n\n\nDI, IoC, loose coupling\nLecture 04\n\n\nBeans, @Component, @Bean, @Autowired\nLecture 05\n\n\nCircular deps, scopes, @Lazy / eager\nLecture 06\n\n\nBean lifecycle, @PostConstruct / @PreDestroy\nLecture 07\n\n\nXML config, ClassPathXmlApplicationContext\nLecture 08",
     "crumbs": [
       "Home",
       "Spring Boot — References"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "",
+    "text": "Video: Spring XML Configuration Explained | Beans, DI, Scopes & Lifecycle | Full Course #8\nPlaylist index: 8\nBuilds on: Lecture 5 · Lecture 6 · Lecture 7",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#why-learn-xml-if-boot-uses-annotations",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#why-learn-xml-if-boot-uses-annotations",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Why learn XML if Boot uses annotations?",
+    "text": "Why learn XML if Boot uses annotations?\nFinish this motivation fully — it is the point of the lecture:\n\n\n\n\n\n\n\nReason\nWhat it buys you\n\n\n\n\nLegacy codebases\nMany enterprise apps still declare beans in XML; you must read and change them\n\n\nMental model\nXML makes bean definitions visible as documents — same blueprints annotations build invisibly\n\n\nSame container\nApplicationContext does not care whether metadata came from XML, @Configuration, or stereotypes\n\n\n\nDo not memorize every tag. Learn the mapping: each XML construct ↔︎ the annotation / Java-config idea you already know. Syntax is searchable; reasoning is not.\n                    configuration metadata\n                 ┌──────────┼──────────┐\n                 ▼          ▼          ▼\n            XML files   @Configuration  @Component scan\n                 \\          |          /\n                  \\         |         /\n                   ▼        ▼        ▼\n                 BeanDefinition(s) in the IoC container\n                              │\n                              ▼\n                    create · inject · lifecycle",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#master-mindmap-xml-vs-annotation-same-engine",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#master-mindmap-xml-vs-annotation-same-engine",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Master mindmap — XML vs annotation (same engine)",
+    "text": "Master mindmap — XML vs annotation (same engine)\nAnnotation path                         XML path\n─────────────────                        ────────\nAnnotationConfigApplicationContext       ClassPathXmlApplicationContext\n         │                                        │\nAppConfig.class + @ComponentScan         beans.xml on the classpath\n         │                                        │\n@Component on OrderService               &lt;bean id=\"orderService\" class=\"...OrderService\"/&gt;\n@Autowired / ctor injection              &lt;constructor-arg ref=\"...\"/&gt; or &lt;property .../&gt;\n@Scope(\"prototype\")                      scope=\"prototype\"\n@PostConstruct / @PreDestroy             init-method=\"...\" / destroy-method=\"...\"\n@Lazy                                    lazy-init=\"true\"\nIf you can redraw this table from memory, you understand the lecture.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-1-project-setup-for-xml-labs-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-1-project-setup-for-xml-labs-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 1 — Project setup for XML labs (complete)",
+    "text": "Topic 1 — Project setup for XML labs (complete)\nSame kind of Spring Core Maven project as lectures 5–7:\n\nMaven project + spring-context dependency\n\nPlain Java classes (no @Component for the pure-XML path)\n\nAn XML file on the classpath, typically:\n\nsrc/main/resources/beans.xml\n\nBootstrap the container from XML\nimport org.springframework.context.ApplicationContext;\nimport org.springframework.context.support.ClassPathXmlApplicationContext;\n\npublic class Main {\n    public static void main(String[] args) {\n        ApplicationContext context =\n                new ClassPathXmlApplicationContext(\"beans.xml\");\n\n        OrderService order = context.getBean(\"orderService\", OrderService.class);\n        order.placeOrder();\n\n        ((ClassPathXmlApplicationContext) context).close();\n    }\n}\nReasoning\n\n\n\n\n\n\n\nPiece\nRole\n\n\n\n\nClassPathXmlApplicationContext\nIoC container that reads XML metadata\n\n\n\"beans.xml\"\nResource on classpath (src/main/resources)\n\n\ngetBean(\"orderService\", OrderService.class)\nFetch by id/name + type (safer than name-only)\n\n\nclose()\nTriggers destroy callbacks for managed singletons\n\n\n\nContrast with what you used before: new AnnotationConfigApplicationContext(AppConfig.class).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-2-anatomy-of-beans.xml-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-2-anatomy-of-beans.xml-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 2 — Anatomy of beans.xml (complete)",
+    "text": "Topic 2 — Anatomy of beans.xml (complete)\nMinimal shape (namespaces/schema header can be copied from Spring docs — nobody memorizes it):\n&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;beans xmlns=\"http://www.springframework.org/schema/beans\"\n       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n       xsi:schemaLocation=\"\n         http://www.springframework.org/schema/beans\n         https://www.springframework.org/schema/beans/spring-beans.xsd\"&gt;\n\n    &lt;bean id=\"paymentService\"\n          class=\"com.example.xmlLab.PaymentService\"/&gt;\n\n    &lt;bean id=\"orderService\"\n          class=\"com.example.xmlLab.OrderService\"&gt;\n        &lt;constructor-arg ref=\"paymentService\"/&gt;\n    &lt;/bean&gt;\n\n&lt;/beans&gt;\n\nWhat each part means\n\n\n\nXML\nMeaning\n\n\n\n\n&lt;beans&gt;\nRoot: the set of bean definitions\n\n\n&lt;bean&gt;\nOne BeanDefinition\n\n\nid\nUnique identifier inside this container\n\n\nclass\nFully qualified class name Spring should instantiate\n\n\nref\nReference to another bean’s id (not a string payload)\n\n\n\nPOJO classes stay clean — no Spring annotations required for this path:\npackage com.example.xmlLab;\n\npublic class PaymentService {\n    public void pay() {\n        System.out.println(\"Payment done\");\n    }\n}\npackage com.example.xmlLab;\n\npublic class OrderService {\n    private final PaymentService paymentService;\n\n    public OrderService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\nPractice A: Create the two classes + beans.xml + Main above. Run until you see both print lines. This is your baseline for the rest of the lecture.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-3-id-name-and-aliases-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-3-id-name-and-aliases-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 3 — id, name, and aliases (complete)",
+    "text": "Topic 3 — id, name, and aliases (complete)\n\nRules\n\n\n\n\n\n\n\nAttribute\nRule\n\n\n\n\nid\nUnique bean id\n\n\nname\nOne or more alternate names (aliases), space/comma-separated depending on style\n\n\n\n&lt;bean id=\"orderService\"\n      name=\"orderServiceBean orderBean o\"\n      class=\"com.example.xmlLab.OrderService\"&gt;\n    &lt;constructor-arg ref=\"paymentService\"/&gt;\n&lt;/bean&gt;\nAny of these fetch the same singleton instance:\ncontext.getBean(\"orderService\", OrderService.class);\ncontext.getBean(\"orderServiceBean\", OrderService.class);\ncontext.getBean(\"o\", OrderService.class);\n\n\nWhy aliases exist\nDifferent modules historically used different names for the same collaborator. Aliases avoid duplicate bean instances just to satisfy naming.\nReasoning check: Changing name does not create a second object. Scope still decides instance count; names are lookup keys into the same definition.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-4-constructor-injection-in-xml-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-4-constructor-injection-in-xml-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 4 — Constructor injection in XML (complete)",
+    "text": "Topic 4 — Constructor injection in XML (complete)\n\nCollaborator → ref\n&lt;bean id=\"orderService\" class=\"com.example.xmlLab.OrderService\"&gt;\n    &lt;constructor-arg ref=\"paymentService\"/&gt;\n&lt;/bean&gt;\nMaps to: new OrderService(paymentServiceBean).\n\n\nLiteral → value\npublic class BankAccount {\n    private final String owner;\n    private final int balance;\n\n    public BankAccount(String owner, int balance) {\n        this.owner = owner;\n        this.balance = balance;\n    }\n}\n&lt;bean id=\"account\" class=\"com.example.xmlLab.BankAccount\"&gt;\n    &lt;constructor-arg value=\"Aditya\"/&gt;\n    &lt;constructor-arg value=\"1000\"/&gt;\n&lt;/bean&gt;\nWhen types can be ambiguous, be explicit:\n&lt;constructor-arg index=\"0\" value=\"Aditya\"/&gt;\n&lt;constructor-arg index=\"1\" type=\"int\" value=\"1000\"/&gt;\nor by parameter name (needs -parameters compiler flag in some setups):\n&lt;constructor-arg name=\"owner\" value=\"Aditya\"/&gt;\n&lt;constructor-arg name=\"balance\" value=\"1000\"/&gt;\n\n\nvalue vs ref — finish the distinction\n\n\n\n\n\n\n\n\nAttribute\nPasses\nUse when\n\n\n\n\nvalue\nConverted literal (String, int, …)\nPrimitives / strings / simple config\n\n\nref\nAnother bean in the container\nCollaborators / services\n\n\n\nMixing them up is a classic bug: value=\"paymentService\" injects the string \"paymentService\", not the bean.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-5-setter-injection-in-xml-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-5-setter-injection-in-xml-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 5 — Setter injection in XML (complete)",
+    "text": "Topic 5 — Setter injection in XML (complete)\nNeeds a setter (or JavaBeans property) on the class:\npublic class OrderService {\n    private PaymentService paymentService;\n\n    public OrderService() {}\n\n    public void setPaymentService(PaymentService paymentService) {\n        this.paymentService = paymentService;\n    }\n\n    public void placeOrder() {\n        paymentService.pay();\n        System.out.println(\"Order placed\");\n    }\n}\n&lt;bean id=\"orderService\" class=\"com.example.xmlLab.OrderService\"&gt;\n    &lt;property name=\"paymentService\" ref=\"paymentService\"/&gt;\n&lt;/bean&gt;\n\n\n\nXML\nJava\n\n\n\n\nname=\"paymentService\"\ncalls setPaymentService(...)\n\n\nref=\"paymentService\"\npasses the bean with that id\n\n\n\nPrefer constructor injection for required deps (same judgment as annotation world). Use setter for optional deps or legacy APIs.\nLifecycle reminder (lecture 7): with setter/field-style wiring, deps are not available inside the constructor body — only after property population.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-6-multiple-candidates-explicit-wiring-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-6-multiple-candidates-explicit-wiring-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 6 — Multiple candidates & explicit wiring (complete)",
+    "text": "Topic 6 — Multiple candidates & explicit wiring (complete)\nWhen two implementations share a type:\nPaymentService (interface)\n   ▲                ▲\nUpiPaymentService  CardPaymentService\npublic interface PaymentService {\n    void pay();\n}\n\npublic class UpiPaymentService implements PaymentService {\n    public void pay() { System.out.println(\"UPI payment done\"); }\n}\n\npublic class CardPaymentService implements PaymentService {\n    public void pay() { System.out.println(\"Card payment done\"); }\n}\n&lt;bean id=\"upiPaymentService\" class=\"com.example.xmlLab.UpiPaymentService\"/&gt;\n&lt;bean id=\"cardPaymentService\" class=\"com.example.xmlLab.CardPaymentService\"/&gt;\n\n&lt;bean id=\"orderService\" class=\"com.example.xmlLab.OrderService\"&gt;\n    &lt;!-- YOU choose — no ambiguity --&gt;\n    &lt;constructor-arg ref=\"upiPaymentService\"/&gt;\n&lt;/bean&gt;\n\nHow this maps to annotations\n\n\n\n\n\n\n\n\nSituation\nAnnotation world\nXML world\n\n\n\n\nTwo @Component impls of same interface\noften need @Primary / @Qualifier\nref already names the exact bean\n\n\nAutowire by type alone\ncan fail with NoUniqueBeanDefinition\nsame risk if you use XML autowire=\"byType\"\n\n\n\nPractice B: Define both payment beans; wire Order → UPI; run; switch ref to card; run again. OrderService Java code stays unchanged — only XML changes. That is loose coupling made visible.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-7-xml-autowiring-modes-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-7-xml-autowiring-modes-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 7 — XML autowiring modes (complete)",
+    "text": "Topic 7 — XML autowiring modes (complete)\nInstead of writing every ref, you can ask Spring to guess:\n&lt;bean id=\"orderService\"\n      class=\"com.example.xmlLab.OrderService\"\n      autowire=\"byType\"/&gt;\n\n\n\n\n\n\n\n\nMode\nBehavior\nFailure mode\n\n\n\n\nno (default)\nOnly explicit ref / value\nYou forgot a dependency → null / missing ctor arg\n\n\nbyName\nMatch property name to bean id\nRename breakages\n\n\nbyType\nMatch property/ctor type to a unique bean\nAmbiguity if 2 beans of that type\n\n\nconstructor\nLike byType on constructor args\nSame ambiguity risk\n\n\n\nTeaching judgment: Autowiring reduces XML noise but hides the wiring graph. Explicit ref is clearer for learning and for tricky graphs. Modern annotation config has the same tradeoff (@Autowired by type vs @Qualifier).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-8-scopes-in-xml-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-8-scopes-in-xml-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 8 — Scopes in XML (complete)",
+    "text": "Topic 8 — Scopes in XML (complete)\n&lt;!-- default --&gt;\n&lt;bean id=\"orderService\" class=\"...\" scope=\"singleton\"/&gt;\n\n&lt;bean id=\"userService\"\n      class=\"com.example.xmlLab.UserService\"\n      scope=\"prototype\"/&gt;\nSame semantics as lecture 6:\n\n\n\n\n\n\n\n\nScope\nInstances\nDestroy callbacks\n\n\n\n\nsingleton\none per definition\nyes on context close\n\n\nprototype\nnew each request\nno container @PreDestroy / destroy-method for handed-out instances\n\n\n\nvar a = context.getBean(\"userService\", UserService.class);\nvar b = context.getBean(\"userService\", UserService.class);\nSystem.out.println(a == b); // false for prototype\nOptional: lazy-init=\"true\" on a singleton ↔︎ @Lazy.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-9-lifecycle-callbacks-in-xml-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-9-lifecycle-callbacks-in-xml-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 9 — Lifecycle callbacks in XML (complete)",
+    "text": "Topic 9 — Lifecycle callbacks in XML (complete)\nAnnotation world used @PostConstruct / @PreDestroy. XML names the methods:\npublic class CartService {\n    public void init() {\n        System.out.println(\"init-method: warm cache\");\n    }\n\n    public void cleanup() {\n        System.out.println(\"destroy-method: clear cache\");\n    }\n}\n&lt;bean id=\"cartService\"\n      class=\"com.example.xmlLab.CartService\"\n      init-method=\"init\"\n      destroy-method=\"cleanup\"/&gt;\nOrder still matches lecture 7: create → inject → init-method → use → destroy-method on close().\n\n\n\n\n\n\n\nAnnotation / API\nXML\n\n\n\n\n@PostConstruct\ninit-method\n\n\n@PreDestroy\ndestroy-method\n\n\nInitializingBean / DisposableBean\nstill work if the class implements them\n\n\n\nPractice C: Add init/destroy logging; call close(); confirm both fire for a singleton. Repeat with scope=\"prototype\" and confirm destroy does not fire for retrieved instances.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-10-collection-injection-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-10-collection-injection-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 10 — Collection injection (complete)",
+    "text": "Topic 10 — Collection injection (complete)\n\nList into constructor\npublic class DirectoryService {\n    private final List&lt;String&gt; userNames;\n\n    public DirectoryService(List&lt;String&gt; userNames) {\n        this.userNames = userNames;\n    }\n\n    public List&lt;String&gt; getUserNames() {\n        return userNames;\n    }\n}\n&lt;bean id=\"directoryService\" class=\"com.example.xmlLab.DirectoryService\"&gt;\n    &lt;constructor-arg&gt;\n        &lt;list&gt;\n            &lt;value&gt;Aditya&lt;/value&gt;\n            &lt;value&gt;Rohit&lt;/value&gt;\n            &lt;value&gt;Badal&lt;/value&gt;\n        &lt;/list&gt;\n    &lt;/constructor-arg&gt;\n&lt;/bean&gt;\n\n\nMap via property\n&lt;property name=\"roles\"&gt;\n    &lt;map&gt;\n        &lt;entry key=\"1\" value=\"ADMIN\"/&gt;\n        &lt;entry key=\"2\" value=\"USER\"/&gt;\n    &lt;/map&gt;\n&lt;/property&gt;\nYou can also &lt;ref bean=\"someBean\"/&gt; inside list/map entries when elements are collaborators, not literals.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-11-split-config-with-import-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-11-split-config-with-import-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 11 — Split config with <import> (complete)",
+    "text": "Topic 11 — Split config with &lt;import&gt; (complete)\nLarge apps split XML by feature:\nresources/\n  beans.xml          ← root\n  payments-beans.xml\n  order-beans.xml\nbeans.xml\n&lt;beans ...&gt;\n    &lt;import resource=\"payments-beans.xml\"/&gt;\n    &lt;import resource=\"order-beans.xml\"/&gt;\n&lt;/beans&gt;\nStill one logical container when you load the root file. Same idea as @Import on @Configuration classes.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-12-mixing-xml-and-annotations-complete",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#topic-12-mixing-xml-and-annotations-complete",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Topic 12 — Mixing XML and annotations (complete)",
+    "text": "Topic 12 — Mixing XML and annotations (complete)\nYou are not forced to pick one forever.\nCommon hybrid:\n&lt;beans xmlns=\"http://www.springframework.org/schema/beans\"\n       xmlns:context=\"http://www.springframework.org/schema/context\"\n       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n       xsi:schemaLocation=\"\n         http://www.springframework.org/schema/beans\n         https://www.springframework.org/schema/beans/spring-beans.xsd\n         http://www.springframework.org/schema/context\n         https://www.springframework.org/schema/context/spring-context.xsd\"&gt;\n\n    &lt;!-- turn on @Autowired / @Value processing --&gt;\n    &lt;context:annotation-config/&gt;\n\n    &lt;!-- pick up @Component classes --&gt;\n    &lt;context:component-scan base-package=\"com.example.xmlLab\"/&gt;\n\n    &lt;!-- still declare some beans explicitly in XML if needed --&gt;\n    &lt;bean id=\"legacyClient\" class=\"com.example.xmlLab.LegacyClient\"/&gt;\n&lt;/beans&gt;\n\n\n\n\n\n\n\nElement\nEffect\n\n\n\n\nannotation-config\nProcess injection annotations on beans already defined\n\n\ncomponent-scan\nDiscover @Component / @Service / … and register them\n\n\n\nBoot connection: Spring Boot’s auto-config is “configuration metadata” too — mostly Java @Configuration classes on the classpath. XML is the historical, readable cousin of that idea.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#end-to-end-practice-lab-do-in-order",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#end-to-end-practice-lab-do-in-order",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "End-to-end practice lab (do in order)",
+    "text": "End-to-end practice lab (do in order)\nCreate package com.example.xmlLab and src/main/resources/beans.xml.\n\nBaseline: Payment + Order with constructor-arg ref (Topic 2).\n\nAlias: Add a second name; fetch with both ids (Topic 3).\n\nTwo payments: UPI + Card; switch ref without touching Order Java (Topic 6).\n\nSetter path: Temporarily switch Order to setter + &lt;property&gt; (Topic 5).\n\nPrototype UserService: prove a != b (Topic 8).\n\nLifecycle: init-method / destroy-method + close() (Topic 9).\n\nCollections: inject a List&lt;String&gt; (Topic 10).\n\nOptional stretch: split payments into payments-beans.xml and &lt;import&gt; it (Topic 11).\n\nAfter the lab you should be able to open a foreign applicationContext.xml and answer: What beans exist? How are they wired? What scope? What runs on startup/shutdown?",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#reasoning-toolkit-teach-review",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#reasoning-toolkit-teach-review",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Reasoning toolkit (teach / review)",
+    "text": "Reasoning toolkit (teach / review)\nWhen reading XML config, walk this checklist:\n\nWhich context class loads it? (ClassPathXmlApplicationContext vs annotation)\n\nList every &lt;bean id&gt; — those are your definitions\n\nFor each dependency: is it value or ref?\n\nConstructor-arg or property? (required timing differs)\n\nAny duplicate types without explicit ref / with autowire=\"byType\"?\n\nScope + lazy-init?\n\ninit/destroy method names?\n\nImports — is this file the root or a fragment?\n\n\nRobust-app notes\n\nPrefer constructor injection in XML and in annotations\n\nPrefer explicit ref over clever autowire while learning\n\nKeep XML modules small (import) so ownership is clear\n\nNever assume prototype destroy-method runs\n\nTreat XML as documentation of the object graph — that skill transfers to Boot auto-config debugging",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#exercises",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#exercises",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Exercises",
+    "text": "Exercises\n\nTranslate this annotation setup into XML (on paper, then in the lab): @Component Order + Payment, constructor injection.\n\nShow a failing case: two payment beans + autowire=\"byType\" on Order — explain the error, then fix with explicit ref.\n\nMap @PostConstruct / @PreDestroy to XML attributes; prove with logs.\n\nExplain in ≤6 sentences why value=\"paymentService\" is wrong when you meant the bean.\n\nDraw the mindmap (annotation column vs XML column) from memory.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#self-check",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/notes.html#self-check",
+    "title": "Lecture 8 — Spring XML configuration",
+    "section": "Self-check",
+    "text": "Self-check\n\nWhat is the XML equivalent of AnnotationConfigApplicationContext?\n\nWhen do you use ref vs value?\n\nCan one bean have multiple name aliases but only one id?\n\nDoes destroy-method run for every prototype instance when the context closes?\n\nAnswers: self-check-answers",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Spring XML configuration"
     ]
   },
   {
@@ -1815,7 +2043,7 @@
     "href": "courses/springboot/index.html#lectures",
     "title": "Spring Boot Full Course",
     "section": "Lectures",
-    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07\nBean lifecycle — @PostConstruct, @PreDestroy, scopes, @Lazy\nSelf-check\n\n\n08+\nAdd next playlist lectures the same way",
+    "text": "Lectures\n\n\n\n#\nTopic\nMaterials\n\n\n\n\n01\nSpring Framework intro — client/server & why Spring\nSelf-check\n\n\n02\nFirst Spring Boot app — REST Hello World\nSelf-check\n\n\n03\nApache Maven — POM, dependencies & lifecycle\nSelf-check\n\n\n04\nDependency Injection & IoC — loose coupling (plain Java)\nSelf-check\n\n\n05\nSpring IoC container — beans, @Component, @Autowired, @Bean\nSelf-check\n\n\n06\nCircular dependency, bean scope, lazy & eager\nSelf-check\n\n\n07\nBean lifecycle — @PostConstruct, @PreDestroy, scopes, @Lazy\nSelf-check\n\n\n08\nSpring XML configuration — beans, DI, scopes, lifecycle\nSelf-check\n\n\n09+\nAdd next playlist lectures the same way",
     "crumbs": [
       "Home",
       "Spring Boot Full Course"
@@ -2096,6 +2324,42 @@
     ]
   },
   {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html",
+    "title": "Lecture 8 — Self-check answers",
+    "section": "",
+    "text": "Two &lt;bean&gt; entries; Order’s &lt;constructor-arg ref=\"paymentService\"/&gt;; no @Component. Load with ClassPathXmlApplicationContext.\nbyType finds two PaymentService beans → ambiguity exception. Fix: remove autowire and set ref=\"upiPaymentService\" (or card…).\ninit-method=\"init\" / destroy-method=\"cleanup\"; call close(); singleton prints both. Prototype retrieved instances skip destroy.\nvalue injects a literal string; the field/ctor would get \"paymentService\" text (or fail type conversion), not the collaborator object. Collaborators need ref.\nSame IoC steps; only the metadata syntax changes (table in the notes).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html#exercises-sample-direction",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html#exercises-sample-direction",
+    "title": "Lecture 8 — Self-check answers",
+    "section": "",
+    "text": "Two &lt;bean&gt; entries; Order’s &lt;constructor-arg ref=\"paymentService\"/&gt;; no @Component. Load with ClassPathXmlApplicationContext.\nbyType finds two PaymentService beans → ambiguity exception. Fix: remove autowire and set ref=\"upiPaymentService\" (or card…).\ninit-method=\"init\" / destroy-method=\"cleanup\"; call close(); singleton prints both. Prototype retrieved instances skip destroy.\nvalue injects a literal string; the field/ctor would get \"paymentService\" text (or fail type conversion), not the collaborator object. Collaborators need ref.\nSame IoC steps; only the metadata syntax changes (table in the notes).",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Self-check answers"
+    ]
+  },
+  {
+    "objectID": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html#self-check",
+    "href": "courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html#self-check",
+    "title": "Lecture 8 — Self-check answers",
+    "section": "Self-check",
+    "text": "Self-check\n\nClassPathXmlApplicationContext (XML on the classpath). Related: FileSystemXmlApplicationContext for a filesystem path.\nref → another bean; value → literal / convertible simple value.\nYes — id is the unique primary id; name can list aliases.\nNo — Spring does not manage prototype destruction the way it does singletons; destroy callbacks are not applied to handed-out prototype instances on context close.",
+    "crumbs": [
+      "Home",
+      "Lectures",
+      "Lecture 8 — Self-check answers"
+    ]
+  },
+  {
     "objectID": "docs/adding-a-course.html",
     "href": "docs/adding-a-course.html",
     "title": "Add a new lecture series",
@@ -2184,7 +2448,7 @@
     "href": "index.html#courses",
     "title": "Learn ML",
     "section": "Courses",
-    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–07\n\n\nNext series…\n—\nAdd via Add a course"
+    "text": "Courses\n\n\n\nCourse\nInstructor\nStatus\n\n\n\n\nMathematical Foundations of ML\nProf. Prathosh A.P. (IISc / NPTEL)\nIn progress\n\n\nSpring Boot Full Course\nAditya Tandon (Coder Army)\nLectures 01–08\n\n\nNext series…\n—\nAdd via Add a course"
   },
   {
     "objectID": "index.html#how-this-site-is-organized",
