@@ -1,0 +1,46 @@
+---
+title: "Lecture 20 — Filters that change requests and responses"
+subtitle: "Wrap streams, headers, and bodies carefully"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Filters that change requests and responses \| Full Course #20](https://www.youtube.com/watch?v=fXcDynZ8C-g)  
+**Playlist index:** 20
+
+---
+## Big idea
+
+Sometimes you must read the body twice, add headers, or change the response.  
+Raw request/response streams can be read only once — use wrappers.
+
+```text
+Filter wraps request/response
+        │
+        ▼
+Downstream code reads the wrapper (safe)
+```
+
+## Common uses
+
+- Add security headers
+- Capture response body for logging
+- Normalize incoming JSON
+- Block requests missing a header
+
+## Practice ideas
+
+1. Filter that rejects requests without header `X-Request-Id` (return 400).
+2. Filter that adds `X-Response-Time` header after `chain.doFilter`.
+3. Log status code from `HttpServletResponse`.
+
+## Reasoning
+
+Mutating bodies is powerful and easy to break. Prefer small, tested filters. For auth, prefer Spring Security filters when you reach those lectures.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
