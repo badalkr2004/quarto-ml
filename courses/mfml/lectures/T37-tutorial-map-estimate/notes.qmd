@@ -1,0 +1,102 @@
+---
+title: "Tutorial 9 — MAP Estimate"
+subtitle: "Gaussian mean with Gaussian prior: conjugate update and shrinkage"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 9 — MAP Estimate](https://www.youtube.com/watch?v=7y4V0GUoyaw)
+
+---
+
+## Learning goals
+
+- Estimate a Gaussian mean with known variance under a Gaussian prior.
+- Verify conjugacy and read off the posterior mean/mode.
+- See MAP as a **convex combination** of the MLE and the prior mean.
+
+---
+
+## Before this clicks
+
+MAP: $\theta_{\mathrm{MAP}}=\arg\max_\theta p(\theta\mid\mathcal{D})\propto p(\mathcal{D}\mid\theta)p(\theta)$.  
+**Conjugate prior:** posterior stays in the same family as the prior.
+
+---
+
+## Main ideas
+
+### 1. Setup
+
+Observe $x_1,\ldots,x_n\stackrel{\mathrm{iid}}{\sim}\mathcal{N}(\mu,\sigma^2)$ with $\sigma^2$ **known**. Only $\mu$ is unknown.
+
+MLE: $\mu_{\mathrm{ML}}=\bar x=\frac1n\sum_i x_i$.
+
+### 2. Likelihood as a function of $\mu$
+
+$$
+p(\mathcal{D}\mid\mu) \propto \exp\!\left(-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_i-\mu)^2\right),
+$$
+
+an exponential of a **quadratic** in $\mu$. Multiplying by a Gaussian prior $p(\mu)=\mathcal{N}(\mu_0,\sigma_0^2)$ keeps an exponential-quadratic form $\Rightarrow$ Gaussian posterior (conjugate).
+
+### 3. Posterior parameters
+
+Matching quadratics gives posterior $\mathcal{N}(\mu_n,\sigma_n^2)$ with
+
+$$
+\frac{1}{\sigma_n^2} = \frac{1}{\sigma_0^2}+\frac{n}{\sigma^2},
+\qquad
+\mu_n = \sigma_n^2\left(\frac{\mu_0}{\sigma_0^2}+\frac{n\bar x}{\sigma^2}\right).
+$$
+
+Equivalently, $\mu_n$ is a precision-weighted average of $\mu_0$ and $\bar x$.
+
+### 4. MAP
+
+For a Gaussian, mean = mode, so $\mu_{\mathrm{MAP}}=\mu_n$: a **convex combination** of prior mean and MLE. As $n\to\infty$, weight on $\bar x$ dominates $\Rightarrow$ MAP $\to$ MLE.
+
+Hyperparameters $(\mu_0,\sigma_0^2)$ play the role Beta’s $(\alpha,\beta)$ played for Bernoulli.
+
+---
+
+## Worked mini-example
+
+$\sigma^2=1$, prior $\mu_0=0$, $\sigma_0^2=1$, $n=4$, $\bar x=2$:
+
+$$
+\frac{1}{\sigma_n^2}=1+4=5,\quad \sigma_n^2=\tfrac15,
+\quad \mu_n=\tfrac15\bigl(0+4\cdot 2\bigr)=\tfrac85=1.6.
+$$
+
+MAP $=1.6$ sits between $0$ and $2$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Prior variance = data variance | $\sigma_0^2$ is belief about $\mu$; $\sigma^2$ is observation noise. |
+| MAP $\neq$ posterior mean here | For Gaussian posterior they coincide. |
+| Must integrate the evidence $Z$ | For MAP / mode of a Gaussian, normalizing constant can be ignored. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §2.3.6 — Bayesian inference for the Gaussian
+- Murphy PML — conjugate Gaussian–Gaussian
+
+## Self-check questions
+
+1. Why is a Gaussian prior conjugate for a Gaussian mean (known variance)?
+2. Write $\mu_n$ as a precision-weighted blend of $\mu_0$ and $\bar x$.
+3. What is $\mu_{\mathrm{MAP}}$ in this model?
+4. What happens for large $n$?
+5. Name the two variances in the model and what each means.
+
+*(Short answers are in `self-check-answers.qmd`.)*
