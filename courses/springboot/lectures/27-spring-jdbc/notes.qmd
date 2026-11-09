@@ -1,0 +1,36 @@
+---
+title: "Lecture 27 — Spring JDBC"
+subtitle: "JdbcTemplate, DataSource, HikariCP"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring JDBC \| Full Course #27](https://www.youtube.com/watch?v=OPjnbYbcb2E)  
+**Playlist index:** 27
+
+---
+## Big idea
+
+Spring gives you a pooled `DataSource` (often HikariCP) and `JdbcTemplate` so you write less JDBC glue.
+
+```java
+jdbcTemplate.update("insert into product(name,price) values(?,?)", name, price);
+List<Product> list = jdbcTemplate.query("select * from product", mapper);
+```
+
+## Practice
+
+1. Configure datasource properties.
+2. Inject `JdbcTemplate`.
+3. Re-implement product CRUD with it.
+
+## Reasoning
+
+Connection pools reuse connections — critical under load. Do not open a new raw connection per request in production code.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
