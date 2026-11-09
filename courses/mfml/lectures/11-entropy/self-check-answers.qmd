@@ -1,0 +1,10 @@
+---
+title: "Lecture 11 — Self-check answers"
+sidebar: mfml
+---
+
+1. $I(A)=-\log P(A)$; $P(\Omega)=1$ so $I(\Omega)=0$.
+2. Independent events multiply probabilities; $\log$ turns products into sums so informations add.
+3. $H(p)=-\sum_i p(x_i)\log p(x_i)=\mathbb{E}_{p}[-\log p(X)]$.
+4. Zero (no uncertainty / no surprise on average), with $0\log 0:=0$.
+5. Entropy scores one distribution; training needs a discrepancy between **true** $p$ and **model** $q=p_{\theta}$ — that is KL / cross-entropy next.

@@ -1,0 +1,135 @@
+---
+title: "Lecture 11 — Entropy"
+subtitle: "Surprisal of events and average information of a distribution"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 11 — Entropy](https://www.youtube.com/watch?v=P6wjLz4dRTs)
+
+### Learning goals
+- Recall the three-step ML recipe and why we need divergences
+- Define **information / surprisal** of an event
+- Define **entropy** as expected surprisal of a discrete distribution
+- See entropy as preparation for KL divergence (next lecture)
+
+### Before this clicks
+Recipe (Lecture 10): choose $p_{\theta}$, choose a divergence $d(p,p_{\theta})$, minimize over $\theta$. We speak of distributions conceptually; we often write densities in equations (assumed equivalent in nice cases).
+
+Logarithms: in information theory one often uses $\log_2$ (bits) or $\ln$ (nats). Formulas look the same up to a constant factor.
+
+---
+
+## 1. Why information theory here?
+
+To train, we need a number that says how far $p$ is from $p_{\theta}$. A classical family of such numbers comes from **information theory** (originally: communicate as much meaning as possible under bandwidth limits).
+
+This lecture builds **entropy**; the next builds **cross-entropy** and **KL divergence**.
+
+---
+
+## 2. Information content of one event
+
+For an event $A$ with probability $P(A)>0$, define
+
+$$
+I(A)=-\log P(A).
+$$
+
+Called **information** or **surprisal** of $A$.
+
+### Design requirements (intuition → formula)
+
+1. **Likely events carry little information.** “Sun rises in the east” is unsurprising. Rare events (“you win the lottery”) are highly informative / surprising. So $I$ should **decrease** as $P(A)$ increases → the minus sign in front of $\log$.
+2. **The sure event $\Omega$ carries zero information.** $P(\Omega)=1\Rightarrow I(\Omega)=-\log 1=0$.
+3. **The empty event is infinitely surprising.** $P(\emptyset)=0\Rightarrow I(\emptyset)=+\infty$ (limit).
+4. **Independence adds information.** If $A,B$ independent, $P(A\cap B)=P(A)P(B)$, so
+
+$$
+I(A\cap B)=I(A)+I(B).
+$$
+
+$-\log P(A)$ hits all four.
+
+---
+
+## 3. From one event to a whole distribution: entropy
+
+Let $X$ be **discrete** with PMF $p$ on values $\{x_i\}$. Surprisal of the outcome $x_i$ is $-\log p(x_i)$.
+
+**Average** surprisal under $p$ is an expectation:
+
+$$
+H(p)
+=\mathbb{E}_{x\sim p}\bigl[-\log p(x)\bigr]
+=-\sum_{i} p(x_i)\log p(x_i).
+$$
+
+This number $H(p)$ is the **entropy** of $p$.
+
+Interpretation: how much uncertainty / average surprise lives in draws from $p$.
+
+(Continuous analogue is **differential entropy** $\int -p\log p$; similar algebra, slightly different interpretation — flagged for KL next time.)
+
+---
+
+## 4. Tiny concrete example
+
+Fair coin: $p(H)=p(T)=1/2$. Using $\log_2$,
+
+$$
+H(p)=-2\cdot\Bigl(\tfrac12\log_2\tfrac12\Bigr)=1\text{ bit}.
+$$
+
+Two-headed coin: $p(H)=1$, $p(T)=0$. Using the convention $0\log 0:=0$,
+
+$$
+H(p)=0.
+$$
+
+No uncertainty — every toss is heads.
+
+---
+
+## 5. Link forward
+
+Entropy alone does **not** compare two different distributions $p$ and $q$. Next lecture: **cross-entropy** $H(p,q)$ and
+
+$$
+D_{\mathrm{KL}}(p\|q)=H(p,q)-H(p)
+$$
+
+(the extra surprise from using $q$ when truth is $p$).
+
+---
+
+## 6. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| Entropy is only physics / thermodynamics | Same math; here it is average surprisal of a PMF. |
+| High probability $\Rightarrow$ high information | Opposite: high $P(A)$ $\Rightarrow$ low $I(A)$. |
+| Entropy compares two models | Entropy is a property of **one** distribution; KL compares two. |
+| Continuous entropy = discrete entropy | Differential entropy is analogous but not identical in meaning. |
+
+---
+
+## 7. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Cover & Thomas, *Elements of Information Theory*, Ch. 2 — entropy
+- MacKay, *Information Theory, Inference, and Learning Algorithms* (free) — friendly entropy
+- Bishop, *PRML* — information-theoretic losses (optional peek)
+
+---
+
+## 8. Self-check
+
+1. Write $I(A)$ and check $I(\Omega)=0$.
+2. Why does independence suggest using $\log$?
+3. Write the discrete entropy formula.
+4. Entropy of a deterministic discrete RV?
+5. What gap does entropy leave for the ML divergence recipe?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
