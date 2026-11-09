@@ -1,0 +1,118 @@
+---
+title: "Tutorial 3 — Risk Minimization Framework"
+subtitle: "M-class Bayes, general losses, and Gaussian discriminants"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 3 — Risk Minimization Framework](https://www.youtube.com/watch?v=AQ3einJJrr0)
+
+---
+
+## Learning goals
+
+- Extend Bayes decision theory to **$M$ classes** and **general losses** (including reject options)
+- Minimize **conditional risk** pointwise to get the optimal action
+- Recover the usual “max posterior” rule for $0$–$1$ loss
+- See that Gaussian class-conditionals yield **quadratic** (or linear) discriminants
+
+---
+
+## Before this clicks
+
+Lectures 15–16: risk $R(h)=\mathbb{E}[L(h(X),Y)]$; binary Bayes under $0$–$1$ loss.  
+Priors $P(Y)$, class-conditionals $p(x\mid Y)$, posteriors $P(Y\mid x)$.
+
+---
+
+## Main ideas
+
+### 1. More general decisions
+
+True labels $Y\in\{c_0,\ldots,c_{M-1}\}$.  
+Hypothesis actions $\alpha\in\{\alpha_0,\ldots,\alpha_{K-1}\}$ — $K$ need not equal $M$ (e.g. an extra **reject** action).
+
+Loss $\lambda(\alpha_j, c_t)\ge 0$: cost of deciding $\alpha_j$ when truth is $c_t$.
+
+### 2. Conditional risk
+
+$$
+R(h)=\mathbb{E}_X\bigl[\underbrace{\mathbb{E}_{Y\mid X}\bigl[L(h(X),Y)\mid X\bigr]}_{\text{conditional risk } r(h(X)\mid X)}\bigr].
+$$
+
+For a fixed $x$, if $h(x)=\alpha_i$,
+
+$$
+r(\alpha_i\mid x)=\sum_{t=0}^{M-1}\lambda(\alpha_i,c_t)\,P(Y=c_t\mid X=x).
+$$
+
+**Optimal rule:** for each $x$, choose $\alpha_i$ with smallest conditional risk (ties arbitrary). That is the general **Bayes classifier / Bayes decision rule**.
+
+### 3. Special case: $0$–$1$ loss, actions $=$ labels
+
+Then $r(i\mid x)=1-P(Y=c_i\mid x)$, so minimizing conditional risk $\Leftrightarrow$ maximizing the posterior:
+
+$$
+h_B(x)=\arg\max_i P(Y=c_i\mid X=x).
+$$
+
+Minimizes probability of misclassification.
+
+### 4. Two-class unequal losses $\Rightarrow$ likelihood-ratio test
+
+With actions $\{0,1\}$ and losses $\lambda_{01},\lambda_{10}$ for the two error types, the Bayes rule compares posteriors with a threshold involving the loss ratio (odds / likelihood ratio form after Bayes’ rule). Unequal losses matter in medicine: false negative vs false positive need not cost the same.
+
+### 5. Gaussian class-conditionals $\Rightarrow$ quadratic discriminant
+
+Assume $1$-D (tutorial; $d$-D similar) $X\mid Y=i\sim\mathcal{N}(\mu_i,\sigma_i^{2})$. Taking logs of the likelihood-ratio test produces a decision of the form
+
+$$
+a x^{2}+b x+c \;\gtrless\; 0
+$$
+
+— a **quadratic discriminant**.  
+
+If $\sigma_0=\sigma_1$, equal priors, equal losses, it collapses to a **linear** threshold between the means (LDA-style intuition).
+
+---
+
+## Worked mini-example
+
+Two classes, $0$–$1$ loss, equal priors, $\sigma_0=\sigma_1=\sigma$, $\mu_0<\mu_1$. Bayes threshold is the midpoint
+
+$$
+x^\star=\frac{\mu_0+\mu_1}{2}.
+$$
+
+If instead $\lambda_{10}\gg\lambda_{01}$ (calling class $0$ when truth is $1$ is very costly), the threshold shifts to make “predict $1$” more often — same Gaussians, different loss matrix.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Actions must equal labels | Reject / other actions allowed; $K$ may exceed $M$ |
+| Always threshold at $1/2$ | Only for equal losses & two classes with symmetric costs |
+| QDA needs neural nets | It is just Bayes + Gaussian class-conditionals + algebra |
+| Conditional risk $=$ true risk | Conditional risk is the inner $\mathbb{E}[\cdot\mid X]$; true risk averages it over $X$ |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork — discriminant functions / Bayes decision theory
+- Bishop *PRML* Ch.1, 4 — decision theory; Gaussians & discriminants
+
+## Self-check questions
+
+1. Write conditional risk $r(\alpha_i\mid x)$ for a general loss matrix.
+2. Why does $0$–$1$ loss reduce Bayes to $\arg\max$ posterior?
+3. When does the two-class Gaussian Bayes rule become linear in $x$?
+4. Give one reason $K$ (actions) might exceed $M$ (labels).
+5. What is a discriminant function in this tutorial’s Gaussian example?
+
+*(Short answers are in `self-check-answers.qmd`.)*

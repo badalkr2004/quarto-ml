@@ -1,0 +1,10 @@
+---
+title: "Tutorial 3 — Self-check answers"
+sidebar: mfml
+---
+
+1. $r(\alpha_i\mid x)=\sum_t \lambda(\alpha_i,c_t)\,P(Y=c_t\mid x)$.
+2. Then $r(i\mid x)=1-P(Y=c_i\mid x)$, so minimizing $r$ maximizes the posterior.
+3. When class-conditional variances are equal (and typically equal losses / after canceling quadratic terms).
+4. An extra reject / “abstain” decision, or other operational actions beyond class names.
+5. A function of $x$ (here quadratic $ax^2+bx+c$) whose sign (or level set) implements the Bayes decision.
