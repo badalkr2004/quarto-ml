@@ -1,0 +1,110 @@
+---
+title: "Lecture 42 — ERM on Neural Networks and Error Backpropagation"
+subtitle: "Train a net by gradient descent on empirical risk; backprop computes the gradients efficiently"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 42 — ERM on Neural Networks and Error Backpropagation](https://www.youtube.com/watch?v=dONDRwX_83E)
+
+## Learning goals
+
+- Cast neural net training as **empirical risk minimization** over $\theta$.
+- Use **gradient descent / SGD** when the loss is differentiable in $\theta$.
+- Explain **backpropagation** as reverse-mode application of the chain rule on the computational graph.
+- Note nonconvexity: local minima / saddle points, yet SGD works surprisingly well in practice.
+
+## Before this clicks
+
+Lecture 41: nets define a rich class $f_\theta$. ERM (earlier in the course) says: given data $\{(x_i,y_i)\}_{i=1}^{n}$ and loss $L$, minimize the average loss. For linear / logistic models we often had closed forms or simple convex programs. Deep nets are typically **nonconvex** in $\theta$, so we rely on iterative gradients. Backprop is the algorithm that evaluates those gradients cheaply.
+
+---
+
+## Main ideas
+
+### 1. ERM objective for a net
+
+$$
+\hat{R}_n(\theta)=\frac{1}{n}\sum_{i=1}^{n} L\big(f_\theta(x_i),y_i\big).
+$$
+
+Examples: squared loss for regression; cross-entropy for classification with a softmax output. Training seeks
+
+$$
+\hat{\theta}\in\arg\min_\theta\hat{R}_n(\theta)
+$$
+
+(often with regularization, early stopping, or implicit SGD bias — later lectures).
+
+### 2. Gradient descent and SGD
+
+Full-batch gradient descent:
+
+$$
+\theta\leftarrow\theta-\eta\nabla_\theta\hat{R}_n(\theta).
+$$
+
+**Stochastic** gradient descent (SGD) replaces the full sum by a minibatch $B$:
+
+$$
+\theta\leftarrow\theta-\eta\nabla_\theta\Big(\frac{1}{|B|}\sum_{i\in B}L(f_\theta(x_i),y_i)\Big).
+$$
+
+$\eta>0$ is the **learning rate**. Momentum / Adam are variants that reshape the update; the core idea is still “follow an estimate of the risk gradient.”
+
+### 3. Why backprop?
+
+Naively differentiating $\hat{R}_n$ w.r.t. every weight by finite differences is slow. A forward pass builds activations layer by layer; a **backward pass** pushes derivatives of the loss from the output toward the input using the chain rule. Cost is the same order as a few forward passes, not proportional to the number of parameters times a separate difference per weight.
+
+Schematic for a scalar loss $\ell$ and layer $h=\sigma(Wa)$:
+
+$$
+\frac{\partial\ell}{\partial W}=\frac{\partial\ell}{\partial h}\cdot\frac{\partial h}{\partial W},
+$$
+
+and $\partial\ell/\partial a$ is sent to the previous layer. Vector/matrix forms use Jacobians; autodiff libraries implement this graph walk for you.
+
+### 4. Nonconvex landscape (honest caveats)
+
+$\hat{R}_n(\theta)$ for deep nets is generally nonconvex. Gradient methods can stall at poor critical points in theory. Empirically, with overparameterization and SGD noise, training often reaches low training loss. Generalization still needs capacity control, data, and architecture bias (CNNs, RNNs next).
+
+### 5. Bridge
+
+Plain MLPs treat every input coordinate symmetrically and use a separate weight for every connection. Images and sequences have **local structure** — motivating receptive fields, weight sharing, and recurrence.
+
+---
+
+## Worked mini-example
+
+Binary logistic net with one hidden unit: $z=\sigma(w^\top x+b)$, $\hat{p}=\sigma(u z+c)$, loss $L=-\,y\log\hat{p}-(1-y)\log(1-\hat{p})$. Forward: compute $z$, then $\hat{p}$, then $L$. Backward: $\partial L/\partial\hat{p}$, then $\partial L/\partial u,\partial L/\partial c$, then through $\sigma$ into $\partial L/\partial w,\partial L/\partial b$. One SGD step subtracts $\eta$ times those gradients.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Backprop is a different loss | Backprop only **computes gradients** of whatever loss you chose. |
+| Gradient descent finds the global min | Not guaranteed for nonconvex net losses. |
+| Must hand-derive every layer | Autodiff does the chain rule; understanding it still matters. |
+| Zero training loss = good model | Watch generalization; use validation, regularization, architecture. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (backprop / SGD chapters)
+- Bishop — *PRML* (error backpropagation)
+
+## Self-check questions
+
+1. Write the empirical risk $\hat{R}_n(\theta)$ for a net $f_\theta$.
+2. Write one SGD update with learning rate $\eta$ and minibatch $B$.
+3. What does backpropagation compute, in one sentence?
+4. Why is net ERM harder than linear least squares?
+5. Name one reason autodiff/backprop beats naive finite differences.
+
+*(Short answers are in `self-check-answers.qmd`.)*

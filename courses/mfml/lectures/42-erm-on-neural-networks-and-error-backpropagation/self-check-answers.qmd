@@ -1,0 +1,10 @@
+---
+title: "Lecture 42 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\hat{R}_n(\theta)=\frac{1}{n}\sum_{i=1}^{n} L(f_\theta(x_i),y_i)$.
+2. $\theta\leftarrow\theta-\eta\nabla_\theta\big(\frac{1}{|B|}\sum_{i\in B}L(f_\theta(x_i),y_i)\big)$.
+3. Efficient gradients of the loss w.r.t. all parameters via the chain rule on the forward computational graph.
+4. The objective is typically nonconvex in $\theta$; no simple closed-form minimizer.
+5. Cost scales like a forward pass, not like one perturbation per parameter.
