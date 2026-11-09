@@ -1,0 +1,7 @@
+---
+title: "Lecture 34 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. REQUIRED joins.\n2. REQUIRES_NEW independent.\n3. Isolation vs concurrency anomalies.

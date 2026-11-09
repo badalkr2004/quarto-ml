@@ -1,0 +1,33 @@
+---
+title: "Lecture 34 — Propagation and isolation"
+subtitle: "How nested transactions behave"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Propagation and isolation \| Full Course #34](https://www.youtube.com/watch?v=E_Sb48BFoF0)  
+**Playlist index:** 34
+
+---
+## Propagation (common)
+
+| Value | Plain meaning |
+|-------|----------------|
+| `REQUIRED` (default) | Join existing tx or create one |
+| `REQUIRES_NEW` | Suspend current; new tx |
+| `NOT_SUPPORTED` | Run without tx |
+
+## Isolation
+
+Controls dirty reads / phantom reads tradeoffs. Higher isolation can mean more locking.
+
+## Practice
+
+Nest service calls with `REQUIRED` vs `REQUIRES_NEW` and log commits (or use DB rows to observe).
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
