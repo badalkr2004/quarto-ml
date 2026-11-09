@@ -1,0 +1,127 @@
+---
+title: "Tutorial 6 — NP Classifier Example and ROC Curve"
+subtitle: "Threshold trade-offs, precision/recall, and AUC"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 6 — Example of NP Classifier, ROC Curve](https://www.youtube.com/watch?v=JwQEaTqyBDw)
+
+---
+
+## Learning goals
+
+- Specialize the NP rule for 1-D equal-variance Gaussians.
+- Define false positive / false negative / true positive rates.
+- Read an **ROC** curve and interpret **AUC**.
+
+---
+
+## Before this clicks
+
+A **threshold-based** binary classifier says “class $1$” when a score (here, often just $x$ itself) exceeds a cutoff $\tau$. Moving $\tau$ trades one error type for the other. The ROC curve plots that trade-off.
+
+---
+
+## Main ideas
+
+### 1. NP example: equal-variance 1-D Gaussians
+
+Assume $X\in\mathbb{R}$, $X\mid Y=i\sim\mathcal{N}(\mu_i,\sigma^2)$ with $\mu_0<\mu_1$. The LR test reduces to a threshold on $x$:
+
+$$
+h(x)=1 \quad\text{iff}\quad x > \tau,
+$$
+
+where $\tau$ is chosen so type I error equals $\alpha$:
+
+$$
+\int_{\tau}^{\infty} p(x\mid Y=0)\,dx = \alpha.
+$$
+
+That blue right-tail under the class-$0$ density is exactly the allowed false-positive mass.
+
+### 2. Four outcomes and two rates
+
+With $C_1$ = positive, $C_0$ = negative, and decide $C_1$ if $x>\tau$:
+
+| Quantity | Probability | Common name |
+|----------|-------------|-------------|
+| $E_0$ | $P(X\le\tau\mid X\in C_1)$ | False negative rate |
+| $E_1$ | $P(X>\tau\mid X\in C_0)$ | False positive rate |
+| $1-E_0$ | $P(X>\tau\mid X\in C_1)$ | True positive rate (recall) |
+| $1-E_1$ | $P(X\le\tau\mid X\in C_0)$ | True negative rate |
+
+### 3. Precision and recall
+
+$$
+\mathrm{precision} = \frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FP}},\qquad
+\mathrm{recall} = \frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FN}}.
+$$
+
+Their harmonic mean is the **F1 score** (mentioned in class; useful but secondary here).
+
+### 4. ROC curve
+
+For fixed class-conditionals, vary $\tau$. Plot the point $(E_1,\,1-E_0)$ = (FPR, TPR) in $\mathbb{R}^2$. The path is the **receiver operating characteristic (ROC)** curve.
+
+- You can estimate these rates from training data for each $\tau$.
+- Works for **any** thresholded score, not only Gaussian NP.
+
+### 5. AUC and the random baseline
+
+Join $(0,0)$ to $(1,1)$: the diagonal $y=x$ is a **random coin-flip** classifier. A useful ROC should lie **above** this line.
+
+**AUC** = area under the ROC curve: a single summary of ranking quality. Larger is better (perfect = $1$).
+
+### 6. Discriminability (equal-variance Gaussians)
+
+With equal variances one finds a $\tau$-independent gap
+
+$$
+d = \frac{|\mu_1-\mu_0|}{\sigma}
+$$
+
+linking the two error rates; larger $d$ means an easier ROC / smaller Bayes error.
+
+---
+
+## Worked mini-example
+
+Equal priors, equal-variance Gaussians, $0\text{--}1$ loss: Bayes error is
+
+$$
+P_e = \tfrac12\int_{-\infty}^{\tau} p(x\mid Y=1)\,dx + \tfrac12\int_{\tau}^{\infty} p(x\mid Y=0)\,dx,
+$$
+
+which evaluates via $\Phi$. Sweeping $\tau$ traces the ROC; the Bayes operating point is one point on that curve. If you need FPR $\le 0.05$, pick the $\tau$ on the ROC with $E_1=0.05$ and read off TPR — that is the NP operating point for $\alpha=0.05$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| ROC needs Gaussians | No — any thresholded score yields an ROC. |
+| High AUC means calibrated probabilities | AUC measures ranking / separability, not calibration. |
+| Diagonal ROC is “good enough” | It is chance-level; learn nothing. |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Fawcett, “An introduction to ROC analysis,” *Pattern Recognition Letters* (2006)
+- Bishop PRML — classifier evaluation / ROC discussion
+
+## Self-check questions
+
+1. For equal-variance 1-D Gaussians, how does NP reduce?
+2. Define FPR and TPR in probability notation.
+3. What does each point on an ROC curve correspond to?
+4. What is the diagonal $y=x$ on an ROC plot?
+5. What is AUC, and what value is ideal?
+
+*(Short answers are in `self-check-answers.qmd`.)*
