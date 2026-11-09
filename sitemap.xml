@@ -2,158 +2,422 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/tutorial.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/tutorial.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/references/index.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.094Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/docs/attribution.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/references.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/42-api-gateway-gatekeeper/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/41-production-project-microservices/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/40-testing-junit-mockito-mockmvc/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/39-oauth2-oidc/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/38-jwt-authentication/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/37-security-auth-internals/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/36-security-db-password/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/35-spring-security-basics/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/34-transaction-propagation-isolation/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/33-spring-transactions/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/32-spring-data-jpa/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/30-jpa-relationships/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/29-hibernate-internals/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/28-hibernate-fundamentals/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/27-spring-jdbc/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/26-jdbc-from-scratch/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/25-aop-custom-annotations/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/24-aop-pointcuts-proxies/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/23-aop-advice-types/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/22-aop-basics/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/21-interceptors/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/20-filters-advanced/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/19-filters-basics/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/18-profiles-yaml/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/17-exception-handling/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/16-dtos-validations/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/15-spring-mvc-architecture/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/14-java-web-servlets-tomcat/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/13-crud-soft-delete/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/12-crud-mysql-jpa/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/11-crud-project-architecture/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/10-application-properties-value-runners/notes.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/09-spring-boot-core/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/08-spring-xml-configuration/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/07-bean-lifecycle/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/05-spring-ioc-container/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/04-dependency-injection-ioc/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/03-apache-maven/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/02-first-spring-boot-app/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/01-spring-framework-intro/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/references.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/notes.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.086Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/index.html</loc>
-    <lastmod>2026-11-07T22:14:26.782Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.085Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/index.html</loc>
-    <lastmod>2026-11-07T22:14:26.783Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.086Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.086Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/02-recap-probability-theory-1-part-1/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/04-recap-probability-theory-1-part-3/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/index.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/03-apache-maven/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.785Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.088Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/09-spring-boot-core/self-check-answers.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/10-application-properties-value-runners/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/11-crud-project-architecture/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/12-crud-mysql-jpa/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/13-crud-soft-delete/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.089Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/14-java-web-servlets-tomcat/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/15-spring-mvc-architecture/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/16-dtos-validations/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/17-exception-handling/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/18-profiles-yaml/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/19-filters-basics/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/20-filters-advanced/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/21-interceptors/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.090Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/22-aop-basics/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/23-aop-advice-types/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/24-aop-pointcuts-proxies/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/26-jdbc-from-scratch/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/27-spring-jdbc/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/28-hibernate-fundamentals/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/29-hibernate-internals/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/30-jpa-relationships/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/32-spring-data-jpa/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/33-spring-transactions/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/34-transaction-propagation-isolation/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/35-spring-security-basics/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/36-security-db-password/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.092Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/37-security-auth-internals/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/38-jwt-authentication/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/39-oauth2-oidc/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/40-testing-junit-mockito-mockmvc/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/41-production-project-microservices/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mlmf.badalkrdev.in/courses/springboot/lectures/42-api-gateway-gatekeeper/self-check-answers.html</loc>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/docs/adding-a-course.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/index.html</loc>
-    <lastmod>2026-11-07T22:14:26.786Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.093Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/01-overview-of-function-approximation/tutorial.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.086Z</lastmod>
   </url>
   <url>
     <loc>https://mlmf.badalkrdev.in/courses/mfml/lectures/03-recap-probability-theory-1-part-2/tutorial.html</loc>
-    <lastmod>2026-11-07T22:14:26.784Z</lastmod>
+    <lastmod>2026-11-09T15:39:14.087Z</lastmod>
   </url>
 </urlset>

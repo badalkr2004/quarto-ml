@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.11.9">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Practice notes based on Aditya Tandon (Coder Army)">
+
+<title>Lecture 25 — Custom annotations + AOP – Learn ML</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<link href="../../../../courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.html" rel="next">
+<link href="../../../../courses/springboot/lectures/24-aop-pointcuts-proxies/self-check-answers.html" rel="prev">
+<script src="../../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap-133fdeb20e37e4a30a38267c5d3b53a0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark" aria-label="Site">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">Learn ML</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-courses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Courses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-courses">    
+        <li>
+    <a class="dropdown-item" href="../../../../courses/index.html">
+ <span class="dropdown-text">All courses</span></a>
+  </li>  
+        <li class="dropdown-header">—</li>
+        <li>
+    <a class="dropdown-item" href="../../../../courses/mfml/index.html">
+ <span class="dropdown-text">Mathematical Foundations of ML</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../../courses/springboot/index.html">
+ <span class="dropdown-text">Spring Boot Full Course</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../references/index.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/adding-a-course.html"> 
+<span class="menu-text">Add a course</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html"> 
+<span class="menu-text">Attribution</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+            <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" aria-label="Toolbar">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/notes.html">Lecture 25 — Custom annotations + AOP</a></li></ol></nav>
+        <a class="flex-grow-1" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto" aria-label="Section">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Spring Boot Full Course</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <button type="button" class="sidebar-item-text sidebar-item-toggle sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-controls="quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text" id="quarto-sidebar-section-1-label">Lectures</span><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <ul id="quarto-sidebar-section-1" aria-labelledby="quarto-sidebar-section-1-label" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Spring Framework intro</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/01-spring-framework-intro/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 1 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/02-first-spring-boot-app/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — First Spring Boot application</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/02-first-spring-boot-app/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 2 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/03-apache-maven/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Master Apache Maven</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/03-apache-maven/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 3 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/04-dependency-injection-ioc/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Dependency Injection &amp; IoC</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/04-dependency-injection-ioc/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 4 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5 — Spring IoC container</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/05-spring-ioc-container/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 5 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 6 — Circular dependency, bean scope, lazy &amp; eager</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/06-circular-dependency-bean-scope/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 6 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/07-bean-lifecycle/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 7 — Bean lifecycle</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/07-bean-lifecycle/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 7 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/08-spring-xml-configuration/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 8 — Spring XML configuration</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 8 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/09-spring-boot-core/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 9 — Spring Boot core</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/09-spring-boot-core/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 9 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/10-application-properties-value-runners/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 10 — Application properties, @Value &amp; runners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/10-application-properties-value-runners/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 10 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/11-crud-project-architecture/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 11 — CRUD project from scratch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/11-crud-project-architecture/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 11 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/12-crud-mysql-jpa/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 12 — CRUD with MySQL and Spring Data JPA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/12-crud-mysql-jpa/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 12 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/13-crud-soft-delete/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 13 — Soft delete and custom JPA methods</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/13-crud-soft-delete/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 13 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/14-java-web-servlets-tomcat/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 14 — Servlets, Tomcat &amp; WAR files</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/14-java-web-servlets-tomcat/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 14 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/15-spring-mvc-architecture/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 15 — Spring MVC architecture</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/15-spring-mvc-architecture/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 15 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/16-dtos-validations/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 16 — DTOs &amp; Validations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/16-dtos-validations/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 16 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/17-exception-handling/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 17 — Exception handling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/17-exception-handling/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 17 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/18-profiles-yaml/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 18 — Profiles &amp; YAML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/18-profiles-yaml/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 18 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/19-filters-basics/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 19 — Filters basics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/19-filters-basics/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 19 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/20-filters-advanced/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 20 — Filters advanced</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/20-filters-advanced/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 20 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/21-interceptors/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 21 — Interceptors</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/21-interceptors/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 21 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/22-aop-basics/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 22 — AOP basics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/22-aop-basics/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 22 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/23-aop-advice-types/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 23 — AOP advice types</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/23-aop-advice-types/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 23 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/24-aop-pointcuts-proxies/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 24 — Pointcuts &amp; proxy types</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/24-aop-pointcuts-proxies/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 24 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/notes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Lecture 25 — Custom annotations + AOP</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 25 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/26-jdbc-from-scratch/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 26 — JDBC from scratch</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/26-jdbc-from-scratch/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 26 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/27-spring-jdbc/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 27 — Spring JDBC</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/27-spring-jdbc/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 27 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/28-hibernate-fundamentals/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 28 — Hibernate fundamentals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/28-hibernate-fundamentals/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 28 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/29-hibernate-internals/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 29 — Hibernate internals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/29-hibernate-internals/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 29 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/30-jpa-relationships/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 30 — JPA relationships</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/30-jpa-relationships/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 30 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 31 — Cascading, lazy loading &amp; N+1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 31 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/32-spring-data-jpa/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 32 — Spring Data JPA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/32-spring-data-jpa/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 32 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/33-spring-transactions/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 33 — Spring transactions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/33-spring-transactions/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 33 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/34-transaction-propagation-isolation/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 34 — Propagation &amp; isolation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/34-transaction-propagation-isolation/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 34 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/35-spring-security-basics/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 35 — Spring Security basics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/35-spring-security-basics/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 35 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/36-security-db-password/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 36 — DB authentication &amp; password security</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/36-security-db-password/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 36 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/37-security-auth-internals/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 37 — Authentication internals</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/37-security-auth-internals/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 37 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/38-jwt-authentication/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 38 — JWT authentication</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/38-jwt-authentication/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 38 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/39-oauth2-oidc/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 39 — OAuth 2.0, OIDC &amp; PKCE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/39-oauth2-oidc/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 39 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/40-testing-junit-mockito-mockmvc/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 40 — Testing with JUnit 5, Mockito &amp; MockMvc</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/40-testing-junit-mockito-mockmvc/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 40 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/41-production-project-microservices/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 41 — GateKeeper project #1</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/41-production-project-microservices/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 41 — Self-check answers</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/42-api-gateway-gatekeeper/notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 42 — GateKeeper project #2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/lectures/42-api-gateway-gatekeeper/self-check-answers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Lecture 42 — Self-check answers</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../../courses/springboot/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Spring Boot — References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#big-idea-in-one-line" id="toc-big-idea-in-one-line" class="nav-link active" data-scroll-target="#big-idea-in-one-line">Big idea in one line</a></li>
+  <li><a href="#topic-1-define-a-custom-annotation" id="toc-topic-1-define-a-custom-annotation" class="nav-link" data-scroll-target="#topic-1-define-a-custom-annotation">Topic 1 — Define a custom annotation</a></li>
+  <li><a href="#topic-2-aspect-with-annotation-binding" id="toc-topic-2-aspect-with-annotation-binding" class="nav-link" data-scroll-target="#topic-2-aspect-with-annotation-binding">Topic 2 — Aspect with <code>@annotation</code> binding</a>
+  <ul class="collapse">
+  <li><a href="#binding-trick" id="toc-binding-trick" class="nav-link" data-scroll-target="#binding-trick">Binding trick</a></li>
+  </ul></li>
+  <li><a href="#topic-3-use-it-on-services" id="toc-topic-3-use-it-on-services" class="nav-link" data-scroll-target="#topic-3-use-it-on-services">Topic 3 — Use it on services</a></li>
+  <li><a href="#topic-4-design-patterns-that-fit-custom-annotations" id="toc-topic-4-design-patterns-that-fit-custom-annotations" class="nav-link" data-scroll-target="#topic-4-design-patterns-that-fit-custom-annotations">Topic 4 — Design patterns that fit custom annotations</a></li>
+  <li><a href="#topic-5-combine-annotation-execution-optional" id="toc-topic-5-combine-annotation-execution-optional" class="nav-link" data-scroll-target="#topic-5-combine-annotation-execution-optional">Topic 5 — Combine annotation + execution (optional)</a></li>
+  <li><a href="#picture-annotation-driven-aop" id="toc-picture-annotation-driven-aop" class="nav-link" data-scroll-target="#picture-annotation-driven-aop">Picture: annotation-driven AOP</a></li>
+  <li><a href="#practice-lab-ide-steps" id="toc-practice-lab-ide-steps" class="nav-link" data-scroll-target="#practice-lab-ide-steps">Practice lab (IDE steps)</a>
+  <ul class="collapse">
+  <li><a href="#step-1-create-logexecution" id="toc-step-1-create-logexecution" class="nav-link" data-scroll-target="#step-1-create-logexecution">Step 1 — Create <code>@LogExecution</code></a></li>
+  <li><a href="#step-2-aspect" id="toc-step-2-aspect" class="nav-link" data-scroll-target="#step-2-aspect">Step 2 — Aspect</a></li>
+  <li><a href="#step-3-annotate-selectively" id="toc-step-3-annotate-selectively" class="nav-link" data-scroll-target="#step-3-annotate-selectively">Step 3 — Annotate selectively</a></li>
+  <li><a href="#step-4-use-the-attribute" id="toc-step-4-use-the-attribute" class="nav-link" data-scroll-target="#step-4-use-the-attribute">Step 4 — Use the attribute</a></li>
+  <li><a href="#step-5-gate-without-proceed-mini-auth-annotation" id="toc-step-5-gate-without-proceed-mini-auth-annotation" class="nav-link" data-scroll-target="#step-5-gate-without-proceed-mini-auth-annotation">Step 5 — Gate without proceed (mini auth annotation)</a></li>
+  </ul></li>
+  <li><a href="#short-map-to-keep" id="toc-short-map-to-keep" class="nav-link" data-scroll-target="#short-map-to-keep">Short map to keep</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#self-check" id="toc-self-check" class="nav-link" data-scroll-target="#self-check">Self-check</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content" tabindex="-1">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="Breadcrumbs"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/01-spring-framework-intro/notes.html">Lectures</a></li><li class="breadcrumb-item"><a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/notes.html">Lecture 25 — Custom annotations + AOP</a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title">Lecture 25 — Custom annotations + AOP</h1>
+<p class="subtitle lead">Mark methods with <span class="citation" data-cites="LogExecution">@LogExecution</span> (etc.); aspect binds with <span class="citation" data-cites="annotation">@annotation</span></p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Practice notes based on Aditya Tandon (Coder Army) </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Video:</strong> <a href="https://www.youtube.com/watch?v=TT-b9ob-lN8">Custom Annotations in Spring AOP | <span class="citation" data-cites="annotation">@annotation</span> Binding &amp; Proxies | Spring Boot Full Course #25</a><br>
+<strong>Playlist index:</strong> 25<br>
+<strong>Builds on:</strong> <a href="../../../../courses/springboot/lectures/23-aop-advice-types/notes.html">23–24 Advice &amp; pointcuts</a></p>
+<hr>
+<section id="big-idea-in-one-line" class="level2">
+<h2 class="anchored" data-anchor-id="big-idea-in-one-line">Big idea in one line</h2>
+<p>Instead of matching every method in a package, <strong>you mark</strong> the methods that need the behavior:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@LogExecution</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">void</span> <span class="fu">placeOrder</span><span class="op">()</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>An aspect uses <code>@annotation(...)</code> to find those marks and run advice.<br>
+Readable at the call site; no giant <code>execution</code> strings for every special case.</p>
+<pre class="text"><code>custom annotation on method
+        │
+        ▼
+@Around("@annotation(logExecution)")
+        │
+        ▼
+timing / security / audit code</code></pre>
+<hr>
+</section>
+<section id="topic-1-define-a-custom-annotation" class="level2">
+<h2 class="anchored" data-anchor-id="topic-1-define-a-custom-annotation">Topic 1 — Define a custom annotation</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Target</span><span class="op">(</span><span class="bu">ElementType</span><span class="op">.</span><span class="fu">METHOD</span><span class="op">)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Retention</span><span class="op">(</span><span class="bu">RetentionPolicy</span><span class="op">.</span><span class="fu">RUNTIME</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="at">@interface</span> LogExecution <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> <span class="fu">value</span><span class="op">()</span> <span class="kw">default</span> <span class="st">""</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Meta-annotation</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>@Target(METHOD)</code></td>
+<td>only on methods (can also allow TYPE)</td>
+</tr>
+<tr class="even">
+<td><code>@Retention(RUNTIME)</code></td>
+<td>must survive to runtime or AOP cannot see it</td>
+</tr>
+</tbody>
+</table>
+<p>Optional attributes (<code>value</code>, <code>level</code>, …) let the annotation carry config.</p>
+<hr>
+</section>
+<section id="topic-2-aspect-with-annotation-binding" class="level2">
+<h2 class="anchored" data-anchor-id="topic-2-aspect-with-annotation-binding">Topic 2 — Aspect with <code>@annotation</code> binding</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Aspect</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">@Component</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> LogExecutionAspect <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Around</span><span class="op">(</span><span class="st">"@annotation(logExecution)"</span><span class="op">)</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Object</span> <span class="fu">around</span><span class="op">(</span>ProceedingJoinPoint pjp<span class="op">,</span> LogExecution logExecution<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Throwable</span> <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> label <span class="op">=</span> logExecution<span class="op">.</span><span class="fu">value</span><span class="op">().</span><span class="fu">isBlank</span><span class="op">()</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">?</span> pjp<span class="op">.</span><span class="fu">getSignature</span><span class="op">().</span><span class="fu">toShortString</span><span class="op">()</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span> logExecution<span class="op">.</span><span class="fu">value</span><span class="op">();</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">long</span> start <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">();</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> pjp<span class="op">.</span><span class="fu">proceed</span><span class="op">();</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">finally</span> <span class="op">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>label <span class="op">+</span> <span class="st">" took "</span> <span class="op">+</span> <span class="op">(</span><span class="bu">System</span><span class="op">.</span><span class="fu">currentTimeMillis</span><span class="op">()</span> <span class="op">-</span> start<span class="op">)</span> <span class="op">+</span> <span class="st">"ms"</span><span class="op">);</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="binding-trick" class="level3">
+<h3 class="anchored" data-anchor-id="binding-trick">Binding trick</h3>
+<p>Parameter name <code>logExecution</code> matches <code>@annotation(logExecution)</code>.<br>
+Spring injects the annotation instance so you can read <code>value()</code>.</p>
+<p>Alternative form:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Around</span><span class="op">(</span><span class="st">"@annotation(com.example.demo.aop.LogExecution)"</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">Object</span> <span class="fu">around</span><span class="op">(</span>ProceedingJoinPoint pjp<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Throwable</span> <span class="op">{</span> <span class="kw">...</span> <span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then look up the annotation via reflection if you need attributes.</p>
+<hr>
+</section>
+</section>
+<section id="topic-3-use-it-on-services" class="level2">
+<h2 class="anchored" data-anchor-id="topic-3-use-it-on-services">Topic 3 — Use it on services</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Service</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> OrderService <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">@LogExecution</span><span class="op">(</span><span class="st">"place-order"</span><span class="op">)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">placeOrder</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// business only</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">internalHelper</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// no annotation → no timing aspect</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Still proxied:</strong> the method must be called through the Spring bean/proxy.<br>
+Self-invocation still skips the aspect (lecture 24).</p>
+<hr>
+</section>
+<section id="topic-4-design-patterns-that-fit-custom-annotations" class="level2">
+<h2 class="anchored" data-anchor-id="topic-4-design-patterns-that-fit-custom-annotations">Topic 4 — Design patterns that fit custom annotations</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Annotation idea</th>
+<th>Aspect behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>@LogExecution</code></td>
+<td>time + log</td>
+</tr>
+<tr class="even">
+<td><code>@RequiresApiKey</code></td>
+<td>check header/security before <code>proceed</code></td>
+</tr>
+<tr class="odd">
+<td><code>@Audited</code></td>
+<td>write who/when/what after success</td>
+</tr>
+<tr class="even">
+<td><code>@Cacheable</code>-style learning demo</td>
+<td>simple map cache around <code>proceed</code></td>
+</tr>
+</tbody>
+</table>
+<p>Keep annotations <strong>intention-revealing</strong>. Business readers should understand <code>@Audited</code> without opening the aspect first.</p>
+<hr>
+</section>
+<section id="topic-5-combine-annotation-execution-optional" class="level2">
+<h2 class="anchored" data-anchor-id="topic-5-combine-annotation-execution-optional">Topic 5 — Combine annotation + execution (optional)</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Around</span><span class="op">(</span><span class="st">"@annotation(audited) &amp;&amp; execution(* com.example.demo.service.*.*(..))"</span><span class="op">)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">Object</span> <span class="fu">audit</span><span class="op">(</span>ProceedingJoinPoint pjp<span class="op">,</span> Audited audited<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Throwable</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ...</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Useful when similar annotations might appear outside the layer you care about.</p>
+<hr>
+</section>
+<section id="picture-annotation-driven-aop" class="level2">
+<h2 class="anchored" data-anchor-id="picture-annotation-driven-aop">Picture: annotation-driven AOP</h2>
+<pre class="text"><code>Developer puts @LogExecution on method
+Spring creates proxy for the bean
+Caller → proxy
+          ├─ sees annotation match
+          ├─ runs @Around advice
+          └─ proceed() → real method</code></pre>
+<hr>
+</section>
+<section id="practice-lab-ide-steps" class="level2">
+<h2 class="anchored" data-anchor-id="practice-lab-ide-steps">Practice lab (IDE steps)</h2>
+<section id="step-1-create-logexecution" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-create-logexecution">Step 1 — Create <code>@LogExecution</code></h3>
+<p><code>@Target(METHOD)</code> + <code>@Retention(RUNTIME)</code> + optional <code>String value()</code>.</p>
+</section>
+<section id="step-2-aspect" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-aspect">Step 2 — Aspect</h3>
+<p><code>@Around("@annotation(logExecution)")</code> with <code>ProceedingJoinPoint</code> + annotation param.<br>
+Log start/end + duration.</p>
+</section>
+<section id="step-3-annotate-selectively" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-annotate-selectively">Step 3 — Annotate selectively</h3>
+<p>Put <code>@LogExecution</code> on two service methods only.<br>
+Call three methods from a controller — only the annotated ones should log timing.</p>
+</section>
+<section id="step-4-use-the-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-use-the-attribute">Step 4 — Use the attribute</h3>
+<p><code>@LogExecution("checkout")</code> → confirm the custom label appears in logs.</p>
+</section>
+<section id="step-5-gate-without-proceed-mini-auth-annotation" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-gate-without-proceed-mini-auth-annotation">Step 5 — Gate without proceed (mini auth annotation)</h3>
+<p>Create <code>@RequiresHeader</code> and an <code>@Around</code> that returns 401 / throws if a request header is missing.<br>
+(Inject <code>HttpServletRequest</code> carefully via <code>RequestContextHolder</code> or pass data another way — keep the demo small.)</p>
+<hr>
+</section>
+</section>
+<section id="short-map-to-keep" class="level2">
+<h2 class="anchored" data-anchor-id="short-map-to-keep">Short map to keep</h2>
+<pre class="text"><code>Custom annotation = marker (+ optional config)
+RUNTIME retention  = required
+@annotation(...)   = pointcut
+Bind annotation param to read attributes
+Proxy rules still apply (external calls only)</code></pre>
+<hr>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Why is <code>SOURCE</code> retention useless for Spring AOP?<br>
+</li>
+<li>How does the aspect receive the annotation’s <code>value()</code>?<br>
+</li>
+<li>What happens if you annotate a private method and call it only via <code>this</code>?<br>
+</li>
+<li>Name one benefit of <code>@LogExecution</code> over a wide <code>execution(*..service.*.*(..))</code>.<br>
+</li>
+<li>Which starter must still be on the classpath?</li>
+</ol>
+<hr>
+</section>
+<section id="self-check" class="level2">
+<h2 class="anchored" data-anchor-id="self-check">Self-check</h2>
+<ol type="1">
+<li>Which two meta-annotations does a typical AOP marker need?<br>
+</li>
+<li>True/False: putting <code>@LogExecution</code> on a method always runs advice even without an aspect.<br>
+</li>
+<li>What pointcut designator matches annotated methods?<br>
+</li>
+<li>Can annotation attributes be read inside <code>@Around</code>?</li>
+</ol>
+<p>Answers: <a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.html">self-check-answers</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/mlmf\.badalkrdev\.in");
+      const newWindowLabel = "(opens in a new tab)";
+      const newWindowNoteId = "quarto-ext-newwindow-label";
+      // Links reference one hidden label through aria-describedby, so the
+      // announcement never changes their accessible name.
+      var describeNewWindow = (link) => {
+        if (!window.document.getElementById(newWindowNoteId)) {
+          var newWindowNote = window.document.createElement("span");
+          newWindowNote.id = newWindowNoteId;
+          newWindowNote.hidden = true;
+          newWindowNote.textContent = newWindowLabel;
+          window.document.body.appendChild(newWindowNote);
+        }
+        var describedBy = (link.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+        if (!describedBy.includes(newWindowNoteId)) {
+          describedBy.push(newWindowNoteId);
+          link.setAttribute("aria-describedby", describedBy.join(" "));
+        }
+      }
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            describeNewWindow(link);
+          if (!link.classList.contains('no-external-icon')) {
+          }
+        }
+      }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
+          if (lineIds.length > 0) {
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            placeBand(gutterDiv, el, lastEl);
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
+  </script>
+<nav class="page-navigation" aria-label="Page">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../../courses/springboot/lectures/24-aop-pointcuts-proxies/self-check-answers.html" class="pagination-link" aria-label="Lecture 24 — Self-check answers">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Lecture 24 — Self-check answers</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../../courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.html" class="pagination-link" aria-label="Lecture 25 — Self-check answers">
+        <span class="nav-page-text">Lecture 25 — Self-check answers</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Unofficial study notes · Not affiliated with NPTEL/IISc</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="../../../../docs/attribution.html">
+<p>Attribution</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
