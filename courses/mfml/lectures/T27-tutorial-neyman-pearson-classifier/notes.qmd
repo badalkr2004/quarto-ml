@@ -1,0 +1,115 @@
+---
+title: "Tutorial 5 — Neyman–Pearson Classifier"
+subtitle: "Control type I error, then minimize type II error"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 5 — Neyman–Pearson Classifier](https://www.youtube.com/watch?v=8esVIly2TZY)
+
+---
+
+## Learning goals
+
+- Distinguish type I (false positive) and type II (false negative) errors.
+- State the Neyman–Pearson (NP) design problem.
+- Recognize that the NP rule is a likelihood-ratio test with threshold set by the allowed type I level $\alpha$.
+
+---
+
+## Before this clicks
+
+The **Bayes classifier** minimizes a weighted sum of all error types (via losses and priors). Sometimes you refuse that trade-off: e.g. in a medical test, you may insist “false alarm rate $\le \alpha$” and then make missed detections as rare as possible.
+
+---
+
+## Main ideas
+
+### 1. Two error types (binary decision)
+
+Treat class $1$ as “positive” and class $0$ as “negative.”
+
+| Name | Meaning | Example (COVID test) |
+|------|---------|----------------------|
+| **Type I / false positive** | Predict $1$ when truth is $0$ | Healthy person flagged positive |
+| **Type II / false negative** | Predict $0$ when truth is $1$ | Infected person flagged negative |
+
+### 2. NP design problem
+
+Find a classifier $h_{\mathrm{NP}}$ that
+
+1. keeps type I error $\le \alpha$:
+   $$
+   P\bigl(h(X)=1 \mid X\in C_0\bigr) \;\le\; \alpha,
+   $$
+2. among all such classifiers, has the **smallest** type II error:
+   $$
+   P\bigl(h(X)=0 \mid X\in C_1\bigr)
+   $$
+   is minimized (equivalently, true-positive rate is maximized).
+
+### 3. Likelihood-ratio form
+
+The NP classifier compares class-conditionals:
+
+$$
+h_{\mathrm{NP}}(x) =
+\begin{cases}
+1 & \text{if } \dfrac{p(x\mid Y=1)}{p(x\mid Y=0)} > K, \\
+0 & \text{otherwise.}
+\end{cases}
+$$
+
+The threshold $K$ is chosen so that type I error equals $\alpha$ (when possible):
+
+$$
+P\!\left(\frac{p(X\mid Y=1)}{p(X\mid Y=0)} > K \,\Big|\, Y=0\right) = \alpha.
+$$
+
+So NP, like Bayes, needs the **ratio of class-conditionals**; the difference is how the threshold is set (by $\alpha$, not by prior$\times$loss).
+
+### 4. Proof sketch (why LR works)
+
+1. **By construction**, choosing $K$ from $\alpha$ meets the type I constraint.
+2. For any other classifier $h$ that also meets the type I bound, consider the integral
+   $$
+   I = \int \bigl(h_{\mathrm{NP}}(x)-h(x)\bigr)\bigl(p(x\mid Y=1)-K\,p(x\mid Y=0)\bigr)\,dx.
+   $$
+   Split into regions where the LR is above / below $K$; each piece is nonnegative, so $I\ge 0$.
+3. Rewriting $I\ge 0$ in terms of error probabilities shows that $h_{\mathrm{NP}}$ has higher (or equal) true-positive rate than any competing $h$ — i.e. least type II error.
+
+---
+
+## Worked mini-example (conceptual)
+
+Suppose you allow at most $\alpha=0.05$ false positives. You sweep $K$ until the fraction of class-$0$ mass where LR $>K$ is $5\%$. That $K$ defines $h_{\mathrm{NP}}$. Among all rules with false-positive rate $\le 5\%$, this one maximizes detection of class $1$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| NP ignores class-conditionals | It **requires** them (via the LR), just like Bayes. |
+| NP = Bayes with weird losses | Related family of LR tests, but the **constraint** $\alpha$ replaces the usual prior$\times$loss threshold. |
+| Smaller $\alpha$ is always better | Smaller $\alpha$ forces a harsher $K$ and usually **increases** type II error. |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork, *Pattern Classification* — Neyman–Pearson decision theory
+- Blitzstein & Hwang, *Introduction to Probability* — hypothesis testing / type I–II language
+
+## Self-check questions
+
+1. Define type I and type II error in one sentence each.
+2. Write the two conditions that define an NP classifier.
+3. What functional form does $h_{\mathrm{NP}}$ take, and what sets $K$?
+4. Name one shared ingredient of Bayes and NP classifiers.
+5. If you shrink $\alpha$, what typically happens to type II error?
+
+*(Short answers are in `self-check-answers.qmd`.)*

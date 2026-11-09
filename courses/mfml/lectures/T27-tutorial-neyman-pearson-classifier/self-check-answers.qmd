@@ -1,0 +1,10 @@
+---
+title: "Tutorial 5 — Self-check answers"
+sidebar: mfml
+---
+
+1. Type I: predict positive when negative (false positive). Type II: predict negative when positive (false negative).  
+2. Type I $\le\alpha$; among all such rules, minimize type II (maximize true-positive rate).  
+3. Likelihood-ratio test vs threshold $K$; $K$ is chosen so type I equals $\alpha$.  
+4. Both need the ratio of class-conditional densities $p(x\mid Y=1)/p(x\mid Y=0)$.  
+5. Type II error typically increases (harder to declare positive).
