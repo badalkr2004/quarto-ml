@@ -1,0 +1,10 @@
+---
+title: "Lecture 40 — Self-check answers"
+sidebar: mfml
+---
+
+1. To make a linear separator in feature space correspond to a nonlinear rule in the original $x$.
+2. $K(x,x')=\phi(x)^\top\phi(x')$.
+3. Replace feature-space inner products by $K$ evaluated on original inputs, avoiding explicit $\phi$.
+4. $K(x,x')=\exp(-\|x-x'\|^2/(2\sigma^{2}))$ (equivalent forms with a bandwidth constant).
+5. $f(x)=\sum_{i\in\mathrm{SV}}\mu_i y_i K(x_i,x)+b$.

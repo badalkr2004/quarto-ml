@@ -1,0 +1,113 @@
+---
+title: "Lecture 40 — SVM with Kernel Function"
+subtitle: "Feature maps, the kernel trick, and why SVMs faded at web scale"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 40 — SVM with Kernel Function](https://www.youtube.com/watch?v=dDIutyWTPKA)
+
+## Learning goals
+
+- Lift data with $\phi:\mathbb{R}^{d}\to\mathbb{R}^{d'}$ so a **linear** SVM in feature space yields a nonlinear rule in $x$.
+- Replace $\phi(x_i)^\top\phi(x_j)$ by a **kernel** $K(x_i,x_j)$ (kernel trick).
+- Name common kernels (polynomial, Gaussian / RBF) and the historical handoff to neural nets.
+
+## Before this clicks
+
+Dual SVM objectives depend on data only through inner products $x_i^\top x_j$. If you replace $x$ by $\phi(x)$, you only need $\phi(x_i)^\top\phi(x_j)$. A kernel computes that inner product **without building $\phi(x)$ explicitly**. Soft-margin still applies in feature space if points remain inseparable after the lift.
+
+---
+
+## Main ideas
+
+### 1. Feature maps
+
+Choose $\phi:\mathbb{R}^{d}\to\mathbb{R}^{d'}$ with $d'\gg d$ (sometimes infinite). Linear separator in $\phi$-space:
+
+$$
+f(x)=w^\top\phi(x)+b
+$$
+
+can be a highly nonlinear function of the original $x$ (same spirit as generalized linear regression with basis features). Separability becomes “more plausible,” not guaranteed.
+
+### 2. Dual with features
+
+The dual quadratic term becomes
+
+$$
+\mu_i\mu_j y_i y_j\,\phi(x_i)^\top\phi(x_j).
+$$
+
+### 3. Kernel function and kernel trick
+
+A **kernel** $K:\mathbb{R}^{d}\times\mathbb{R}^{d}\to\mathbb{R}$ satisfies
+
+$$
+K(x,x')=\phi(x)^\top\phi(x')
+$$
+
+for some feature map $\phi$ (Mercer / PSD Gram matrix conditions in the background).
+
+**Kernel trick:** wherever the algorithm needs an inner product in $\phi$-space, write $K(x,x')$ and stay in the original coordinates. You never instantiate $\phi(x)$ if $K$ is cheap.
+
+Examples:
+
+| Kernel | Form (schematic) | Feature intuition |
+|--------|------------------|-------------------|
+| Linear | $x^\top x'$ | $\phi=\mathrm{id}$ |
+| Polynomial | $(x^\top x'+c)^{p}$ | monomials up to degree $p$ |
+| Gaussian / RBF | $\exp(-\|x-x'\|^2/(2\sigma^{2}))$ | infinite-dimensional lift |
+
+RBF decision surfaces resemble RBF-network style expansions; class notes the kinship without equating the whole models.
+
+### 4. Decision rule
+
+With $w=\sum_i\mu_i y_i\phi(x_i)$,
+
+$$
+f(x)=\sum_{i\in\mathrm{SV}}\mu_i y_i K(x_i,x)+b.
+$$
+
+Only support vectors enter the sum.
+
+### 5. Historical moral
+
+Large margins yield clean generalization stories; late-1990s SVMs were SOTA. At modern scale / raw high-dimensional perception, “project until linearly separable” is not guaranteed, and kernels struggle vs representation learning. Course now moves to **neural networks** (universal approximation, backprop, then CNN/RNN/Transformers), with trees/ensembles later.
+
+---
+
+## Worked mini-example
+
+XOR-like four points in $\mathbb{R}^{2}$ are not linearly separable. With $\phi(x)=(x_1,x_2,x_1 x_2)$ (or a suitable polynomial kernel), a linear SVM in $\phi$-space separates them; the boundary in $x$-space is curved. Practically you call $K$ instead of building $\phi$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Kernel = neural net activation | Kernel is an **inner-product shortcut** in a feature space. |
+| Must know $\phi$ explicitly | Only $K$ is required for training/prediction. |
+| Kernel SVM solved all of ML | Scaling and representation issues returned the crown to nets. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Schölkopf & Smola — *Learning with Kernels*
+- Bishop *PRML* — kernel methods / SVM
+- Goodfellow et al. — why deep nets overtook kernels (context)
+
+## Self-check questions
+
+1. Why map $x\mapsto\phi(x)$ before a linear SVM?
+2. What identity defines a kernel $K$ relative to $\phi$?
+3. State the kernel trick in one sentence.
+4. Write the Gaussian / RBF kernel.
+5. Express $f(x)$ using $K$ and support vectors.
+
+*(Short answers are in `self-check-answers.qmd`.)*
