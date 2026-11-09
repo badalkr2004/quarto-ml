@@ -1,0 +1,114 @@
+---
+title: "Tutorial 8 — Computation of EM for GMMs"
+subtitle: "Closed-form M-step updates and K-means as a hard limit"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 8 — Computation of EM for GMMs](https://www.youtube.com/watch?v=sOwgRt6uiA4)
+
+---
+
+## Learning goals
+
+- Write responsibilities $\gamma_{ij}$ for a GMM.
+- Derive M-step updates for $\alpha_j$, $\mu_j$, $\Sigma_j$.
+- See **K-means** as a hard-assignment limit of spherical GMMs.
+
+---
+
+## Before this clicks
+
+EM for latent-variable models: E-step sets $q(z)=p_{\theta^{(t)}}(z\mid x)$; M-step maximizes the expected complete log-likelihood. For GMMs the complete model is “pick component $j$ with probability $\alpha_j$, then draw Gaussian $j$.”
+
+---
+
+## Main ideas
+
+### 1. Why not plain MLE?
+
+$$
+\ell(\theta)=\sum_{i=1}^{n}\log\sum_{j=1}^{M}\alpha_j\,\mathcal{N}(x_i;\mu_j,\Sigma_j)
+$$
+
+is a **log of sums** — messy. EM introduces latents.
+
+### 2. Responsibilities (E-step)
+
+$$
+\gamma_{ij} \;=\; P(Z=j\mid x_i;\theta^{(t)})
+= \frac{\alpha_j\,\mathcal{N}(x_i;\mu_j,\Sigma_j)}{\sum_{k=1}^{M}\alpha_k\,\mathcal{N}(x_i;\mu_k,\Sigma_k)}
+\Big|_{\theta^{(t)}}.
+$$
+
+$\sum_j\gamma_{ij}=1$ for each $i$.
+
+### 3. Expected complete log-likelihood (with simplex constraint)
+
+Up to terms independent of $\theta$, maximize
+
+$$
+\sum_{i=1}^{n}\sum_{j=1}^{M}\gamma_{ij}\Bigl[\log\mathcal{N}(x_i;\mu_j,\Sigma_j)+\log\alpha_j\Bigr]
+$$
+
+subject to $\sum_j\alpha_j=1$ (Lagrange multiplier $\lambda$).
+
+### 4. M-step closed forms
+
+Define $N_j=\sum_{i=1}^{n}\gamma_{ij}$. Then
+
+$$
+\alpha_j^\star = \frac{N_j}{n},
+$$
+
+$$
+\mu_j^\star = \frac{1}{N_j}\sum_{i=1}^{n}\gamma_{ij}\,x_i,
+$$
+
+$$
+\Sigma_j^\star = \frac{1}{N_j}\sum_{i=1}^{n}\gamma_{ij}\,(x_i-\mu_j^\star)(x_i-\mu_j^\star)^\top.
+$$
+
+(Softly weighted versions of the usual Gaussian MLEs; $\alpha_j$ from the same constrained discrete MLE pattern as Tutorial 7B.)
+
+Iterate E $\leftrightarrow$ M until parameters / likelihood stabilize.
+
+### 5. K-means as a limit
+
+Assume $\Sigma_j=\sigma^2 I$ for all $j$ and let $\sigma^2\to 0$. Responsibilities collapse to a **hard** assignment: $\gamma_{ij}\to 1$ for the nearest mean (smallest $\|x_i-\mu_j\|^2$) and $0$ otherwise. Re-estimating means under hard assignments is **K-means**. Soft GMM assignments harden into cluster indicators.
+
+---
+
+## Worked mini-example
+
+Two components, one point $x$ with $\gamma_{i1}=0.8$, $\gamma_{i2}=0.2$. That point contributes $0.8x$ toward $\mu_1$’s weighted sum and $0.2x$ toward $\mu_2$. After all points, divide by $N_1$ and $N_2$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| $\gamma_{ij}$ are parameters | They are E-step **outputs**, recomputed each iteration. |
+| Update $\alpha_j$ without constraint | Must enforce $\sum\alpha_j=1$ (Lagrange). |
+| K-means = GMM always | Only in the spherical, vanishing-variance hard limit. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §9.2 — EM for GMMs
+- Hastie et al., ESL — K-means / mixtures connection
+
+## Self-check questions
+
+1. Why is mixture MLE harder than single-Gaussian MLE?
+2. Write $\gamma_{ij}$.
+3. Give $\alpha_j^\star$, $\mu_j^\star$, $\Sigma_j^\star$ in terms of $\gamma_{ij}$.
+4. What is $N_j$?
+5. How does K-means emerge from a GMM?
+
+*(Short answers are in `self-check-answers.qmd`.)*
