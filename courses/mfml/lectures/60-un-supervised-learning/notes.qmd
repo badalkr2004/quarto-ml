@@ -1,0 +1,95 @@
+---
+title: "Lecture 60 — Unsupervised Learning"
+subtitle: "Learn structure from $x$ alone: clustering and dimensionality reduction"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 60 — Un-Supervised Learning](https://www.youtube.com/watch?v=5sg3d8ObcDc)
+
+## Learning goals
+
+- Contrast **supervised** learning (labels $y$) with **unsupervised** learning (only $x$).
+- Name the two big unsupervised goals: **clustering** and **dimensionality reduction**.
+- See unsupervised methods as tools for structure, compression, and representation learning.
+
+## Before this clicks
+
+In supervised learning you have pairs $(x_i,y_i)$ and want $f(x)\approx y$. Here you only have $\{x_1,\ldots,x_n\}$. There is no “correct label” to score against, so success means finding useful **structure**: groups, low-dimensional axes, or features that later help a supervised task.
+
+---
+
+## Main ideas
+
+### 1. Supervised vs unsupervised
+
+| Setting | Data | Typical goal |
+|---------|------|--------------|
+| Supervised | $(x_i,y_i)$ | Predict $y$ from $x$ |
+| Unsupervised | $x_i$ only | Discover patterns in $x$ |
+
+Unsupervised objectives are often **proxy** losses (within-cluster variance, reconstruction error, contrastive scores) rather than a known true $y$.
+
+### 2. Clustering (overview)
+
+Partition points into groups so that points in a group are similar and groups differ. Examples: customer segments, document topics (at a coarse level), image regions.
+
+A classical algorithmic workhorse is **$k$-means** (next lecture): choose $k$ centers and assign each $x_i$ to the nearest center.
+
+### 3. Dimensionality reduction (overview)
+
+Map $x\in\mathbb{R}^{d}$ to $z\in\mathbb{R}^{r}$ with $r\ll d$, keeping as much useful variation as possible. Reasons:
+
+- visualization ($r=2$ or $3$)
+- noise reduction / compression
+- cheaper downstream models
+
+**PCA** (coming soon) finds linear directions of maximum variance. Nonlinear methods and autoencoders appear later in the course family of ideas.
+
+### 4. Density and representation links
+
+Unsupervised learning also includes **density estimation** $p(x)$ and **representation learning** (features $z=f(x)$ that make structure easier). Modern contrastive methods (NCE / SimCLR) sit in this last bucket: they never see class labels, yet learn embeddings that cluster related views.
+
+### 5. Why it matters for ML
+
+Labeled data are expensive; unlabeled data are plentiful. Unsupervised pretraining or clustering can:
+
+- reveal the shape of $p(x)$
+- initialize or regularize supervised models
+- reduce $d$ before classification/regression
+
+---
+
+## Worked mini-example
+
+Suppose you have 2D points forming two blobs, with **no** class labels. Clustering recovers the two blobs as groups. Separately, if the blobs lie along a thin diagonal strip in $\mathbb{R}^{10}$, PCA can keep one or two axes that explain most variance and discard nearly constant coordinates — a form of unsupervised compression.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Unsupervised = no algorithm / no loss | There is still an objective (e.g. within-cluster SSE); just no $y$. |
+| Clustering = classification | Classification predicts known labels; clustering invents groups. |
+| Dimensionality reduction deletes information | It **discards** some variation by design; keep enough for the task. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop, *Pattern Recognition and Machine Learning* — unsupervised chapters
+- Murphy, *Probabilistic Machine Learning* — clustering / latent-variable overview
+
+## Self-check questions
+
+1. What is missing in unsupervised data compared to supervised data?
+2. Name two core unsupervised problem types.
+3. Give one practical reason to reduce dimension before a supervised model.
+4. Is clustering the same as classification? Why or why not?
+5. Name one modern unsupervised idea that learns embeddings without class labels.
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Lecture 60 — Self-check answers"
+sidebar: mfml
+---
+
+1. Labels $y_i$ (only features $x_i$ are given).
+2. Clustering and dimensionality reduction (density / representation learning also count).
+3. Lower $d$ can cut noise, cost, and overfitting, or aid visualization.
+4. No: classification predicts known classes; clustering invents groups without $y$.
+5. Contrastive learning / NCE-style methods (e.g. SimCLR), or autoencoders / PCA as classical cases.
