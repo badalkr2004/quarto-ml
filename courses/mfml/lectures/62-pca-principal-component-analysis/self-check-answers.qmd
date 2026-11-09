@@ -1,0 +1,10 @@
+---
+title: "Lecture 62 — Self-check answers"
+sidebar: mfml
+---
+
+1. The (empirical) covariance $\Sigma$.
+2. Variance of the projected data $u^\top\Sigma u$ over unit $u$.
+3. $\hat x=U_r U_r^\top x$ (after centering; add the mean back if needed).
+4. $(\lambda_1+\cdots+\lambda_r)/(\lambda_1+\cdots+\lambda_d)$.
+5. No — PCA uses only the $x$'s.

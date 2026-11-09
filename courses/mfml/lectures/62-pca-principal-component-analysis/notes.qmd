@@ -1,0 +1,107 @@
+---
+title: "Lecture 62 — PCA (Principal Component Analysis)"
+subtitle: "Linear directions of maximum variance; reconstruct with fewer coordinates"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 62 — PCA - Principal Component Analysis](https://www.youtube.com/watch?v=BLYw-vf9q6U)
+
+## Learning goals
+
+- Motivate PCA as **variance maximization** (and equivalent reconstruction error minimization).
+- Connect principal directions to **eigenvectors** of the covariance matrix.
+- Project, truncate, and **reconstruct** $x$ from the top $r$ components.
+
+## Before this clicks
+
+Centered data: subtract the sample mean so $\bar x=0$. A unit vector $u$ ($\lvert u\rvert=1$) defines a 1D axis. The projected scalar is $u^\top x$; its sample variance is $u^\top\Sigma u$ where $\Sigma$ is the empirical covariance. PCA finds axes that capture as much of that variance as possible, in order.
+
+---
+
+## Main ideas
+
+### 1. Covariance picture
+
+With centered columns or rows as appropriate, the sample covariance is
+
+$$
+\Sigma=\frac{1}{n}\sum_{i=1}^{n}x_i x_i^\top
+$$
+
+(up to the usual $n$ vs $n-1$ convention). $\Sigma$ is symmetric PSD, so it has orthonormal eigenvectors $u_1,\ldots,u_d$ and eigenvalues $\lambda_1\ge\lambda_2\ge\cdots\ge\lambda_d\ge 0$.
+
+### 2. First principal component
+
+Maximize variance of the projection:
+
+$$
+\max_{\|u\|=1} u^\top\Sigma u.
+$$
+
+The solution is the top eigenvector $u_1$ of $\Sigma$, with variance $\lambda_1$. Next components solve the same problem in the subspace orthogonal to previous $u$'s: they are $u_2,u_3,\ldots$.
+
+### 3. Scores and truncation
+
+Coordinates (scores) of $x$ in the PC basis:
+
+$$
+z_j=u_j^\top x,\qquad j=1,\ldots,d.
+$$
+
+Keep only the top $r$:
+
+$$
+z=(z_1,\ldots,z_r)^\top=U_r^\top x,\qquad U_r=[u_1\mid\cdots\mid u_r].
+$$
+
+### 4. Reconstruction
+
+Approximate $x$ by
+
+$$
+\hat x=U_r z=U_r U_r^\top x
+$$
+
+(with mean added back if you centered). The total reconstruction SSE equals the sum of discarded eigenvalues (trace identity): variance explained by the first $r$ PCs is $(\lambda_1+\cdots+\lambda_r)/(\lambda_1+\cdots+\lambda_d)$.
+
+### 5. What PCA is / is not
+
+- **Is:** best linear $r$-dimensional subspace for squared reconstruction (among linear maps of this form).
+- **Is not:** a clustering method; not automatically “the semantically meaningful factors” if structure is nonlinear.
+
+---
+
+## Worked mini-example
+
+Points tightly scattered along the line $x_2\approx 2x_1$ in $\mathbb{R}^{2}$. Then $u_1$ aligns with that diagonal, $\lambda_1\gg\lambda_2$, and $r=1$ reconstruction $\hat x=u_1(u_1^\top x)$ recovers nearly every point; the second PC mainly holds noise.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| PCs are clusters | PCs are **axes**, not group labels. |
+| Always keep variance $>90\%$ | A heuristic, not a law; task needs matter. |
+| PCA needs labels | Fully unsupervised; $y$ is unused. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* — PCA chapter
+- Murphy — PCA / SVD view
+
+## Self-check questions
+
+1. What matrix’s eigenvectors are the principal directions?
+2. What does the first PC maximize?
+3. Write the rank-$r$ reconstruction $\hat x$ using $U_r$.
+4. How is “variance explained” by the top $r$ PCs written with eigenvalues?
+5. Must you have labels $y$ to run PCA?
+
+*(Short answers are in `self-check-answers.qmd`.)*
