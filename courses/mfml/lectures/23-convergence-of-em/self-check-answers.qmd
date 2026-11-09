@@ -1,0 +1,10 @@
+---
+title: "Lecture 23 — Self-check answers"
+sidebar: mfml
+---
+
+1. $q^{(t+1)}=p_{\theta^{(t)}}(z\mid x)$; $\theta^{(t+1)}=\arg\max_\theta F(\theta,q^{(t+1)})$.  
+2. When $q(z)=p_\theta(z\mid x)$ for that same $\theta$.  
+3. $\ell(\theta^{(t)})=F(\theta^{(t)},q^{(t+1)})$; $F(\theta^{(t+1)},q^{(t+1)})\ge F(\theta^{(t)},q^{(t+1)})$; $\ell(\theta^{(t+1)})\ge F(\theta^{(t+1)},q^{(t+1)})$.  
+4. Nondecreasing $\ell$ can still converge to a local maximum.  
+5. Stop when $\ell(\theta^{(t+1)})-\ell(\theta^{(t)})<\delta$ (or after a fixed number of iterations).

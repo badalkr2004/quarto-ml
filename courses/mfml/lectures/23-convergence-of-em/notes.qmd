@@ -1,0 +1,128 @@
+---
+title: "Lecture 23 — Convergence of EM"
+subtitle: "Why the likelihood never decreases under EM"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 23 — Convergence of EM](https://www.youtube.com/watch?v=zHchxrSwOu4)
+
+---
+
+## Learning goals
+
+- Restate the EM loop with clear $\theta$ vs $q$ bookkeeping.
+- Prove that $\ell(\theta^{t+1})\ge \ell(\theta^t)$ (nondecreasing likelihood).
+- Know a practical stopping rule and a limitation of EM.
+
+---
+
+## Before this clicks
+
+**Evidence lower bound (ELBO):** for a variational distribution $q(z)$,
+
+$$
+F(\theta,q) = \mathbb{E}_{q(z)}\!\left[\log\frac{p_\theta(x,z)}{q(z)}\right] \;\le\; \log p_\theta(x)=\ell(\theta),
+$$
+
+with equality when $q(z)=p_\theta(z\mid x)$ (posterior). EM maximizes the likelihood by iteratively tightening and raising this lower bound.
+
+Key notational point: $q$ and $F(\theta,q)$ can be evaluated at **different** parameter values.
+
+---
+
+## Main ideas
+
+### 1. EM algorithm (recall)
+
+Initialize $\theta^{(1)}$. For $t=1,2,\ldots$ until convergence:
+
+**E-step.** Set
+
+$$
+q^{(t+1)}(z) \;=\; p_{\theta^{(t)}}(z\mid x)
+$$
+
+and form the ELBO as a function of $\theta$:
+
+$$
+F\bigl(\theta,\,q^{(t+1)}\bigr) = \mathbb{E}_{q^{(t+1)}}\!\left[\log\frac{p_\theta(x,z)}{q^{(t+1)}(z)}\right].
+$$
+
+**M-step.**
+
+$$
+\theta^{(t+1)} \;=\; \arg\max_\theta F\bigl(\theta,\,q^{(t+1)}\bigr).
+$$
+
+### 2. Convergence claim
+
+$$
+\ell(\theta^{(t+1)}) \;\ge\; \ell(\theta^{(t)}).
+$$
+
+Likelihood never decreases (may stay flat).
+
+### 3. Proof chain
+
+1. After the E-step, $q^{(t+1)}=p_{\theta^{(t)}}(z\mid x)$, so the bound is tight at $\theta^{(t)}$:
+   $$
+   \ell(\theta^{(t)}) = F\bigl(\theta^{(t)},\,q^{(t+1)}\bigr).
+   $$
+2. M-step maximizes $F(\cdot,q^{(t+1)})$, so
+   $$
+   F\bigl(\theta^{(t+1)},\,q^{(t+1)}\bigr) \;\ge\; F\bigl(\theta^{(t)},\,q^{(t+1)}\bigr).
+   $$
+3. By Jensen / ELBO construction, for any $\theta$,
+   $$
+   \ell(\theta) \;\ge\; F\bigl(\theta,\,q^{(t+1)}\bigr).
+   $$
+   In particular at $\theta^{(t+1)}$:
+   $$
+   \ell(\theta^{(t+1)}) \;\ge\; F\bigl(\theta^{(t+1)},\,q^{(t+1)}\bigr).
+   $$
+4. Chain (3)+(2)+(1): $\ell(\theta^{(t+1)})\ge\ell(\theta^{(t)})$.
+
+**Note:** Equality in step 3 needs the posterior at $\theta^{(t+1)}$, which we do **not** have yet — so we only use $\ge$, not $=$, at the new point.
+
+### 4. Practice notes
+
+- Stopping: track $\ell(\theta^{(t+1)})-\ell(\theta^{(t)})$; stop when improvement $<\delta$ (user hyperparameter), or after a max iteration count.
+- Drawback: inequality is not strict — EM can stall at **local** maxima / saddle plateaus.
+- EM does not invent new likelihood; it guarantees monotone progress of the true $\ell$ under this construction.
+
+---
+
+## Worked mini-example (logic only)
+
+Start at $\theta^{(t)}$. E-step makes ELBO touch $\ell$ at that point. M-step climbs the ELBO surface in $\theta$ with $q$ frozen. The new $\ell$ sits above the new ELBO value, which sits above the old ELBO value, which equals the old $\ell$. Hence likelihood did not drop.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| EM always finds the global MLE | No — only monotone improvement; local optima possible. |
+| ELBO always equals likelihood | Only when $q$ is the posterior at the **same** $\theta$ you evaluate. |
+| Stop when parameters stop moving | Equivalent in spirit; class emphasizes monitoring likelihood improvement. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §9.4 — EM / lower bound view
+- Murphy, *Probabilistic Machine Learning* — EM convergence discussion
+
+## Self-check questions
+
+1. Write one iteration of EM (E then M) in symbols.
+2. When is $F(\theta,q)=\ell(\theta)$?
+3. Outline the three inequalities/equalities in the monotone proof.
+4. Why might EM still fail to reach the global MLE?
+5. Give one practical stopping rule.
+
+*(Short answers are in `self-check-answers.qmd`.)*
