@@ -1,0 +1,10 @@
+---
+title: "Tutorial 10A — Self-check answers"
+sidebar: mfml
+---
+
+1. $\min_\theta\|X\theta-y\|_2^2/n$; $X^\top X\theta=X^\top y$.
+2. Posteriors $P(Y=i\mid x)$, or equivalently class-conditionals when priors are equal.
+3. They raise the bar for predicting the costly class; overlap may be assigned entirely to the safer class.
+4. Ties / equivalent partitions can differ on null sets or by representation while sharing the same risk.
+5. It folds the intercept/bias into $\theta$ so $h(x)=\theta^\top x_{\mathrm{aug}}$ stays linear in parameters.

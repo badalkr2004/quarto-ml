@@ -1,0 +1,111 @@
+---
+title: "Tutorial 10A — Numerical Example on Bayes Classifier"
+subtitle: "OLS matrix form, then a two-class Bayes decision with overlap costs"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 10 Part A](https://www.youtube.com/watch?v=oTEPAiwv-00)
+
+## Learning goals
+
+- Recover the **OLS** normal equations from matrix ERM with squared loss.
+- Build a **Bayes classifier** from class-conditionals, priors, and losses.
+- See how unequal misclassification costs shift the decision in an **overlap** region.
+
+## Before this clicks
+
+Bayes classifier (0–1 loss, equal priors): pick the class with larger posterior $P(Y=i\mid x)$, equivalently larger class-conditional times prior. With general losses, compare expected losses, not just posteriors. OLS: linear $h_\theta(x)=\theta^\top x$ under squared ERM.
+
+---
+
+## Main ideas
+
+### 1. OLS in matrix form (augmented features)
+
+Stack $n$ examples into $X\in\mathbb{R}^{n\times (d+1)}$ (extra column of ones for bias) and $y\in\mathbb{R}^{n}$. ERM with squared loss:
+
+$$
+\theta^\star=\arg\min_\theta\frac{1}{n}\,\|X\theta-y\|_2^{2}.
+$$
+
+Expanding and setting the gradient to zero recovers the normal equations
+
+$$
+X^\top X\,\theta^\star = X^\top y
+$$
+
+(when $X^\top X$ is invertible, $\theta^\star=(X^\top X)^{-1}X^\top y$). Same optimum as the earlier per-example sum form.
+
+### 2. Two-class Bayes setup (tutorial problem spirit)
+
+Suppose $Y\in\{1,2\}$ with known (or given) class-conditionals on a feature $X$ (often uniform / piecewise densities on intervals in the board work), and priors $P(Y=1),P(Y=2)$.
+
+Under **0–1 loss** with equal priors, Bayes compares $p(x\mid Y=i)$ (or posteriors). Decision regions:
+
+- In the exclusive support of class $1$: predict $1$.
+- Exclusive support of class $2$: predict $2$.
+- In the **overlap** $S_{12}$: compare weighted conditionals.
+
+### 3. Unequal costs move the overlap decision
+
+If falsely predicting class $1$ is much more expensive (tutorial used a large cost factor, e.g. order $10$), the Bayes rule in the overlap can flip to the safer class even when raw densities look comparable.
+
+Schematic comparison (equal priors): predict class $1$ only if
+
+$$
+\frac{p(x\mid Y=1)}{p(x\mid Y=2)}
+>
+\text{(cost-adjusted threshold)}.
+$$
+
+In the worked board calculation, the likelihood ratio in the overlap fell **below** the cost-adjusted threshold, so the entire overlap was assigned to class $2$.
+
+### 4. Uniqueness
+
+Bayes decision regions need not be unique if ties occur on sets of measure zero / equal risk alternatives. Different representations of the same partition can look different as formulas (e.g. a linear rule vs a set description) while agreeing almost everywhere — or disagree if the candidate rule is simply **not** Bayes.
+
+---
+
+## Worked mini-example
+
+Equal priors, 0–1 loss. Supports: class 1 on $[0,4]$, class 2 on $[2,6]$, both uniform on their supports. Overlap $[2,4]$.
+
+Density heights: $p(x\mid 1)=1/4$ on $[0,4]$, $p(x\mid 2)=1/4$ on $[2,6]$.
+
+Equal costs $\Rightarrow$ either class is fine on a measure-zero knife-edge; with a **higher cost** for calling “1” when truth is “2”, prefer class $2$ throughout the overlap. Final Bayes-style rule:
+
+- $[0,2)$: class $1$
+- $[2,6]$: class $2$
+
+(Exact constants in the video follow the problem sheet densities; the logic is identical.)
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| OLS formula needs centering always | Augment with a bias column instead (tutorial’s “augmented data”). |
+| Bayes = compare densities only | Only after priors and losses are plugged in; costs change the threshold. |
+| Any linear separator is Bayes | Must verify risk / posterior comparison; a hand-drawn line can fail in the overlap. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork — Bayes decision theory
+- Bishop *PRML* — least squares / decision theory
+
+## Self-check questions
+
+1. Write the matrix OLS objective and the normal equations.
+2. Under 0–1 loss and equal priors, what does Bayes compare?
+3. How do unequal misclassification costs affect the overlap region?
+4. Why might two different-looking “Bayes classifiers” both be valid?
+5. What does feature augmentation (column of ones) buy you?
+
+*(Short answers are in `self-check-answers.qmd`.)*
