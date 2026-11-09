@@ -1,0 +1,20 @@
+---
+title: "Lecture 14 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Browsers speak HTTP; they do not know Java classes or methods.
+2. **Tomcat** listens; the servlet is called when a mapping matches.
+3. Creation, lifecycle (`init`/`service`/`destroy`), request/response objects, threads, URL mapping, sending responses.
+4. A packaged Java web application archive that a servlet container can deploy.
+5. External: app is deployed into an installed Tomcat. Embedded: Tomcat starts inside your app when you run `main`.
+
+## Self-check
+
+1. **False.** Tomcat listens; the servlet runs inside Tomcat.
+2. Create → `init` → `service` (then `doGet`/`doPost`/…) → `destroy`.
+3. Tomcat already provides those classes at runtime; packaging another copy can cause conflicts.
+4. **Inside** the application process (embedded via the Web starter).

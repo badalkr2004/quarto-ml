@@ -1,0 +1,345 @@
+---
+title: "Lecture 14 — Servlets, Tomcat & WAR files"
+subtitle: "How Java web apps actually work under Spring Boot"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [How Java Web Apps Actually Work \| Servlets, Tomcat & WAR Files \| Full Course #14](https://www.youtube.com/watch?v=TSHrq65q5dw&list=PLEYgx5hMdopw&index=14)  
+**Playlist index:** 14  
+**Builds on:** [Lecture 2](../02-first-spring-boot-app/notes.qmd) · [Lectures 11–13](../11-crud-project-architecture/notes.qmd) (you already used HTTP APIs)
+
+---
+
+## Big idea in one line
+
+**Browsers speak HTTP, not Java.**  
+Tomcat (a servlet container) receives HTTP and calls your Java servlet. Spring Boot embeds Tomcat so `main()` starts the server for you.
+
+```text
+Browser ──HTTP text──► Tomcat ──calls──► Your Servlet (doGet/doPost/…)
+```
+
+---
+
+## Why this lecture after Boot CRUD?
+
+You already wrote `@RestController` methods. Under the hood, something still:
+
+1. Listens on a port  
+2. Parses HTTP  
+3. Calls Java code  
+4. Writes an HTTP response  
+
+That “something” is the **servlet** world. Spring MVC sits on top of it (next lecture).
+
+---
+
+## Topic 1 — Browser only sends HTTP
+
+Opening `http://localhost:8080/hello` does **not** call `HelloServlet.java` directly.
+
+The browser sends text roughly like:
+
+```http
+GET /hello HTTP/1.1
+Host: localhost:8080
+```
+
+Java classes do not magically receive that. A **server process** must be listening on the port.
+
+### Could you use raw sockets?
+
+Yes — `ServerSocket` on 8080. Then you manually parse URLs, headers, bodies, status codes, threads… forever.
+
+Servlets exist so developers write **business logic**, not HTTP plumbing.
+
+```text
+Without servlet container:
+  Browser → raw socket code → you parse HTTP → you route → you write response
+
+With servlet container:
+  Browser → Tomcat → HttpServletRequest/Response → your Servlet class
+```
+
+---
+
+## Topic 2 — Static vs dynamic
+
+| Kind | Behavior |
+|------|----------|
+| Static | Server returns an existing file (HTML/CSS/image) |
+| Dynamic | Response depends on logic / DB / input (`/user?id=101`) |
+
+Dynamic needs Java (or another language). The missing link: **how does HTTP enter Java?** → Servlet.
+
+---
+
+## Topic 3 — What is a Servlet?
+
+**Plain words:** a Java class Tomcat can call when an HTTP request matches a URL mapping.
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
+        response.setContentType("text/plain");
+        response.getWriter().write("Hello from Servlet");
+    }
+}
+```
+
+You do not call `doGet` yourself. **Tomcat** calls it.
+
+### Servlet does not listen on 8080
+
+Common mistake: “the servlet listens on 8080.”
+
+Correct model:
+
+```text
+Tomcat listens on the port
+  └── owns Servlet objects
+        └── on match, calls doGet / doPost / …
+```
+
+---
+
+## Topic 4 — Tomcat = Servlet Container
+
+**Tomcat** is a Java server. More precisely: a **Servlet Container**.
+
+“Container” means it creates, manages, and controls objects — like Spring’s IoC container manages beans.
+
+Tomcat manages:
+
+- servlet creation  
+- `init` / `service` / `destroy`  
+- request & response objects  
+- threads  
+- URL mapping  
+- sending the response  
+
+### Inversion of control (again)
+
+| Style | Who is in charge |
+|-------|------------------|
+| Normal Java | You `new` the object and call methods |
+| Servlet world | Tomcat creates and calls |
+| Spring world | Spring container creates and injects |
+
+Same IoC idea. Different container.
+
+---
+
+## Topic 5 — Request path through Tomcat
+
+```text
+GET /myapp/hello
+        │
+        ▼
+Tomcat: which app? → myapp
+        which URL? → /hello
+        which servlet? → HelloServlet
+        which method? → doGet
+        │
+        ▼
+helloServlet.doGet(request, response)
+```
+
+`HttpServletRequest` gives method, path, params, headers, body access.  
+`HttpServletResponse` lets you write status, headers, body.
+
+---
+
+## Topic 6 — Servlet lifecycle
+
+```text
+create object → init() → service() → doGet/doPost/… → destroy()
+```
+
+| Method | When | Typical use |
+|--------|------|-------------|
+| `init()` | Once after creation | One-time setup |
+| `service()` | Every request | HttpServlet routes to doXxx |
+| `doGet` / `doPost` / … | Matching HTTP verb | Your logic |
+| `destroy()` | Once before removal | Close resources |
+
+Default: servlet often loads on **first** request (then reused).  
+One servlet object usually serves **many** requests — be careful with mutable instance fields under concurrency.
+
+```text
+First  GET /lifecycle → constructor, init, service, doGet
+Second GET /lifecycle → service, doGet   (no second init)
+Stop Tomcat           → destroy
+```
+
+---
+
+## Topic 7 — External Tomcat + WAR
+
+Traditional flow:
+
+```text
+Install Tomcat
+  → build myapp.war
+  → copy WAR into tomcat/webapps/
+  → start Tomcat
+  → app runs
+```
+
+**Mental model:** application goes **inside** Tomcat.
+
+### What is a WAR?
+
+**WAR** = Web Application Archive. Packaged web app (classes, `web.xml`, static files, libs).
+
+External Tomcat knows how to explode/run WARs under `webapps/`.
+
+One Tomcat can host many apps:
+
+```text
+/app1/hello  → servlet in app1
+/app2/login  → servlet in app2
+```
+
+### Start / stop (idea)
+
+| OS | Start | Stop |
+|----|-------|------|
+| Windows | `bin\startup.bat` | `bin\shutdown.bat` |
+| Mac/Linux | `./bin/startup.sh` | `./bin/shutdown.sh` |
+
+Port is configured in `conf/server.xml` (often 8080).
+
+After deploy: `http://localhost:8080/servlet-crud/` (context path = WAR name).
+
+---
+
+## Topic 8 — Servlet API scope `provided`
+
+To compile servlet code you need the Servlet API dependency.  
+At runtime, **Tomcat already has** those classes in its `lib` folder.
+
+So Maven scope is often:
+
+```xml
+<scope>provided</scope>
+```
+
+Meaning: needed to compile; **do not** package into the WAR (container provides it).
+
+If you package a second copy → classloading pain.
+
+---
+
+## Topic 9 — Embedded Tomcat (Spring Boot style)
+
+Boot’s `spring-boot-starter-web` pulls **embedded** Tomcat.
+
+```java
+SpringApplication.run(MyApp.class, args);
+```
+
+**Mental model:** Tomcat lives **inside** the application.  
+You usually ship a JAR and run `main` — no separate Tomcat install for local/dev.
+
+| | External Tomcat | Embedded (Boot) |
+|--|-----------------|-----------------|
+| Who owns the server | Installed Tomcat | Your process |
+| Package | Often WAR | Usually executable JAR |
+| Start | Deploy + start Tomcat | Run `main` |
+| Servlet idea | Still there | Still there |
+
+Boot did not remove servlets. It made the container easier to start.
+
+---
+
+## Topic 10 — Many servlets vs one front controller (preview)
+
+Traditional:
+
+```text
+/users    → UserServlet
+/products → ProductServlet
+/orders   → OrderServlet
+```
+
+Spring MVC:
+
+```text
+All URLs → DispatcherServlet → correct @Controller method
+```
+
+Next lecture unpacks that architecture.
+
+---
+
+## Practice lab (conceptual + optional hands-on)
+
+### Step 1 — Draw the chain
+
+On paper:
+
+```text
+Browser → HTTP → Tomcat → Servlet → Response → Browser
+```
+
+### Step 2 — Relate to Boot
+
+Run any Boot Web app from earlier lectures. Find the log line “Tomcat started on port…”.  
+That is embedded Tomcat — same container idea.
+
+### Step 3 — Optional: external Tomcat
+
+If the video deploys a WAR:
+
+1. Build WAR  
+2. Copy to `webapps`  
+3. Start Tomcat  
+4. Hit `http://localhost:8080/<app>/…`  
+
+Compare: Boot JAR vs WAR-in-Tomcat.
+
+### Step 4 — Lifecycle thought experiment
+
+Ask: who calls `init`? who calls `doGet`? who calls `destroy`?  
+Answer every time: **the container**, not your `main`.
+
+---
+
+## Short map to keep
+
+```text
+HTTP in  → Tomcat (servlet container)
+         → Servlet lifecycle
+         → doGet/doPost…
+HTTP out ← response object
+
+WAR + external Tomcat  = app inside server
+Boot embedded Tomcat   = server inside app
+Spring MVC             = one DispatcherServlet front controller
+```
+
+---
+
+## Exercises
+
+1. Why can’t a browser call a Java method directly?  
+2. Who listens on port 8080 — the servlet or Tomcat?  
+3. What does “servlet container” manage for you?  
+4. Explain WAR in one sentence.  
+5. How is Boot’s embedded Tomcat different from external Tomcat?
+
+---
+
+## Self-check
+
+1. True/False: A servlet opens ServerSocket itself on 8080.  
+2. Name the four main lifecycle phases/methods around a servlet.  
+3. Why is Servlet API often `provided` for WAR projects?  
+4. In Spring Boot Web, where does Tomcat typically “live”?
+
+Answers: [self-check-answers](self-check-answers.qmd)
