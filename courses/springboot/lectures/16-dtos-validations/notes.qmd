@@ -1,0 +1,283 @@
+---
+title: "Lecture 16 — DTOs & Validations"
+subtitle: "Keep entities private; validate request shapes before business logic"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [DTOs & Validations in Spring Boot \| Make Your REST API Professional \| Spring Boot Full Course #16](https://www.youtube.com/watch?v=vXA78rtCeTY)  
+**Playlist index:** 16  
+**Builds on:** REST controllers + entities from earlier CRUD lectures
+
+---
+
+## Big idea in one line
+
+**Do not expose your database entity as the API contract.**  
+Use a **DTO** (Data Transfer Object) for what goes in/out of the HTTP layer, and **validate** that DTO before your service runs.
+
+```text
+Client JSON
+    │
+    ▼
+Request DTO  (+ @Valid rules)
+    │
+    ▼
+Service maps DTO ↔ Entity
+    │
+    ▼
+DB / Entity
+    │
+    ▼
+Response DTO → JSON to client
+```
+
+---
+
+## Why DTOs? (plain problem)
+
+If the controller accepts the **Entity** directly:
+
+| Risk | What goes wrong |
+|------|-----------------|
+| Extra fields | Client can send `id`, `role`, `createdAt` and overwrite things |
+| Leakage | Response may show password hashes, internal flags, relations |
+| Coupling | Changing DB columns instantly changes your public API |
+
+**DTO fix:** the API shape is a separate class. The entity stays an internal detail.
+
+---
+
+## Topic 1 — Request DTO vs Response DTO
+
+Often you want **two** shapes:
+
+```text
+CreateUserRequest   → name, email, password   (input only)
+UserResponse        → id, name, email         (no password)
+```
+
+Same idea for Product, Order, etc.
+
+### Simple class style
+
+```java
+public class CreateUserRequest {
+    private String name;
+    private String email;
+    private String password;
+
+    // getters + setters (or Lombok @Data / @Getter @Setter)
+}
+```
+
+```java
+public class UserResponse {
+    private Long id;
+    private String name;
+    private String email;
+
+    public UserResponse(Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    // getters
+}
+```
+
+### Record style (clean for immutable DTOs)
+
+```java
+public record CreateUserRequest(String name, String email, String password) {}
+public record UserResponse(Long id, String name, String email) {}
+```
+
+Use whatever your project already uses. Records are short; classes are fine too.
+
+---
+
+## Topic 2 — Map Entity ↔ DTO (no magic required)
+
+In the service (or a small mapper helper):
+
+```java
+private UserResponse toResponse(User user) {
+    return new UserResponse(user.getId(), user.getName(), user.getEmail());
+}
+
+private User toEntity(CreateUserRequest req) {
+    User user = new User();
+    user.setName(req.name());
+    user.setEmail(req.email());
+    user.setPassword(req.password()); // later: hash this
+    return user;
+}
+```
+
+Controller stays thin:
+
+```java
+@PostMapping("/users")
+public UserResponse create(@RequestBody CreateUserRequest request) {
+    return userService.create(request);
+}
+```
+
+---
+
+## Topic 3 — Bean Validation (why + dependency)
+
+**Problem:** empty email, blank name, bad password length.  
+You do **not** want `if` soup in every controller.
+
+**Fix:** annotate DTO fields + tell Spring to check them.
+
+### Dependency
+
+Add **Validation** on [start.spring.io](https://start.spring.io/) or in `pom.xml`:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+Common annotations:
+
+| Annotation | Plain meaning |
+|------------|---------------|
+| `@NotNull` | value must not be null |
+| `@NotBlank` | string not null/empty/whitespace |
+| `@NotEmpty` | collection/string not empty |
+| `@Email` | looks like an email |
+| `@Size(min, max)` | length / collection size |
+| `@Min` / `@Max` | number bounds |
+| `@Positive` | number > 0 |
+| `@Pattern(regexp=...)` | custom format |
+
+---
+
+## Topic 4 — Wire validation on the controller
+
+Annotate the DTO:
+
+```java
+public record CreateUserRequest(
+    @NotBlank String name,
+    @NotBlank @Email String email,
+    @NotBlank @Size(min = 8, max = 64) String password
+) {}
+```
+
+Put **`@Valid`** (or `@Validated`) on the controller parameter:
+
+```java
+@PostMapping("/users")
+public UserResponse create(@Valid @RequestBody CreateUserRequest request) {
+    return userService.create(request);
+}
+```
+
+```text
+JSON arrives
+  → Jackson builds CreateUserRequest
+  → @Valid runs Bean Validation
+  → if fail: MethodArgumentNotValidException (400 by default path)
+  → if ok: method body runs
+```
+
+**Forgot `@Valid`?** Annotations on the DTO do nothing. This is the #1 beginner bug.
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Project
+
+1. Open your existing Boot Web + JPA product/user app (or a tiny new one from Initializr: Web + Validation + H2/JPA).
+2. Confirm `spring-boot-starter-validation` is in the POM.
+
+### Step 2 — Create DTO package
+
+Create `dto` package:
+
+- `CreateProductRequest`
+- `ProductResponse`
+
+### Step 3 — Annotate + map
+
+On request fields use `@NotBlank`, `@Positive` (for price), `@Size` as needed.  
+In service: map request → entity → save → map entity → response.
+
+### Step 4 — Controller uses DTO only
+
+Replace `@RequestBody Product product` with `@Valid @RequestBody CreateProductRequest request`.  
+Return `ProductResponse`, not the entity.
+
+### Step 5 — Break it on purpose (Postman)
+
+Send invalid JSON:
+
+```json
+{ "name": "", "price": -5 }
+```
+
+**Expected:** request fails validation (400). Controller method should **not** reach service save logic.
+
+Send a valid body → 200/201 + response without internal-only fields.
+
+---
+
+## Nested objects & lists (quick)
+
+If DTO contains another object:
+
+```java
+public record AddressDto(
+    @NotBlank String city,
+    @NotBlank String zip
+) {}
+
+public record CreateOrderRequest(
+    @NotNull @Valid AddressDto shippingAddress,
+    @NotEmpty List<@NotNull Long> productIds
+) {}
+```
+
+`@Valid` on the nested field tells Spring to validate inside that object too.
+
+---
+
+## Short map to keep
+
+```text
+Entity  = DB shape (internal)
+DTO     = API shape (public)
+@Valid  = "check annotations before method runs"
+starter-validation = brings Hibernate Validator
+```
+
+---
+
+## Exercises
+
+1. Why is returning an entity from a REST endpoint risky?  
+2. What happens if you put `@NotBlank` on a DTO but forget `@Valid` on the controller?  
+3. When would you use separate request and response DTOs?  
+4. Name three Bean Validation annotations and what they check.  
+5. Where should mapping Entity ↔ DTO usually live (controller vs service)?
+
+---
+
+## Self-check
+
+1. What does DTO stand for, in one plain sentence?  
+2. True/False: `@Email` alone validates the field even without `@Valid`.  
+3. Which starter adds validation support?  
+4. Should passwords appear in `UserResponse`?
+
+Answers: [self-check-answers](self-check-answers.qmd)

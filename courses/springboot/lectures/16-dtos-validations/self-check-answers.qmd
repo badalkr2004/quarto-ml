@@ -1,0 +1,20 @@
+---
+title: "Lecture 16 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Clients can send or see fields you never meant to expose; the API becomes tied to the DB model.
+2. Nothing — validation annotations are ignored until `@Valid` / `@Validated` triggers them.
+3. When input and output shapes differ (e.g. password in, never out; server-generated `id` only in response).
+4. Examples: `@NotBlank` (non-empty string), `@Email` (email format), `@Size` / `@Min` / `@Max` (bounds).
+5. Prefer the **service** (or a mapper used by the service). Controllers stay thin.
+
+## Self-check
+
+1. A **Data Transfer Object** — a shape used to move data across a boundary (here: HTTP ↔ app), separate from the entity.
+2. **False.** You need `@Valid` (or `@Validated`) on the controller argument (and nested `@Valid` when needed).
+3. `spring-boot-starter-validation`.
+4. **No.** Keep secrets and internal fields off the response DTO.
