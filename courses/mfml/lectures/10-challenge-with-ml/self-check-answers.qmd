@@ -1,0 +1,10 @@
+---
+title: "Lecture 10 — Self-check answers"
+sidebar: mfml
+---
+
+1. Essentially none structurally — only i.i.d. samples from it.
+2. An estimate / parametric approximation of the unknown density (or conditional density).
+3. (1) Choose parametric family $p_{\theta}$; (2) choose a divergence $d(p,p_{\theta})$; (3) optimize $\theta$ (training).
+4. If the true density is not well approximated by that family (e.g. truth quadratic, model only linear), the best fit in-class is still a bad model of reality.
+5. Many ML divergences are not metrics (e.g. not symmetric); they still quantify mismatch between distributions.

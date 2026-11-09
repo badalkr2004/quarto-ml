@@ -1,0 +1,158 @@
+---
+title: "Lecture 10 — Challenge With ML"
+subtitle: "Unknown density, samples only, and the three-step estimation recipe"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 10 — Challenge With ML](https://www.youtube.com/watch?v=767MLwniPKE)
+
+### Learning goals
+- State the central challenge: $p$ is completely unknown; we only have samples
+- Call a density estimate a **model**
+- Learn the three-step recipe: choose $p_{\theta}$, choose a divergence, optimize $\theta$
+- See why “all models are wrong; some are useful”
+
+### Before this clicks
+We want to estimate a density $p$ (joint / marginal / conditional — same mathematical job, different interpretation). A parametric family is a collection of densities indexed by parameters $\theta$.
+
+---
+
+## 1. Central problem (again)
+
+$$
+\mathcal{D}=\{x_i\}_{i=1}^{n}\ \text{i.i.d. from unknown density }p.
+$$
+
+(Writing “sample from a density” is slight abuse — sampling is from the distribution — but this is the course’s working language.)
+
+Whether we write $p(x)$, $p(x,y)$, $p(y\mid x)$, … the **estimation task** is the same shape.
+
+**Challenge:** we know **nothing** a priori about $p$. We are not totally blind only because we have **samples**.
+
+---
+
+## 2. What is a “model”?
+
+Any algorithm’s estimate of the unknown density is called a **model**.
+
+Large language models, classifiers, GMMs, … — in this worldview they are density (or conditional-density) estimators.
+
+> All models are wrong; some are useful.  
+> (All estimators are imperfect; usefulness is judged by a metric / task.)
+
+There is no single correct density estimator; we compare them by how well they serve a chosen divergence / downstream goal.
+
+---
+
+## 3. Three-step recipe for density estimation
+
+### Step 1 — Model choice: pick a parametric family
+
+Assume
+
+$$
+p \approx p_{\theta}
+$$
+
+for some parameter $\theta$ in a family you choose.
+
+Examples of families:
+
+| Family | Typical $\theta$ |
+|--------|------------------|
+| Linear / logistic-style forms | weights $w$ |
+| Gaussian $\mathcal{N}(\mu,\Sigma)$ | $(\mu,\Sigma)$ |
+| Mixture models, kernels, neural nets, transformers | their internal parameters |
+
+**Neural nets** are popular because they are **universal approximators**: with enough capacity they can approximate very broad classes of functions. Choosing the family is still a leap of faith: if truth is quadratic and you only allow lines, you are stuck with a bad model class. The optimizer will only find the **best line**, not invent a parabola.
+
+Correction noted in a later lecture: for $w_1^{\top}x+w_2$, if $x\in\mathbb{R}^{D}$ then $w_1\in\mathbb{R}^{D}$ and $w_2$ is a **scalar** (dimensions must match).
+
+### Step 2 — Choose a “distance” between $p$ and $p_{\theta}$
+
+Need a function
+
+$$
+d(p,p_{\theta})\ \ge\ 0
+$$
+
+measuring how far the model is from truth.
+
+Quotes around “distance”: many ML divergences are **not** metrics (not symmetric, may fail triangle inequality). They are still useful. KL divergence (Lectures 11–12) is the star example in this course.
+
+**Apparent paradox:** $d$ seems to need the unknown $p$. Later tools (likelihoods, empirical averages, LLN, …) let us optimize without writing $p$ explicitly.
+
+### Step 3 — Train: optimize parameters
+
+$$
+\theta^{\star}
+=\arg\min_{\theta}\, d\bigl(p,\,p_{\theta}\bigr).
+$$
+
+Finding $\theta^{\star}$ is what people call **training** the model.
+
+Different algorithms = different $(p_{\theta},\ d,\ \text{optimizer})$ triples.
+
+---
+
+## 4. Why hundreds of algorithms?
+
+If density estimation were one easy closed form, we would not need so many methods. The hardness is:
+
+- unknown $p$,
+- high-dimensional $x$,
+- choice of family and divergence,
+- computational optimization.
+
+The rest of the course instantiates this recipe many times.
+
+---
+
+## 5. Tiny concrete example
+
+Suppose scalar data and we choose the family of 1D Gaussians
+
+$$
+p_{\theta}(x)=\frac{1}{\sqrt{2\pi\sigma^{2}}}\exp\Bigl(-\frac{(x-\mu)^{2}}{2\sigma^{2}}\Bigr),\quad
+\theta=(\mu,\sigma^{2}).
+$$
+
+Step 1 fixes “truth is somehow Gaussian.”  
+Step 2 might use KL or equivalently maximize likelihood (later).  
+Step 3 returns $(\hat\mu,\hat\sigma^{2})$ — e.g. sample mean and variance.
+
+If the true density is a two-peak mixture, every Gaussian is wrong; some Gaussians are still “least bad” under your divergence.
+
+---
+
+## 6. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| Training invents the model class | Training only fits $\theta$ inside the class you chose. |
+| One correct model | Estimators are approximations; usefulness is relative. |
+| Divergence must be a mathematical metric | KL & friends often are not; still OK. |
+| $p(x)$ vs $p(y\mid x)$ are different problems | Same estimation template; different target density. |
+
+---
+
+## 7. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Bishop, *PRML* — parametric density estimation
+- Goodfellow et al., *Deep Learning* — universal approximation (high level)
+- Cover & Thomas, *Elements of Information Theory* — divergences (next lectures)
+
+---
+
+## 8. Self-check
+
+1. What information do we have about $p$ at the start?
+2. What does this course mean by “model”?
+3. List the three steps of the estimation recipe.
+4. Why might a linear family be a terrible choice?
+5. Why is “distance” in quotes for $d(p,p_{\theta})$?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
