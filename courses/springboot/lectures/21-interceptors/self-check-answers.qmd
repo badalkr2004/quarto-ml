@@ -1,0 +1,7 @@
+---
+title: "Lecture 21 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. `preHandle` → controller → `postHandle` → `afterCompletion`.\n2. Filter=servlet, Interceptor=Spring MVC.\n3. Return false.

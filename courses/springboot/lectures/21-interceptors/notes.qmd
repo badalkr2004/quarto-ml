@@ -1,0 +1,63 @@
+---
+title: "Lecture 21 — Spring MVC interceptors"
+subtitle: "preHandle, postHandle, afterCompletion"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring MVC interceptors \| Full Course #21](https://www.youtube.com/watch?v=XE4xsgbArCQ)  
+**Playlist index:** 21
+
+---
+## Big idea
+
+**Interceptors** are Spring MVC hooks around controller methods (after DispatcherServlet mapping).
+
+```text
+Filter (servlet) → DispatcherServlet → Interceptor.preHandle
+                                      → Controller
+                                      → Interceptor.postHandle
+                                      → Interceptor.afterCompletion
+```
+
+## Example
+
+```java
+public class TimingInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
+        req.setAttribute("start", System.currentTimeMillis());
+        return true; // false = stop
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest req, HttpServletResponse res,
+                                Object handler, Exception ex) {
+        Long start = (Long) req.getAttribute("start");
+        System.out.println("took " + (System.currentTimeMillis() - start) + "ms");
+    }
+}
+```
+
+Register with `WebMvcConfigurer.addInterceptors`.
+
+## Filter vs interceptor
+
+| | Filter | Interceptor |
+|--|--------|-------------|
+| Level | Servlet | Spring MVC |
+| Sees | All servlet requests | Mapped handler calls |
+| Use | Auth wrappers, encoding | Handler-specific logic |
+
+## Practice
+
+1. Add timing interceptor.
+2. Restrict it to `/api/**`.
+3. Return `false` from `preHandle` for a path prefix and observe block.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
