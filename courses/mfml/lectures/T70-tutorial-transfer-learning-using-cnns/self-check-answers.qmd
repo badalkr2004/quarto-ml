@@ -1,0 +1,10 @@
+---
+title: "Tutorial 14B — Self-check answers"
+sidebar: mfml
+---
+
+1. The final classification (or task) head; keep the convolutional backbone.
+2. Feature extraction / linear probing of a frozen representation.
+3. Pretrained filters are already useful; large steps risk destroying them (catastrophic forgetting).
+4. Domain shift too large, or target data so abundant that scratch training catches up / mismatches preprocessing.
+5. Train the new head with backbone frozen, then unfreeze (top) backbone layers and fine-tune with small $\eta$.

@@ -1,0 +1,111 @@
+---
+title: "Tutorial 14B — Transfer Learning using CNNs"
+subtitle: "Reuse a pretrained backbone: freeze, then fine-tune for a new task"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 14 Part 2 — Transfer Learning using CNNs](https://www.youtube.com/watch?v=vocN0cxAT7I)
+
+## Learning goals
+
+- Motivate transfer when your labeled set is small but a related large dataset exists.
+- Distinguish **feature extraction** (frozen backbone) from **fine-tuning**.
+- Sketch a practical recipe: swap the head, choose learning rates, unfreeze carefully.
+
+## Before this clicks
+
+A CNN trained on a huge source task (e.g. ImageNet classification) learns early filters that detect edges and textures useful far beyond that task. **Transfer learning** reuses those weights as a starting point for a target task with fewer labels, instead of training from random initialization.
+
+---
+
+## Main ideas
+
+### 1. Backbone + head
+
+Split the net into:
+
+- **Backbone** (conv stack): representation $h=\phi_\theta(x)$.
+- **Head** (last dense layers): maps $h$ to target labels.
+
+Throw away the source head; attach a new head sized for your classes (or regression outputs).
+
+### 2. Frozen feature extractor
+
+Fix $\theta$ (no grad through the backbone). Train only the new head on target data:
+
+$$
+\min_{w}\;\frac{1}{n}\sum_{i=1}^{n}\ell\bigl(f_w(\phi_\theta(x_i)),\,y_i\bigr).
+$$
+
+Cheap, stable, good when target data is tiny and domains are similar.
+
+### 3. Fine-tuning
+
+Allow some or all backbone weights to update, usually with a **smaller** learning rate than the head:
+
+$$
+\theta\leftarrow\theta-\eta_{\mathrm{small}}\nabla_\theta L,\qquad
+w\leftarrow w-\eta_{\mathrm{large}}\nabla_w L.
+$$
+
+Often: train head first, then unfreeze top conv blocks, then (optionally) more. Over-aggressive fine-tuning on tiny data can **forget** useful source features.
+
+### 4. When transfer helps
+
+| Situation | Tendency |
+|-----------|----------|
+| Related visual domain, few labels | Strong gains |
+| Very different domain (e.g. medical vs natural photos) | Still often helps early layers; fine-tune more |
+| Abundant target labels | From-scratch can compete; transfer still speeds training |
+
+### 5. Practical checklist
+
+1. Load pretrained CNN; replace final layer.
+2. Preprocess like the source model (resize, normalize).
+3. Freeze backbone; train head.
+4. Unfreeze last blocks; fine-tune with small $\eta$.
+5. Regularize (weight decay, early stopping, light augmentation).
+
+---
+
+## Worked mini-example
+
+Target: 3 dog-breed classes, $n=90$ images. Source: ImageNet CNN.
+
+- Freeze backbone; train a $3$-way logistic head for a few epochs $\to$ usable baseline.
+- Unfreeze the last residual/conv stage with $\eta_{\mathrm{backbone}}=10^{-4}$, $\eta_{\mathrm{head}}=10^{-3}$.
+- Validation accuracy typically rises vs training the same CNN from scratch on $90$ images (scratch overfits almost immediately).
+
+The math is ordinary ERM; the win is the **initialization / representation**, not a new loss.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Transfer = knowledge distillation | Distillation trains a student to match a teacher’s outputs; transfer reuses weights/features |
+| Must fine-tune everything | Frozen extractor is a valid, often best first try |
+| Source and target labels must match | Only the **input domain** should be related enough |
+| Higher LR on backbone is safer | Usually the opposite: small LR on pretrained weights |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (representation learning / transfer)
+- Course Lec 52 — transfer learning and distillation (conceptual sibling)
+
+## Self-check questions
+
+1. What is replaced when adapting a pretrained CNN to a new label set?
+2. Frozen backbone + trainable head is called what in practice?
+3. Why use a smaller learning rate when fine-tuning the backbone?
+4. Give one reason transfer can fail or help less.
+5. State a sensible two-phase training order.
+
+*(Short answers are in `self-check-answers.qmd`.)*
