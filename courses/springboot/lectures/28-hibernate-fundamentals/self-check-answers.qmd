@@ -4,4 +4,16 @@ sidebar: springboot
 toc: true
 ---
 
-1. Object-table mapping.\n2. `@Entity` + `@Id`.\n3. Provider implementing JPA.
+## Exercises (sample)
+
+1. Mapping classes/fields to tables/columns and generating routine CRUD SQL (and later relationships).
+2. **Contract / specification.** Hibernate (or another provider) is the engine.
+3. The entity is managed; dirty checking writes the UPDATE on flush/commit.
+4. Lets Hibernate create/alter tables from entity mappings (learning convenience).
+
+## Self-check
+
+1. `@Entity`.
+2. `persist(...)`.
+3. **False.** Hibernate generates SQL from mappings and operations.
+4. So the provider can create instances when loading rows from the database.

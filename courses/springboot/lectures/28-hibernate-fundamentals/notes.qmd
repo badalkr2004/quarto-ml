@@ -1,31 +1,264 @@
 ---
 title: "Lecture 28 — Hibernate fundamentals"
-subtitle: "Entities and ORM CRUD"
+subtitle: "ORM, entities, EntityManager CRUD (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Hibernate fundamentals \| Full Course #28](https://www.youtube.com/watch?v=XVQ27D8IIWU)  
-**Playlist index:** 28
+**Video:** [Hibernate Fundamentals with Spring Boot \| CRUD & Entity Mapping \| Full Course #28](https://www.youtube.com/watch?v=XVQ27D8IIWU)  
+**Playlist index:** 28  
+**Builds on:** [27 — Spring JDBC](../27-spring-jdbc/notes.qmd)  
+**Next:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd)
 
 ---
-## Big idea
 
-**ORM:** map objects ↔ tables. Hibernate is a common JPA provider.
+## Big idea in one line
+
+**ORM maps objects ↔ tables.**  
+You work with Java objects. Hibernate generates / runs SQL through JDBC under the hood.
 
 ```text
-Entity class  ↔  table
-Field         ↔  column
-id            ↔  primary key
+Your code (Student objects)
+        │
+        ▼
+   Hibernate (ORM)
+        │
+        ▼
+     JDBC + driver
+        │
+        ▼
+      MySQL
 ```
 
-## Practice
+Spring JDBC still needs you to write SQL + map rows. Hibernate understands “`Student` is table `students`.”
 
-Use JPA annotations (`@Entity`, `@Id`) and `EntityManager` or Spring Data to save/find entities. Watch SQL with `show-sql=true`.
+---
+
+## Topic 1 — Why ORM after JDBC?
+
+With JDBC / Spring JDBC you always:
+
+- Write INSERT/SELECT/UPDATE/DELETE text  
+- Bind params in order  
+- Map columns → fields by hand  
+
+That grows painful with many entities and relationships.
+
+**Object-relational impedance mismatch:** Java thinks in objects/references; DB thinks in tables/keys/joins. ORM is the translator.
+
+---
+
+## Topic 2 — JPA vs Hibernate (simple)
+
+| Name | Role |
+|------|------|
+| **JPA / Jakarta Persistence** | Spec / interfaces / annotations (`@Entity`, `EntityManager`) |
+| **Hibernate** | Popular **implementation** (does the real work) |
+
+```text
+List  → ArrayList
+JPA   → Hibernate
+```
+
+In Boot you usually import `jakarta.persistence.*`. Runtime engine is still Hibernate when JPA starter is used.
+
+---
+
+## Topic 3 — Project setup (IDE)
+
+1. Initializr → **Spring Data JPA** + **MySQL Driver**  
+2. Create database `student_db`  
+3. Properties:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/student_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+| Property | Plain meaning |
+|----------|----------------|
+| `ddl-auto=update` | Hibernate may create/alter tables from entities (ok for learning) |
+| `show-sql=true` | Print generated SQL (learn by watching) |
+
+For production you usually manage schema with migrations — not free-form `update`.
+
+---
+
+## Topic 4 — First entity
+
+```java
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "students")
+public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String email;
+    private Integer age;
+
+    public Student() {} // JPA needs a no-arg constructor
+
+    public Student(String name, String email, Integer age) {
+        this.name = name;
+        this.email = email;
+        this.age = age;
+    }
+
+    // getters / setters
+}
+```
+
+```text
+@Entity          → this class is persisted
+@Table(name=…)   → table name (optional if default is fine)
+@Id              → primary key
+@GeneratedValue  → DB / strategy fills the id
+@Column          → rename / constraints when needed
+```
+
+---
+
+## Topic 5 — `EntityManager` CRUD
+
+Inject `EntityManager` (Spring wires a transactional one — details in lecture 29).
+
+```java
+@Repository
+public class StudentJpaRepository {
+    private final EntityManager em;
+
+    public StudentJpaRepository(EntityManager em) {
+        this.em = em;
+    }
+}
+```
+
+### Create — `persist`
+
+```java
+@Transactional
+public Long create(String name, String email, Integer age) {
+    Student student = new Student(name, email, age);
+    em.persist(student);   // schedule insert
+    return student.getId(); // often available after persist with IDENTITY
+}
+```
+
+### Read — `find`
+
+```java
+@Transactional(readOnly = true)
+public Student get(Long id) {
+    return em.find(Student.class, id);
+}
+```
+
+### Update — change a **managed** entity
+
+```java
+@Transactional
+public void rename(Long id, String newName) {
+    Student student = em.find(Student.class, id);
+    if (student == null) {
+        throw new IllegalArgumentException("missing " + id);
+    }
+    student.setName(newName);
+    // no em.update(...) needed
+}
+```
+
+Hibernate notices the field changed (**dirty checking**) and issues UPDATE on flush/commit.
+
+### Delete — `remove`
+
+```java
+@Transactional
+public void delete(Long id) {
+    Student student = em.find(Student.class, id);
+    if (student != null) {
+        em.remove(student);
+    }
+}
+```
+
+---
+
+## Topic 6 — Mapping cheat sheet
+
+| Annotation | Meaning |
+|------------|---------|
+| `@Entity` | Persistable class |
+| `@Table` | Table name / catalog / schema options |
+| `@Id` | Primary key field |
+| `@GeneratedValue` | How id is produced |
+| `@Column` | Column name, nullability, length, unique |
+| `@Transient` | Field is **not** stored in DB |
+
+Example rename:
+
+```java
+@Column(name = "student_name", nullable = false, length = 100)
+private String name;
+```
+
+---
+
+## Practice lab
+
+1. Boot + JPA + MySQL project.  
+2. Create `Student` entity.  
+3. Write service methods: create / get / rename / delete.  
+4. Call them from `ApplicationRunner`.  
+5. Watch console SQL for INSERT / SELECT / UPDATE / DELETE.  
+6. Rename a field with `@Column` and confirm column name in SQL.
+
+---
+
+## Short map to keep
+
+```text
+@Entity Student  ←→  table students
+     │
+     ▼
+EntityManager
+  persist → insert (later)
+  find    → select by PK
+  setters on managed entity → update (dirty check)
+  remove  → delete
+     │
+     ▼
+Hibernate → JDBC → MySQL
+```
+
+---
+
+## Exercises
+
+1. What problem does ORM solve that Spring JDBC still leaves to you?  
+2. Is JPA the engine or the contract?  
+3. Why is there no `em.update(student)` in the rename example?  
+4. What does `ddl-auto=update` do in learning projects?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Which annotation marks a class as a DB entity?  
+2. Which method schedules an insert for a new entity?  
+3. True/False: Hibernate always requires you to write INSERT SQL by hand.  
+4. Why does the entity need a no-arg constructor?
+
+Answers: [self-check-answers](self-check-answers.qmd)
