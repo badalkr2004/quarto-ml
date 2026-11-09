@@ -1,36 +1,285 @@
 ---
 title: "Lecture 27 — Spring JDBC"
-subtitle: "JdbcTemplate, DataSource, HikariCP"
+subtitle: "JdbcTemplate, DataSource, and HikariCP (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Spring JDBC \| Full Course #27](https://www.youtube.com/watch?v=OPjnbYbcb2E)  
-**Playlist index:** 27
+**Video:** [Spring JDBC Complete Tutorial \| JdbcTemplate, DataSource, HikariCP \| Full Course #27](https://www.youtube.com/watch?v=OPjnbYbcb2E)  
+**Playlist index:** 27  
+**Builds on:** [26 — JDBC from scratch](../26-jdbc-from-scratch/notes.qmd)  
+**Next:** [28 — Hibernate fundamentals](../28-hibernate-fundamentals/notes.qmd)
 
 ---
-## Big idea
 
-Spring gives you a pooled `DataSource` (often HikariCP) and `JdbcTemplate` so you write less JDBC glue.
+## Big idea in one line
 
-```java
-jdbcTemplate.update("insert into product(name,price) values(?,?)", name, price);
-List<Product> list = jdbcTemplate.query("select * from product", mapper);
+**You still write SQL.**  
+Spring removes the boring parts: open connection, create statement, close everything, wrap SQLException.
+
+```text
+Raw JDBC                         Spring JDBC
+────────                         ───────────
+getConnection                    DataSource (often pooled)
+prepareStatement                 JdbcTemplate does this
+set params                       you pass args
+execute                          JdbcTemplate.update / query
+map ResultSet                    RowMapper (you or helper)
+close + catch                    Spring closes + translates
 ```
 
-## Practice
+---
 
-1. Configure datasource properties.
-2. Inject `JdbcTemplate`.
-3. Re-implement product CRUD with it.
+## Topic 1 — Pain of raw JDBC
 
-## Reasoning
+Every method repeats:
 
-Connection pools reuse connections — critical under load. Do not open a new raw connection per request in production code.
+1. Get connection  
+2. Prepare statement  
+3. Bind params  
+4. Execute  
+5. Map results  
+6. Catch `SQLException`  
+7. Close resources  
+
+Only steps 3–5 are your real work. Spring JDBC templates the rest.
+
+---
+
+## Topic 2 — `DataSource` (connection factory)
+
+`DriverManager.getConnection` every time is fine for demos. Apps use a **`DataSource`**:
+
+```text
+Code asks DataSource for a Connection
+        │
+        ▼
+DataSource hands out a Connection
+        │
+        ▼
+Code uses it, then closes it
+        │
+        ▼
+With a pool: connection returns to the pool (not always destroyed)
+```
+
+Spring Boot creates a `DataSource` bean from properties.
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/student_db
+spring.datasource.username=root
+spring.datasource.password=your_password
+```
+
+---
+
+## Topic 3 — Connection pooling & HikariCP
+
+Opening a real DB connection is slow. A **pool** keeps a few warm connections ready.
+
+```text
+Without pool:  each request → new TCP + auth → slow
+With pool:     each request → borrow → use → return
+```
+
+**HikariCP** is Boot’s default pool when JDBC starter is present.
+
+| Idea | Plain meaning |
+|------|----------------|
+| Pool size | How many connections sit ready |
+| Borrow | Get one for your work |
+| Return | `close()` on a pooled connection returns it to the pool |
+
+`DataSource` ≠ always a pool. Boot’s default **is** pooled (Hikari). A simple single-connection DataSource also exists for tiny cases.
+
+---
+
+## Topic 4 — Make a Spring JDBC project (IDE)
+
+1. [start.spring.io](https://start.spring.io/) → Maven · Java · Jar  
+2. Dependencies: use **`spring-boot-starter-jdbc`** + **MySQL Driver**  
+3. Generate → open in IntelliJ  
+4. Put DB URL/user/password in `application.properties`  
+5. Create table `students` (same as lecture 26)
+
+Starter meaning:
+
+```text
+spring-boot-starter-jdbc
+   ├─ Spring JDBC (JdbcTemplate)
+   ├─ HikariCP
+   └─ transaction support pieces
++ mysql driver JAR
+```
+
+---
+
+## Topic 5 — `JdbcTemplate` CRUD
+
+Inject `JdbcTemplate` into a repository/`@Component`.
+
+```java
+@Repository
+public class StudentJdbcRepository {
+    private final JdbcTemplate jdbc;
+
+    public StudentJdbcRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
+}
+```
+
+### Create
+
+```java
+public int save(String name, String email, int age) {
+    String sql = "INSERT INTO students(name, email, age) VALUES (?, ?, ?)";
+    return jdbc.update(sql, name, email, age);
+}
+```
+
+### Read list
+
+```java
+public List<Student> findAll() {
+    String sql = "SELECT id, name, email, age FROM students";
+    return jdbc.query(sql, (rs, rowNum) -> {
+        Student s = new Student();
+        s.setId(rs.getLong("id"));
+        s.setName(rs.getString("name"));
+        s.setEmail(rs.getString("email"));
+        s.setAge(rs.getInt("age"));
+        return s;
+    });
+}
+```
+
+`RowMapper` = “turn one ResultSet row into one object.”
+
+### Read one
+
+```java
+public Student findById(long id) {
+    String sql = "SELECT id, name, email, age FROM students WHERE id = ?";
+    return jdbc.queryForObject(sql, (rs, rowNum) -> {
+        Student s = new Student();
+        s.setId(rs.getLong("id"));
+        s.setName(rs.getString("name"));
+        s.setEmail(rs.getString("email"));
+        s.setAge(rs.getInt("age"));
+        return s;
+    }, id);
+}
+```
+
+If zero rows → Spring throws (often `EmptyResultDataAccessException`). Handle that in service layer.
+
+### Update / Delete
+
+```java
+public int updateAge(long id, int age) {
+    return jdbc.update("UPDATE students SET age = ? WHERE id = ?", age, id);
+}
+
+public int delete(long id) {
+    return jdbc.update("DELETE FROM students WHERE id = ?", id);
+}
+```
+
+### Optional: `BeanPropertyRowMapper`
+
+If Java property names match column names:
+
+```java
+return jdbc.query(sql, new BeanPropertyRowMapper<>(Student.class));
+```
+
+Handy for demos. Custom `RowMapper` is clearer when names differ.
+
+---
+
+## Topic 6 — Exception translation
+
+Raw JDBC throws checked `SQLException`.  
+Spring JDBC wraps vendor codes into **unchecked** Spring DAO exceptions, for example:
+
+| Situation | Typical Spring exception idea |
+|-----------|-------------------------------|
+| Bad SQL / syntax | `BadSqlGrammarException` |
+| Duplicate key | `DuplicateKeyException` |
+| Empty `queryForObject` | `EmptyResultDataAccessException` |
+
+**Why it helps:** service code can catch Spring’s hierarchy without MySQL-specific error codes everywhere.
+
+---
+
+## Topic 7 — Keep repository behind an interface
+
+```text
+Controller → Service → StudentRepository (interface)
+                              │
+                              └─ StudentJdbcRepository (JdbcTemplate)
+                                 later maybe JPA implementation
+```
+
+Upper layers should not care if SQL is raw JDBC, Spring JDBC, or JPA.
+
+---
+
+## Practice lab
+
+1. Boot project with `spring-boot-starter-jdbc` + MySQL.  
+2. Configure datasource properties.  
+3. Create `Student` POJO + `StudentJdbcRepository`.  
+4. Use `ApplicationRunner` or a simple service to: insert → list → update → delete.  
+5. Break the SQL on purpose once; notice Spring’s translated exception message.  
+6. Compare line count to your lecture-26 raw JDBC class.
+
+---
+
+## Raw JDBC vs Spring JDBC
+
+| Concern | Raw JDBC | Spring JDBC |
+|---------|----------|-------------|
+| SQL | You write | You write |
+| Connection open/close | You | DataSource + template |
+| Pooling | Manual | Hikari by default in Boot |
+| Row mapping | Manual | `RowMapper` / helpers |
+| Exceptions | Checked SQLException | Runtime DataAccessException family |
+
+---
+
+## Short map to keep
+
+```text
+application.properties → DataSource (Hikari)
+                              │
+                              ▼
+                         JdbcTemplate
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+           update()        query()     queryForObject()
+           (C/U/D)       (list + map)     (one + map)
+```
+
+---
+
+## Exercises
+
+1. What does Spring JDBC still force you to write yourself?  
+2. Why is a connection pool faster than `DriverManager` per call?  
+3. What is a `RowMapper`?  
+4. Why wrap `SQLException` into Spring exceptions?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Does `JdbcTemplate` remove the need to write SQL?  
+2. What is Boot’s default connection pool?  
+3. Which method is typical for INSERT?  
+4. True/False: `close()` on a pooled connection usually destroys the TCP connection forever.
+
+Answers: [self-check-answers](self-check-answers.qmd)

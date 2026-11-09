@@ -4,4 +4,16 @@ sidebar: springboot
 toc: true
 ---
 
-1. Less boilerplate + pooling.\n2. HikariCP.\n3. `update` / `query`.
+## Exercises (sample)
+
+1. SQL, parameters, and how rows map to objects (plus business decisions).
+2. Connections are reused; you skip expensive open/authenticate every time.
+3. A function that turns one `ResultSet` row into one domain object.
+4. Portable runtime exceptions; less vendor-specific error handling in business code.
+
+## Self-check
+
+1. **No.** You still write SQL; Spring handles infrastructure.
+2. **HikariCP.**
+3. `jdbcTemplate.update(...)`.
+4. **False.** For a pool, `close()` usually returns the connection to the pool.
