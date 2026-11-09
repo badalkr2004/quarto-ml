@@ -1,0 +1,35 @@
+---
+title: "Lecture 41 — Production-style project #1"
+subtitle: "Microservices, Kafka, Redis overview"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Production-style project #1 \| Full Course #41](https://www.youtube.com/watch?v=-Wv5uCu2PIg)  
+**Playlist index:** 41
+
+---
+## Big idea
+
+Real systems split into services, pass messages (Kafka), cache (Redis), and deploy as units.
+
+```text
+API service → Kafka → worker service
+     │
+     └→ Redis cache
+```
+
+## Practice focus
+
+Follow the video’s project structure. Map each piece: which service owns which data? What is sync HTTP vs async messaging?
+
+## Reasoning
+
+Microservices add network failure modes. Start modular monolith unless you need independent scaling.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
