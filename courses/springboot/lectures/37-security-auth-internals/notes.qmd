@@ -1,0 +1,223 @@
+---
+title: "Lecture 37 — Authentication internals"
+subtitle: "Login flow, providers, and the filter chain (in plain words)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Security Authentication Internals \| Complete Login Flow \| Full Course #37](https://www.youtube.com/watch?v=0LLpt3OZ03g)  
+**Playlist index:** 37  
+**Builds on:** [Lectures 35](../35-spring-security-basics/notes.qmd)–[36](../36-security-db-password/notes.qmd)
+
+---
+
+## Big idea in one line
+
+You should **not** reinvent login as a random controller method.  
+Spring Security already has a pipeline: **filter → AuthenticationManager → AuthenticationProvider → UserDetailsService → PasswordEncoder → SecurityContext**.
+
+```text
+POST credentials
+      │
+      ▼
+UsernamePasswordAuthenticationFilter (or your equivalent)
+      │  builds Authentication (not yet trusted)
+      ▼
+AuthenticationManager
+      │
+      ▼
+DaoAuthenticationProvider
+      │  loadUserByUsername + password matches
+      ▼
+Authenticated Authentication
+      │
+      ▼
+SecurityContextHolder  (saved for this request / session)
+```
+
+---
+
+## Topic 1 — Stop hand-rolled “fake login”
+
+In earlier practice you may have written something like “check username/password in `/login` yourself.”
+
+Problems:
+
+- Easy to forget hashing rules
+- Easy to forget setting `SecurityContext`
+- Easy to disagree with the rest of the filter chain (CSRF, session, logout, …)
+
+**Better:** let Security’s authentication architecture own the verify step; your code supplies **UserDetailsService** + **PasswordEncoder** + URL rules.
+
+---
+
+## Topic 2 — `AuthenticationManager` and providers
+
+```text
+AuthenticationManager
+   └── delegates to one or more AuthenticationProvider
+            └── DaoAuthenticationProvider  (username/password + UserDetailsService)
+```
+
+**`DaoAuthenticationProvider`** (the one you use for DB login):
+
+1. Call `UserDetailsService.loadUserByUsername`
+2. Use `PasswordEncoder.matches`
+3. Check account flags (enabled, locked, …)
+4. Return a fully authenticated `Authentication` with authorities
+
+You rarely call the provider yourself. The manager does.
+
+---
+
+## Topic 3 — `UsernamePasswordAuthenticationToken`
+
+Two common states of the same class:
+
+| State | Meaning |
+|-------|---------|
+| Unauthenticated token | principal = username, credentials = password |
+| Authenticated token | principal = UserDetails, credentials cleared/null, authorities set |
+
+That is how a “claim” becomes a “verified identity.”
+
+---
+
+## Topic 4 — Filter chain groups (mental model)
+
+You do not memorize every filter name on day one. Group them:
+
+```text
+1) Exploit protection   → CSRF, headers, …
+2) Authentication       → prove identity / read credentials
+3) Authorization        → allow or deny based on authorities
+4) Misc / special       → logout, anonymous, exception translation, …
+```
+
+Request walks the chain. Fail early when needed. Success → controller.
+
+**CSRF note:** browser form/session apps care a lot; pure Bearer-token APIs often disable CSRF when sessions are not used (JWT lecture next). Know *why* before copying a snippet.
+
+---
+
+## Topic 5 — What “login success” stores
+
+After success:
+
+1. Authenticated `Authentication` is created  
+2. Placed into `SecurityContext`  
+3. For **stateful** apps, the context is tied to an HTTP **session** (cookie) so the next request remembers you  
+
+```text
+Stateful:
+  login once → session id cookie → later requests reuse SecurityContext
+
+Next lecture (JWT):
+  login once → token to client → each request sends token → rebuild Authentication
+```
+
+---
+
+## Topic 6 — Practice lab (IDE)
+
+### Step 1 — Keep DB user setup from lecture 36
+
+`User` entity, repository, `CustomUserDetails`, `CustomUserDetailsService`, `BCryptPasswordEncoder`.
+
+### Step 2 — Security filter chain
+
+```java
+@Bean
+SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable()) // OK for simple API demos; revisit for browsers+sessions
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/register", "/login").permitAll()
+            .anyRequest().authenticated()
+        )
+        .httpBasic(Customizer.withDefaults());
+        // or .formLogin(...) for browser form login
+    return http.build();
+}
+```
+
+### Step 3 — Optional: expose AuthenticationManager
+
+Useful when you later issue tokens after verifying credentials:
+
+```java
+@Bean
+AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+}
+```
+
+### Step 4 — Trace a login in the debugger (best learning step)
+
+1. Set breakpoints in `CustomUserDetailsService.loadUserByUsername`  
+2. Call a secured endpoint with Basic Auth (or hit form login)  
+3. Watch: service loads user → password check → context filled  
+4. In a controller, print `SecurityContextHolder.getContext().getAuthentication().getAuthorities()`
+
+### Step 5 — Fail paths to try
+
+| Try | Expect |
+|-----|--------|
+| Unknown username | 401 / bad credentials |
+| Wrong password | 401 / bad credentials |
+| Valid user, missing role for URL | 403 if you add `hasRole` rules |
+
+Example role rule:
+
+```java
+.requestMatchers("/admin/**").hasRole("ADMIN")
+```
+
+---
+
+## Topic 7 — How to reason when login breaks
+
+Ask in order:
+
+1. Is `UserDetailsService` a Spring bean?  
+2. Is the password in DB really BCrypt (not plain)?  
+3. Are you encoding again on login by mistake?  
+4. Is the URL permitted or secured as you think?  
+5. Did the `Authentication` land in `SecurityContext` after success?
+
+---
+
+## Short map to keep
+
+```text
+Filter receives credentials
+  → AuthenticationManager
+  → DaoAuthenticationProvider
+  → UserDetailsService + PasswordEncoder
+  → authenticated Authentication
+  → SecurityContext ( (+ session if stateful) )
+  → Authorization filters / method security
+  → Controller
+```
+
+---
+
+## Exercises
+
+1. Why is a home-grown `/login` that only checks strings risky?  
+2. What does `DaoAuthenticationProvider` need from you?  
+3. Difference between unauthenticated and authenticated tokens?  
+4. Name the four filter “groups” from the mental model.  
+5. Stateful login remembers the user using what browser artifact?
+
+---
+
+## Self-check
+
+1. Who usually calls `UserDetailsService` — your controller or a provider?  
+2. True/False: Authorization runs before Authentication in a normal success path.  
+3. What HTTP status often means “authenticated but not allowed”?  
+4. Why do people disable CSRF on some JSON APIs?
+
+Answers: [self-check-answers](self-check-answers.qmd)
