@@ -1,0 +1,10 @@
+---
+title: "Lecture 31 — Self-check answers"
+sidebar: mfml
+---
+
+1. How well does the ERM hypothesis trained on one sample perform on another sample from the same $P_{X,Y}$?
+2. $h^\star(x)=\mathbb{E}[Y\mid X=x]$.
+3. The leftover error from label randomness $\varepsilon=Y-h^\star(X)$ that no hypothesis can remove.
+4. Bias = distance from the true/ideal minimizer; variance = sensitivity to changing the training set.
+5. Abundant data + expressive models can approximate $h^\star$ stably; the small-sample tradeoff softens.

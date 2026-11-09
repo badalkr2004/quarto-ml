@@ -1,0 +1,117 @@
+---
+title: "Lecture 31 — Bias–Variance Decomposition and Analysis"
+subtitle: "Generalization = how ERM behaves on unseen samples from the same law"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 31 — Bias - Variance Decomposition and Analysis](https://www.youtube.com/watch?v=0RCDPOz3YVc)
+
+## Learning goals
+
+- State the **generalization** question: performance on a fresh sample from $P_{X,Y}$.
+- Decompose (squared) risk into **bias**, **variance**, and **irreducible noise**.
+- Interpret bias as distance from the ideal risk minimizer; variance as sensitivity to the training set.
+
+## Before this clicks
+
+True risk $R(h)=\mathbb{E}_{(X,Y)\sim P}[L(h(X),Y)]$ is an expectation over the **whole** joint. ERM replaces that by an average on a finite sample $\mathcal{D}$. Different draws of $\mathcal{D}$ yield different $\hat{h}_{\mathcal{D}}$. Generalization asks whether $\hat{h}_{\mathcal{D}}$ still does well on new draws from the same $P$.
+
+---
+
+## Main ideas
+
+### 1. The generalization question
+
+Given IID $\mathcal{D}=\{(x_i,y_i)\}_{i=1}^{n}\sim P_{X,Y}$, ERM returns a hypothesis $\hat{h}_{\mathcal{D}}$ in some class $\mathcal{H}$.
+
+> **Generalization:** how well does $\hat{h}_{\mathcal{D}}$ perform on **another** sample from the same $P_{X,Y}$?
+
+Doing well only on the training sample is not the goal (X-ray diagnosis on unseen patients, etc.).
+
+If we could minimize **true** risk, any fresh sample from $P$ would be fine. Trouble comes from the **empirical** surrogate at finite $n$.
+
+### 2. Squared-error setting (analysis template)
+
+For $L(h(x),y)=(h(x)-y)^2$, risk is
+
+$$
+R(h)=\mathbb{E}_{X,Y}\big[(h(X)-Y)^2\big].
+$$
+
+The ideal predictor (Bayes regressor under squared loss) is the conditional mean
+
+$$
+h^\star(x)=\mathbb{E}[Y\mid X=x]
+$$
+
+(prove as homework: expand and use properties of conditional expectation).
+
+Writing $Y=h^\star(X)+\varepsilon$ with $\varepsilon=Y-h^\star(X)$, the leftover $\mathbb{E}[\varepsilon^2\mid X]$ is **irreducible noise** (label noise we cannot remove by choosing $h$).
+
+### 3. Bias and variance of a learning algorithm
+
+Think of the training set $\mathcal{D}$ as random. Then $\hat{h}_{\mathcal{D}}$ is a random function. Roughly (pointwise intuition used in class):
+
+| Term | Meaning |
+|------|---------|
+| **Bias** | How far the *average* learned predictor sits from $h^\star$ (reality / true risk minimizer in $\mathcal{H}$’s sense) |
+| **Variance** | How much $\hat{h}_{\mathcal{D}}$ jumps when $\mathcal{D}$ is replaced by another draw |
+| **Noise** | Uncontrollable label randomness |
+
+Algebraically, for squared loss, expected prediction error at a fixed $x$ decomposes into bias$^2$ + variance + noise. The lecture emphasizes the verbal meaning as much as the algebra:
+
+- Low bias: close to the true risk minimizer.
+- Low variance: stable across datasets.
+
+Both must be small for small risk. In **small-sample** regimes they typically **trade off** (bias–variance dilemma). With huge $n$ and huge capacity (modern GenAI scale), both can be driven down together.
+
+### 4. Parameters vs hyperparameters (aside)
+
+In a GMM, means / covariances / mixing weights are **parameters** fit by EM/MLE. The number of components $K$ is a **hyperparameter** (chosen outside the inner optimizer). Bias–variance thinking applies to that outer choice too.
+
+### 5. Bridge
+
+Next lecture: a concrete 1-D regression picture of over-/underfitting, then regularization as a way to **increase bias** deliberately to cut variance.
+
+---
+
+## Worked mini-example
+
+Suppose $Y=f(X)+\varepsilon$ with $\mathbb{E}[\varepsilon\mid X]=0$, and two algorithms:
+
+1. Always output the constant $0$ (ignore data): **high bias**, **zero variance**.
+2. Interpolate every training point with a wild high-degree fit: **near-zero training bias**, **huge variance** across draws of $\mathcal{D}$.
+
+Expected test error of (1) stays large even as $n\to\infty$ if $f\not\equiv 0$. Error of (2) can stay large at small $n$ because a new sample of $\varepsilon$ moves the interpolant a lot.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Bias = “unfairness / ethics bias” | Here it is statistical **approximation** bias vs $h^\star$. |
+| Variance of $Y$ = model variance | Model variance is variability of $\hat{h}_{\mathcal{D}}$ across datasets. |
+| Training error $=0$ means solved | Can be low bias + **high variance** (overfitting preview). |
+| Decomposition only for classification | Lecture derives the clean form for **squared** loss; other losses have analogues with messier algebra. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie, Tibshirani, Friedman, *Elements of Statistical Learning* — bias–variance
+- Bishop, *PRML* §3.2 — bias–variance for regression
+
+## Self-check questions
+
+1. What is the generalization question in one sentence?
+2. For squared loss, what is $h^\star(x)$?
+3. What is irreducible noise?
+4. Bias vs variance: which asks “how far from reality?” vs “how sensitive to $\mathcal{D}$?”
+5. Why can both bias and variance be small simultaneously when $n$ and capacity are huge?
+
+*(Short answers are in `self-check-answers.qmd`.)*
