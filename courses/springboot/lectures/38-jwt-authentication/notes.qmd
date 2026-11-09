@@ -1,30 +1,207 @@
 ---
 title: "Lecture 38 — JWT authentication"
-subtitle: "Stateless tokens"
+subtitle: "Stateless security with signed tokens (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [JWT authentication \| Full Course #38](https://www.youtube.com/watch?v=pUWp1EuVnGs)  
-**Playlist index:** 38
+**Video:** [Spring JWT Authentication \| JWT Internals & Stateless Security \| Full Course #38](https://www.youtube.com/watch?v=pUWp1EuVnGs)  
+**Playlist index:** 38  
+**Builds on:** [Lecture 37](../37-security-auth-internals/notes.qmd)
 
 ---
-## Big idea
 
-JWT = signed token the client sends each request. Server does not store session (stateless).
+## Big idea in one line
+
+HTTP requests do not remember each other.  
+**Stateful** apps remember you with a **server session**. **Stateless JWT** apps remember you by sending a **signed token** on every request—and the server rebuilds `Authentication` from that token.
 
 ```text
-Login → JWT
-Request + Authorization: Bearer <token> → filter validates → SecurityContext
+STATEFUL                         STATELESS (JWT)
+────────                         ───────────────
+login → create session           login → create JWT
+cookie: session id               client stores token
+next request: cookie             next request: Authorization: Bearer <jwt>
+server loads session context     server verifies signature → builds Authentication
 ```
 
-## Practice
+---
 
-Issue JWT on login; create filter that validates JWT; protect APIs.
+## Topic 1 — Why sessions feel “sticky”
+
+After form/basic login with sessions:
+
+- Server stores security info (or a pointer to it)
+- Browser sends session cookie automatically
+- Scale-out needs sticky sessions or shared session store
+
+That works. APIs and mobile clients often prefer **tokens** instead.
+
+---
+
+## Topic 2 — What a JWT is
+
+**JWT** = JSON Web Token (often said “jot”).
+
+Three parts separated by dots:
+
+```text
+header.payload.signature
+```
+
+| Part | Holds |
+|------|-------|
+| Header | Algorithm + type (e.g. HS256, JWT) |
+| Payload | Claims (`sub`, roles, `exp`, …) — **readable** (Base64), not secret |
+| Signature | Proves the payload was not tampered with (needs server secret/key) |
+
+```text
+Anyone can decode payload
+Only someone with the key can forge a valid signature
+```
+
+**Important:** default signed JWT is **not encryption**. Do not put passwords or secrets inside claims.
+
+Related ideas (names only):
+
+- **JWS** — signed token (common API JWT)
+- **JWE** — encrypted token (different goal)
+
+---
+
+## Topic 3 — Login + Bearer usage
+
+```text
+1) Client POST /login { username, password }
+2) Server authenticates (AuthenticationManager)
+3) Server builds JWT (subject, roles, expiry) and signs it
+4) Client saves token
+5) Later: Authorization: Bearer eyJhbGciOi...
+6) Jwt filter verifies signature + expiry → sets SecurityContext
+```
+
+### Session policy for APIs
+
+```java
+http.sessionManagement(sm ->
+    sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+);
+```
+
+Plain words: do **not** create an HTTP session for security. Each request must carry proof.
+
+---
+
+## Topic 4 — Custom JWT filter (idea)
+
+Place a filter **before** username/password filters:
+
+```text
+Request
+  → JwtAuthFilter
+       if Bearer token present:
+         parse + verify
+         build Authentication
+         SecurityContextHolder.getContext().setAuthentication(...)
+  → rest of chain
+  → controller
+```
+
+If no token and URL is public → continue.  
+If token invalid → 401.  
+If valid → authorization rules use the authorities from the token/DB policy you chose.
+
+---
+
+## Topic 5 — Practice lab (IDE)
+
+### Step 1 — Dependencies
+
+- Spring Web, Spring Security, JPA (as before)
+- A JWT library commonly used in courses (e.g. JJWT) — add matching version for your Boot/Java
+
+### Step 2 — `JwtService` responsibilities
+
+Keep it small:
+
+- `generateToken(username, roles)` → string
+- `extractUsername(token)`
+- `isValid(token, username)` / check expiry
+
+Use a long random **secret** from config (`application.properties`), never hard-code in git for real apps.
+
+### Step 3 — Login endpoint
+
+```java
+@PostMapping("/login")
+public Map<String, String> login(@RequestBody LoginRequest req) {
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(req.username(), req.password())
+    );
+    String token = jwtService.generateToken(req.username());
+    return Map.of("token", token);
+}
+```
+
+Only issue a token **after** authentication succeeds.
+
+### Step 4 — Security config
+
+- Stateless sessions
+- CSRF disabled for token API demos
+- Permit `/register`, `/login`
+- Add JWT filter into the chain
+- `anyRequest().authenticated()`
+
+### Step 5 — Postman flow
+
+1. Register user  
+2. Login → copy token  
+3. Call `/api/secure` with header `Authorization: Bearer <token>`  
+4. Tamper one character of the token → should fail signature check  
+5. Wait until `exp` passes → should fail as expired  
+
+---
+
+## Topic 6 — Design trade-offs (honest)
+
+| Topic | Note |
+|-------|------|
+| Logout | Server cannot “delete” a pure JWT easily; use short expiry + refresh strategy / blocklist if needed |
+| Secret leak | Attacker can forge tokens until you rotate keys |
+| Fat tokens | Huge payloads waste bandwidth; keep claims small |
+| Revocation | Not free in pure stateless design |
+
+---
+
+## Short map to keep
+
+```text
+JWT = header.payload.signature
+Payload is readable → signature is the trust
+Login verifies password → issues JWT
+Each request: Bearer token → verify → SecurityContext
+SessionCreationPolicy.STATELESS for token APIs
+```
+
+---
+
+## Exercises
+
+1. Why can clients decode the JWT payload without the secret?  
+2. What does the signature protect against?  
+3. Difference between stateful session security and JWT stateless security?  
+4. Where does the client send the JWT on later requests?  
+5. Why avoid putting the password inside JWT claims?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. True/False: A normal signed JWT hides its claims from everyone.  
+2. What Spring setting avoids creating HTTP sessions for API auth?  
+3. When should you generate the JWT — before or after AuthenticationManager succeeds?  
+4. Name the three JWT segments.
+
+Answers: [self-check-answers](self-check-answers.qmd)

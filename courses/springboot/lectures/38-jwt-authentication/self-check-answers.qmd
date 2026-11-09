@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Signed token.\n2. Bearer header.\n3. Stateless server.
+## Exercises (sample)
+
+1. Payload is Base64-encoded JSON, not encrypted; encoding ≠ secrecy.
+2. Tampering: changing claims without the signing key fails verification.
+3. Stateful stores auth on the server (session); JWT sends self-contained proof each time and rebuilds auth from the token.
+4. Usually `Authorization: Bearer <token>`.
+5. Anyone who gets the token can read claims; passwords must never travel that way.
+
+## Self-check
+
+1. **False.** Claims are readable; signature provides integrity/authenticity, not confidentiality.
+2. `SessionCreationPolicy.STATELESS`.
+3. **After** credentials are authenticated successfully.
+4. Header, payload, signature.
