@@ -1,0 +1,107 @@
+---
+title: "Lecture 41 — Neural Networks and Universal Approximation Theorem"
+subtitle: "A multilayer net is a flexible function class that can approximate almost any continuous map"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 41 — Neural Networks and Universal Approximation Theorem](https://www.youtube.com/watch?v=npYHSFuqnzs)
+
+## Learning goals
+
+- See a neural net as a **parameterized function class** $f_\theta$, not as a biological model.
+- Write a one-hidden-layer MLP as stacked affine maps plus a nonlinearity.
+- State the **universal approximation theorem (UAT)** in plain English: with enough hidden units, one hidden layer can approximate continuous functions on a compact set arbitrarily well.
+- Separate **approximation power** (what $\mathcal{H}$ can represent) from **learning** (finding good $\theta$ from data).
+
+## Before this clicks
+
+From earlier lectures: ERM picks $\hat{h}$ inside a hypothesis class $\mathcal{H}$ by minimizing average loss on the sample. Linear models and kernel SVMs are two choices of $\mathcal{H}$. Neural nets are another: highly flexible maps $x\mapsto f_\theta(x)$ built by composing simple pieces. The UAT answers “is this class rich enough?” — not “how do we train it?” (that is the next lecture).
+
+---
+
+## Main ideas
+
+### 1. From features to layers
+
+A linear predictor $w^\top x+b$ is limited. Kernel methods lift $x$ with a fixed $\phi$. A neural net **learns** intermediate features: each layer is an affine transform followed by a pointwise nonlinearity $\sigma$ (the **activation**).
+
+One hidden layer (multilayer perceptron / MLP):
+
+$$
+f_\theta(x)=W^{(2)}\,\sigma\!\big(W^{(1)}x+b^{(1)}\big)+b^{(2)}.
+$$
+
+Here $\theta$ collects all weights and biases. The hidden units are $\sigma(w_j^\top x+b_j)$; stacking many of them and mixing with $W^{(2)}$ builds rich shapes.
+
+Common activations: sigmoid / logistic $\sigma(z)=1/(1+e^{-z})$, $\tanh$, and modern ReLU $\sigma(z)=\max(0,z)$.
+
+### 2. Depth as composition
+
+Deeper nets compose several such blocks:
+
+$$
+h^{(\ell)}=\sigma\!\big(W^{(\ell)}h^{(\ell-1)}+b^{(\ell)}\big),\qquad h^{(0)}=x.
+$$
+
+Composition lets later layers reuse earlier features (edges $\to$ textures $\to$ objects, in vision lore). UAT already holds for **one** sufficiently wide hidden layer under mild conditions on $\sigma$; depth is about efficient representation and learning, not bare existence of an approximator.
+
+### 3. Universal approximation theorem (idea)
+
+**Claim (Cybenko / Hornik style, informal):** Fix a non-polynomial activation $\sigma$ (e.g. sigmoid). On a compact set $K\subset\mathbb{R}^{d}$ (a closed bounded box), for any continuous target $g:K\to\mathbb{R}$ and any $\varepsilon>0$, there exist a width $m$ and parameters $\theta$ such that
+
+$$
+\sup_{x\in K}\big|f_\theta(x)-g(x)\big|<\varepsilon
+$$
+
+for a one-hidden-layer net $f_\theta$ with $m$ hidden units.
+
+So the hypothesis class of wide enough shallow nets is **dense** among continuous functions on $K$: you can approximate any continuous $g$ as closely as you like.
+
+What UAT does **not** say:
+
+- How large $m$ must be for a given $g$ (can be huge).
+- That gradient-based ERM will find those parameters.
+- That finite-$n$ generalization is automatic.
+
+### 4. Why this matters in the MFML arc
+
+Kernels give powerful nonlinear separators but struggle at web-scale raw inputs. Nets give a trainable, compositional $\mathcal{H}$ with UAT as existence insurance: if a continuous rule is worth approximating, some net can get close. The practical agenda becomes **optimization** (backprop) and **structure** (CNN/RNN inductive bias) — next lectures.
+
+---
+
+## Worked mini-example
+
+Approximate $g(x)=\sin(\pi x)$ on $[-1,1]$ with one hidden layer of sigmoids. Each hidden unit is a soft step; a weighted sum of a few shifted/scaled sigmoids can sketch one hump of the sine. With enough units the uniform error on $[-1,1]$ can be driven below any $\varepsilon$ (UAT); fitting the weights from samples is a separate ERM problem.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| UAT means deep nets always win | UAT is about **representability**, not trainability or sample efficiency. |
+| Need infinite depth for universality | One wide hidden layer already suffices for the classical theorem. |
+| Neurons “are” brain neurons | Useful metaphor only; math is composed affine + nonlinear maps. |
+| Approximation = generalization | Fitting $g$ in the limit $\neq$ small risk from finite noisy data. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Cybenko (1989); Hornik (1991) — universal approximation
+- Goodfellow, Bengio, Courville — *Deep Learning* (Ch. on MLPs / capacity)
+- Bishop — *PRML* (neural networks chapter)
+
+## Self-check questions
+
+1. Write a one-hidden-layer MLP $f_\theta(x)$ with activation $\sigma$.
+2. In one sentence, what does the universal approximation theorem claim?
+3. Name two things UAT does **not** guarantee.
+4. Why might depth still help even if one layer is universal?
+5. How does a learned hidden layer differ from a fixed kernel feature map $\phi$?
+
+*(Short answers are in `self-check-answers.qmd`.)*

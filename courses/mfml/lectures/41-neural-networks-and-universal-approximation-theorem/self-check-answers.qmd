@@ -1,0 +1,10 @@
+---
+title: "Lecture 41 — Self-check answers"
+sidebar: mfml
+---
+
+1. $f_\theta(x)=W^{(2)}\,\sigma(W^{(1)}x+b^{(1)})+b^{(2)}$ (equivalent notations OK).
+2. With a suitable activation and enough hidden units, a one-hidden-layer net can uniformly approximate any continuous function on a compact set to arbitrary accuracy.
+3. Size of the net needed; that training will find the parameters; that finite-sample generalization is automatic (any two of these).
+4. Deeper compositions can represent some functions more efficiently and learn hierarchical features more easily.
+5. Hidden features depend on trainable $\theta$; a kernel $\phi$ is fixed before seeing labels (aside from kernel hyperparameters).
