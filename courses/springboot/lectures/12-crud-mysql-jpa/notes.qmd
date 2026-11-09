@@ -1,0 +1,87 @@
+---
+title: "Lecture 12 — CRUD with MySQL and Spring Data JPA"
+subtitle: "Replace the in-memory list with a real database"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [CRUD with MySQL and Spring Data JPA \| Full Course #12](https://www.youtube.com/watch?v=uRr8_0x_HYw)  
+**Playlist index:** 12
+
+---
+## Big idea
+
+Same CRUD API as lecture 11, but data lives in **MySQL** through **Spring Data JPA**.
+
+```text
+Controller → Service → JpaRepository → Hibernate → MySQL
+```
+
+## What you add
+
+| Piece | Meaning |
+|-------|---------|
+| `spring-boot-starter-data-jpa` | JPA + Hibernate starter |
+| MySQL driver | Talk to MySQL |
+| `application.properties` | URL, user, password |
+| `@Entity` | Java class ↔ table |
+| `JpaRepository` | Ready-made save/find/delete methods |
+
+## Properties (example)
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/productdb
+spring.datasource.username=root
+spring.datasource.password=secret
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+```
+
+**Never commit real passwords.** Use env vars when you can.
+
+## Entity
+
+```java
+@Entity
+public class Product {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private double price;
+    // getters/setters
+}
+```
+
+## Repository
+
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}
+```
+
+You get `save`, `findById`, `findAll`, `deleteById` for free.
+
+## Service change
+
+Inject `ProductRepository` instead of a `List`. Call repository methods.
+
+## Practice checklist
+
+1. Create MySQL database `productdb`.
+2. Add JPA + MySQL dependencies.
+3. Convert model to `@Entity`.
+4. Add `ProductRepository`.
+5. Wire service → repository.
+6. Hit the same REST endpoints; confirm rows in MySQL.
+
+## Reasoning
+
+- `ddl-auto=update` is handy for learning; use migrations (Flyway/Liquibase) in real apps.
+- Repository interfaces keep data access thin and testable.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).

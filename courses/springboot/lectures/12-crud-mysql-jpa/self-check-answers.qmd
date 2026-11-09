@@ -1,0 +1,7 @@
+---
+title: "Lecture 12 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. `JpaRepository` methods like `save` / `findAll`.\n2. Learning convenience; prefer migrations in production.\n3. Entity = DB mapping; keep API DTOs for later lectures.
