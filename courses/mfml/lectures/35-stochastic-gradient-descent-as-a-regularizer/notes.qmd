@@ -1,0 +1,93 @@
+---
+title: "Lecture 35 — Stochastic Gradient Descent as a Regularizer"
+subtitle: "Data noise, minibatch noise, and a course checkpoint before kernels / SVMs"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 35 — Stochastic Gradient Descent as a Regularizer](https://www.youtube.com/watch?v=vKTxP9FsR90)
+
+## Learning goals
+
+- See **input perturbation** as implicit regularization.
+- Define **SGD** / minibatch gradients as noisy estimates of $\nabla\widehat{R}$.
+- Summarize the ERM+regularization worldview before SVMs.
+
+## Before this clicks
+
+Full-batch GD: $\theta\leftarrow\theta-\alpha\nabla_\theta\widehat{R}(\theta)$ using **all** $n$ points. Regularization so far: penalties, early stopping, architecture. Today: randomness in **data** or **gradients** as another regularizer.
+
+---
+
+## Main ideas
+
+### 1. Perturb the inputs, keep the labels
+
+From $\mathcal{D}=\{(x_i,y_i)\}$, build
+
+$$
+\tilde{x}_i=x_i+\varepsilon_i,\qquad\varepsilon_i\sim\mathcal{N}(0,\alpha^{2}I),
+$$
+
+and run ERM on $\tilde{\mathcal{D}}=\{(\tilde{x}_i,y_i)\}$.
+
+Claim (homework-style): ERM on $\tilde{\mathcal{D}}$ $\Leftrightarrow$ **regularized** ERM on $\mathcal{D}$, with strength tied to $\alpha$ (noise scale $\leftrightarrow$ $\lambda$). Intuition: you force the hypothesis to stay stable under small input wiggles — a smoothness / robustness bias.
+
+Same moral appears in modern generative modeling (noise as regularization; vanishing gradients / mode collapse mentioned as forward pointers).
+
+### 2. Stochastic gradient descent
+
+Instead of $\nabla\widehat{R}$ on all data, sample a minibatch $B$ of size $b$ (32, 64, …) and use
+
+$$
+\theta\leftarrow\theta-\alpha\,\nabla_\theta\widehat{R}_{B}(\theta),
+$$
+
+where $\widehat{R}_{B}$ is the empirical risk on $B$ only. That gradient is a **noisy / stochastic** estimate of the full gradient.
+
+Reasons:
+
+1. **Compute:** full gradients may be infeasible at huge $n$.
+2. **Regularization:** empirically, SGD often **generalizes better** than full-batch GD — noise acts like a regularizer (related to not sitting in sharp minima; class emphasis is the regularization effect).
+
+### 3. Course checkpoint
+
+ML algorithms = choose hypothesis class + loss + regularizer, then optimize (usually SGD). Same skeleton for discriminative / generative, supervised / unsupervised.
+
+**Coming next:** kernel methods and **SVMs** (elegant, historically SOTA, less dominant than nets today). Brush up **primal/dual**, Lagrange multipliers, **KKT** conditions. After SVMs: neural nets, backprop, CNN/RNN/Transformers, then trees / unsupervised topics.
+
+---
+
+## Worked mini-example
+
+Squared loss, one parameter, two points. Full gradient averages both. Minibatch size $1$ randomly picks one point’s gradient each step — updates jitter around the full-batch path. That jitter is the “stochastic” in SGD; shrinking the learning rate averages noise over time.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| SGD is only for speed | Speed matters, but noise also **regularizes**. |
+| Batch size must be 1 | Any $b\ll n$ is stochastic; $b=n$ recovers batch GD. |
+| Input noise changes $P_{X,Y}$ | Yes — that distributional change is exactly why the effective objective gains a regularizer. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al., *Deep Learning* — SGD / implicit regularization
+- Bishop / Murphy — optimization in ML
+
+## Self-check questions
+
+1. How can adding Gaussian noise to inputs act as regularization?
+2. Write one SGD update with minibatch empirical risk $\widehat{R}_{B}$.
+3. What is “batch size”?
+4. Give two reasons people prefer SGD over full-batch GD.
+5. What optimization background should you review before SVMs?
+
+*(Short answers are in `self-check-answers.qmd`.)*

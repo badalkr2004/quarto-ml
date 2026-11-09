@@ -1,0 +1,10 @@
+---
+title: "Lecture 35 — Self-check answers"
+sidebar: mfml
+---
+
+1. ERM on noisy inputs is equivalent (under analysis) to penalized ERM on clean inputs — stability under perturbations.
+2. $\theta\leftarrow\theta-\alpha\nabla\widehat{R}_{B}(\theta)$.
+3. Number of samples used to form the stochastic gradient.
+4. Computational feasibility on large $n$; better generalization via gradient noise.
+5. Primal/dual formulations, Lagrange multipliers, KKT conditions.
