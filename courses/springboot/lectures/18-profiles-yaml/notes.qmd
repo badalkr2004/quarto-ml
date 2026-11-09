@@ -1,0 +1,289 @@
+---
+title: "Lecture 18 — Profiles & YAML"
+subtitle: "Dev vs prod settings without rewriting code"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot Profiles & YAML Explained \| Dev vs Prod Configuration \| Spring Boot Full Course #18](https://www.youtube.com/watch?v=K3H-rqhndEM)  
+**Playlist index:** 18  
+**Builds on:** `application.properties` / `@Value` from lecture 10
+
+---
+
+## Big idea in one line
+
+**Same app, different environments.**  
+Use **profiles** (`dev`, `prod`, …) and optionally **YAML** so port, DB URL, logging, and feature flags change without editing Java.
+
+```text
+application.yml          ← shared defaults
+application-dev.yml      ← local/dev overrides
+application-prod.yml     ← production overrides
+
+spring.profiles.active=dev   ← which override pack is on
+```
+
+---
+
+## Why profiles?
+
+| Environment | Typical needs |
+|-------------|---------------|
+| **dev** | H2 or local Postgres, verbose logs, maybe fake mail |
+| **prod** | real DB, less noisy logs, real secrets from env |
+
+Hard-coding `localhost` in Java breaks the day you deploy. Profiles keep environment details in config files.
+
+---
+
+## Topic 1 — YAML vs properties (same idea)
+
+Both are Spring config. YAML is nested and often easier to read:
+
+**properties**
+
+```properties
+server.port=8080
+spring.datasource.url=jdbc:h2:mem:demo
+```
+
+**YAML**
+
+```yaml
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:h2:mem:demo
+```
+
+Indentation matters in YAML. Wrong spaces = startup fail.
+
+You can keep `.properties` if you prefer. Profiles work with both:
+
+- `application-dev.properties` / `application-dev.yml`
+
+---
+
+## Topic 2 — Profile-specific files
+
+```text
+src/main/resources/
+  application.yml           # always loaded
+  application-dev.yml       # when profile "dev" is active
+  application-prod.yml      # when profile "prod" is active
+```
+
+Example `application.yml`:
+
+```yaml
+spring:
+  application:
+    name: demo-api
+
+server:
+  port: 8080
+```
+
+Example `application-dev.yml`:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:h2:mem:devdb
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG
+```
+
+Example `application-prod.yml`:
+
+```yaml
+server:
+  port: 80
+
+spring:
+  datasource:
+    url: jdbc:postgresql://db.example.com:5432/app
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+```
+
+**Merge rule (simple mental model):** base file loads first; active profile file(s) **override** matching keys.
+
+---
+
+## Topic 3 — How to activate a profile
+
+### A) Inside config (good for local default)
+
+```yaml
+spring:
+  profiles:
+    active: dev
+```
+
+### B) IDE run configuration
+
+IntelliJ / Eclipse: VM option or program arg:
+
+```text
+-Dspring.profiles.active=dev
+```
+
+or
+
+```text
+--spring.profiles.active=dev
+```
+
+### C) Command line when running the jar
+
+```bash
+java -jar app.jar --spring.profiles.active=prod
+```
+
+### D) Environment variable
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+```
+
+**Practical tip:** do not bake `prod` as the only default in the repo. Prefer `dev` locally; set `prod` on the server.
+
+---
+
+## Topic 4 — `@Profile` on beans
+
+Sometimes whole beans should exist only in one environment:
+
+```java
+@Configuration
+@Profile("dev")
+public class DevMailConfig {
+    @Bean
+    MailSender mailSender() {
+        return new LoggingMailSender(); // prints to console
+    }
+}
+```
+
+```java
+@Configuration
+@Profile("prod")
+public class ProdMailConfig {
+    @Bean
+    MailSender mailSender() {
+        return new SmtpMailSender();
+    }
+}
+```
+
+Only the matching profile’s `@Bean`s get created.
+
+You can also put `@Profile("dev")` on a `@Component` / `@Service`.
+
+---
+
+## Topic 5 — Reading values still works the same
+
+```java
+@Value("${server.port}")
+private int port;
+```
+
+Or type-safe `@ConfigurationProperties` for groups of keys (nice when YAML nests many settings).
+
+Active profiles are visible at runtime via `Environment`:
+
+```java
+@Autowired
+Environment env;
+
+// env.getActiveProfiles()
+```
+
+---
+
+## Picture: startup with profiles
+
+```text
+Boot starts
+  │
+  ├─ load application.yml
+  ├─ see active profile = dev
+  ├─ load application-dev.yml (overrides)
+  ├─ create only @Profile("dev") beans
+  └─ app runs with merged Environment
+```
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Switch to YAML (optional)
+
+1. Rename `application.properties` → `application.yml` (or add YAML beside it).  
+2. Move `server.port` and app name into YAML.  
+3. Run — app should still start.
+
+### Step 2 — Add profile files
+
+Create `application-dev.yml` and `application-prod.yml` with **different ports**, e.g. 8081 vs 8082, and different `logging.level`.
+
+### Step 3 — Activate `dev`
+
+Set `spring.profiles.active=dev` (file or IDE).  
+Run → confirm the **dev** port.
+
+### Step 4 — Switch to `prod` in the IDE
+
+Change active profile to `prod`, run again → **prod** port / logging should apply.
+
+### Step 5 — Profile-only bean
+
+Add a `@Component` `@Profile("dev")` that prints `"Dev bean loaded"` in `@PostConstruct`.  
+Run with `dev` → see message. Run with `prod` → bean absent.
+
+---
+
+## Short map to keep
+
+```text
+application.yml        = shared
+application-{name}.yml = overrides for that profile
+spring.profiles.active = which override pack
+@Profile("dev")        = create this bean only when dev is on
+YAML ≈ nested properties (watch indentation)
+```
+
+---
+
+## Exercises
+
+1. Why keep DB URLs out of Java source?  
+2. What file loads for profile `qa`?  
+3. Name two ways to set the active profile.  
+4. What does `@Profile("prod")` do on a `@Configuration` class?  
+5. True/False: profile YAML replaces the whole base file (nothing from base remains).
+
+---
+
+## Self-check
+
+1. What is a Spring profile in one sentence?  
+2. Does YAML change how `@Value` works?  
+3. Which is safer as a repo default for local work: `dev` or `prod`?  
+4. How do you confirm which profile is active while debugging?
+
+Answers: [self-check-answers](self-check-answers.qmd)

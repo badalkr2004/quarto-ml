@@ -1,0 +1,20 @@
+---
+title: "Lecture 18 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Environments differ; hard-coded URLs force rebuilds and risk pointing prod at localhost (or the reverse).
+2. `application-qa.yml` or `application-qa.properties` (plus the base `application` file).
+3. Examples: `spring.profiles.active` in config, `--spring.profiles.active=...`, `-Dspring.profiles.active=...`, `SPRING_PROFILES_ACTIVE`.
+4. Beans defined in that config are registered **only** when `prod` is active.
+5. **False.** Base keys remain unless the profile file overrides the same keys.
+
+## Self-check
+
+1. A named environment switch that loads matching config (and can include/exclude beans).
+2. **No.** Same property keys; YAML is just another format.
+3. **`dev`** for local defaults; set `prod` on the server.
+4. Check startup logs, IDE run config, or `Environment.getActiveProfiles()`.
