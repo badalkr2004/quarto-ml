@@ -1,0 +1,10 @@
+---
+title: "Lecture 47 — Self-check answers"
+sidebar: mfml
+---
+
+1. The previous cell state $c_{t-1}$ (elementwise): $f_t\odot c_{t-1}$.
+2. $c_t=f_t\odot c_{t-1}+i_t\odot\tilde{c}_t$.
+3. When $f_t\approx 1$, the recurrence is nearly additive / identity in $c$, so gradients need not vanish through many saturating $W_{hh}$ products.
+4. Old state $h_{t-1}$ and candidate $\tilde{h}_t$: $h_t=(1-z_t)\odot h_{t-1}+z_t\odot\tilde{h}_t$.
+5. GRU has fewer parameters / no separate cell $c_t$; LSTM has explicit forget/input/output gates and cell state (either contrast is fine).
