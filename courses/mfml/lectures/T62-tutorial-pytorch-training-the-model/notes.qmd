@@ -1,0 +1,136 @@
+---
+title: "Tutorial 13 — PyTorch: Training the Model"
+subtitle: "Loss, optimizer step, and the standard train loop"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 13 — PyTorch: Training the Model](https://www.youtube.com/watch?v=5PruFG5g1C4)
+
+## Learning goals
+
+- Wire **loss** + **optimizer** to an `nn.Module`.
+- Write the canonical train step: zero grad $\to$ forward $\to$ loss $\to$ backward $\to$ step.
+- Track a simple train/val metric and switch `train()` / `eval()` modes.
+
+## Before this clicks
+
+Tutorials 11–12 gave you batches and a differentiable model. Training is empirical risk minimization on mini-batches: approximate
+
+$$
+\min_\theta\;\mathbb{E}_{(x,y)}\big[\ell(f_\theta(x),y)\big]
+$$
+
+by stochastic gradient steps. One loop over the training set is an **epoch**.
+
+---
+
+## Main ideas
+
+### 1. Loss and optimizer
+
+```python
+import torch.nn as nn
+import torch.optim as optim
+
+criterion = nn.CrossEntropyLoss()   # classification logits vs class index
+# criterion = nn.MSELoss()         # regression
+optimizer = optim.SGD(model.parameters(), lr=1e-2)
+# optimizer = optim.Adam(model.parameters(), lr=1e-3)
+```
+
+`CrossEntropyLoss` expects raw **logits** of shape $(B,C)$ and integer labels of shape $(B,)$ — it applies log-softmax internally. Do **not** softmax before it.
+
+### 2. One training step
+
+$$
+\theta \leftarrow \theta - \eta\,\widehat{\nabla}_\theta L_{\mathrm{batch}}(\theta)
+$$
+
+in code:
+
+```python
+model.train()
+for xb, yb in train_loader:
+    optimizer.zero_grad()
+    logits = model(xb)
+    loss = criterion(logits, yb)
+    loss.backward()
+    optimizer.step()
+```
+
+Order matters: clear old grads, compute loss, backprop, then apply the update.
+
+### 3. Evaluation
+
+```python
+model.eval()
+correct, total = 0, 0
+with torch.no_grad():
+    for xb, yb in val_loader:
+        pred = model(xb).argmax(dim=1)
+        correct += (pred == yb).sum().item()
+        total += yb.size(0)
+acc = correct / total
+```
+
+`model.eval()` changes Dropout / BatchNorm behavior; `no_grad` skips the graph.
+
+### 4. Device placement
+
+```python
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+xb, yb = xb.to(device), yb.to(device)
+```
+
+Model and batch must live on the **same** device.
+
+### 5. What to log
+
+Per epoch (or every few steps): train loss, val loss/accuracy, learning rate. Overfitting often shows train loss falling while val loss rises.
+
+---
+
+## Worked mini-example
+
+Binary-ish 2-class toy with $B=4$, $C=2$. Model outputs logits
+
+$$
+Z=\begin{bmatrix}2.0&0.1\\0.3&1.5\\1.2&0.8\\0.1&2.2\end{bmatrix},\quad
+y=\begin{bmatrix}0\\1\\0\\1\end{bmatrix}.
+$$
+
+`CrossEntropyLoss` averages $-\log p_{y_i}$ over the batch after softmax. Predictions via `argmax` are $[0,1,0,1]$ — accuracy $1.0$ on this lucky batch. Real training repeats many noisy batches until average loss drops.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Softmax then `CrossEntropyLoss` | Double softmax path; pass **logits** instead. |
+| Forget `zero_grad` | Gradients accumulate; steps become wrong. |
+| `model.eval()` freezes weights | It only changes layer **behavior**; weights still change if you call `step`. |
+| Train accuracy alone | Always check a held-out set. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- [torch.optim](https://pytorch.org/docs/stable/optim.html)
+- [CrossEntropyLoss](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html)
+- Goodfellow et al. — *Deep Learning* (SGD training)
+
+## Self-check questions
+
+1. Write the five verbs of one train step in order.
+2. What shapes does `CrossEntropyLoss` expect for logits and labels?
+3. Why call `model.eval()` during validation?
+4. What goes wrong if model is on CUDA and the batch stays on CPU?
+5. Define an epoch in one sentence.
+
+*(Short answers are in `self-check-answers.qmd`.)*

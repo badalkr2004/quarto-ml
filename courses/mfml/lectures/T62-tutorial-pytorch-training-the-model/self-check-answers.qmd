@@ -1,0 +1,10 @@
+---
+title: "Tutorial 13 — Self-check answers"
+sidebar: mfml
+---
+
+1. `zero_grad` $\to$ forward $\to$ compute loss $\to$ `backward` $\to$ `optimizer.step`.
+2. Logits $(B,C)$; integer class labels $(B,)$.
+3. So Dropout/BatchNorm (etc.) use inference behavior, not training noise/stats updates.
+4. Device mismatch error (or silent bugs if you forget `.to`); tensors must share a device.
+5. One full pass over the training dataset (all mini-batches once).
