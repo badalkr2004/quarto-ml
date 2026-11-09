@@ -1,0 +1,267 @@
+---
+title: "Lecture 17 — Exception handling"
+subtitle: "One place for API errors; clean JSON instead of ugly stack dumps"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot Exception Handling: Make Your APIs Professional \| Spring Boot Full Course #17](https://www.youtube.com/watch?v=1au7XK_b1sI)  
+**Playlist index:** 17  
+**Builds on:** [16 — DTOs & Validations](../16-dtos-validations/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**Controllers should not be full of try/catch.**  
+Throw meaningful exceptions from services; catch them in one **global handler** and return a clear JSON error body + HTTP status.
+
+```text
+Service throws ResourceNotFoundException
+        │
+        ▼
+@RestControllerAdvice
+  @ExceptionHandler(...)
+        │
+        ▼
+JSON { message, status, ... } + 404
+```
+
+---
+
+## Why central exception handling?
+
+Without it:
+
+| What clients see | Why it is bad |
+|------------------|---------------|
+| Default Whitelabel / stack-ish error | Ugly, inconsistent, sometimes leaks internals |
+| Different controllers invent different error JSON | Front-end cannot rely on one shape |
+| try/catch copy-paste | Business code gets noisy |
+
+With a global handler: **one error contract** for the whole API.
+
+---
+
+## Topic 1 — Custom business exceptions
+
+Make small exception types for real cases:
+
+```java
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+```java
+public class BadRequestException extends RuntimeException {
+    public BadRequestException(String message) {
+        super(message);
+    }
+}
+```
+
+Service example:
+
+```java
+public ProductResponse getById(Long id) {
+    Product p = productRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
+    return toResponse(p);
+}
+```
+
+Prefer **unchecked** (`RuntimeException`) so you do not pollute every method signature with `throws`.
+
+---
+
+## Topic 2 — Error response DTO
+
+Keep the client-facing error shape boring and stable:
+
+```java
+public record ApiError(
+    int status,
+    String error,
+    String message,
+    String path,
+    Instant timestamp
+) {}
+```
+
+You can add `Map<String, String> fieldErrors` for validation failures.
+
+---
+
+## Topic 3 — `@RestControllerAdvice` + `@ExceptionHandler`
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(
+            ResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        ApiError body = new ApiError(
+            404,
+            "Not Found",
+            ex.getMessage(),
+            request.getRequestURI(),
+            Instant.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiError> handleBadRequest(
+            BadRequestException ex,
+            HttpServletRequest request) {
+
+        ApiError body = new ApiError(
+            400,
+            "Bad Request",
+            ex.getMessage(),
+            request.getRequestURI(),
+            Instant.now()
+        );
+        return ResponseEntity.badRequest().body(body);
+    }
+}
+```
+
+**`@RestControllerAdvice`** = advice for all `@RestController`s + writes the return value as the response body (like `@RestController`).
+
+---
+
+## Topic 4 — Validation errors (from lecture 16)
+
+When `@Valid` fails, Spring throws `MethodArgumentNotValidException`.  
+Handle it so field messages are readable:
+
+```java
+@ExceptionHandler(MethodArgumentNotValidException.class)
+public ResponseEntity<ApiError> handleValidation(
+        MethodArgumentNotValidException ex,
+        HttpServletRequest request) {
+
+    String message = ex.getBindingResult().getFieldErrors().stream()
+        .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+        .collect(Collectors.joining("; "));
+
+    ApiError body = new ApiError(
+        400,
+        "Validation Failed",
+        message,
+        request.getRequestURI(),
+        Instant.now()
+    );
+    return ResponseEntity.badRequest().body(body);
+}
+```
+
+---
+
+## Topic 5 — Catch-all (optional but useful)
+
+```java
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ApiError> handleOther(Exception ex, HttpServletRequest request) {
+    // log the full exception for yourself
+    ApiError body = new ApiError(
+        500,
+        "Internal Server Error",
+        "Something went wrong", // do not dump stack to clients
+        request.getRequestURI(),
+        Instant.now()
+    );
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+}
+```
+
+**Rule:** log details server-side; return a safe message to the client (especially in prod).
+
+---
+
+## Picture: request with an error
+
+```text
+POST /users  (invalid email)
+  → Controller (@Valid fails)
+  → MethodArgumentNotValidException
+  → GlobalExceptionHandler
+  → 400 + { field messages }
+
+GET /products/999
+  → Service throws ResourceNotFoundException
+  → GlobalExceptionHandler
+  → 404 + { message }
+```
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Add exceptions + ApiError
+
+Create `exception` package with `ResourceNotFoundException` and `ApiError` record/class.
+
+### Step 2 — Throw from service
+
+In `getById` / `update` / `delete`, use `orElseThrow(...)` instead of returning null.
+
+### Step 3 — Global handler
+
+Add `GlobalExceptionHandler` with handlers for:
+
+1. `ResourceNotFoundException` → 404  
+2. `MethodArgumentNotValidException` → 400  
+3. (optional) generic `Exception` → 500  
+
+### Step 4 — Test in Postman
+
+1. `GET` a missing id → 404 JSON with your shape  
+2. `POST` invalid DTO → 400 with field messages  
+3. Confirm happy path still returns 200/201  
+
+### Step 5 — Confirm controllers stayed clean
+
+No try/catch needed in controller methods for these cases.
+
+---
+
+## Short map to keep
+
+```text
+Service throws domain exception
+Controller stays clean
+@RestControllerAdvice catches
+  → pick HTTP status
+  → build ApiError JSON
+Validation failures = MethodArgumentNotValidException
+```
+
+---
+
+## Exercises
+
+1. Why prefer a custom `ResourceNotFoundException` over returning `null`?  
+2. What annotation makes one class handle exceptions from many controllers?  
+3. Which exception does failed `@Valid` usually produce for `@RequestBody`?  
+4. Why should a catch-all handler avoid returning `ex.getMessage()` blindly in production?  
+5. What HTTP status fits “resource not found”?
+
+---
+
+## Self-check
+
+1. True/False: every controller method should catch its own exceptions.  
+2. What is `@ExceptionHandler` attached to?  
+3. Name one field you might put in a shared error JSON.  
+4. Does `@RestControllerAdvice` need to be component-scanned (under the main package)?
+
+Answers: [self-check-answers](self-check-answers.qmd)

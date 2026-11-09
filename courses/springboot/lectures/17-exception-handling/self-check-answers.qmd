@@ -1,0 +1,20 @@
+---
+title: "Lecture 17 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Callers get a clear failure; global handler can map it to 404 JSON. `null` is easy to mishandle and makes APIs inconsistent.
+2. `@RestControllerAdvice` (or `@ControllerAdvice`).
+3. `MethodArgumentNotValidException`.
+4. Messages / stacks can leak internals (paths, SQL, secrets). Log full detail; return a safe client message.
+5. **404 Not Found**.
+
+## Self-check
+
+1. **False.** Prefer throw + central handler so controllers stay thin.
+2. A method inside an advice/handler class (often `@RestControllerAdvice`), naming the exception type(s) it handles.
+3. Examples: `status`, `message`, `path`, `timestamp`, field error map.
+4. **Yes.** It is a Spring bean; keep it under the scanned package tree.
