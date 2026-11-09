@@ -1,0 +1,99 @@
+---
+title: "Tutorial 14A — CNNs"
+subtitle: "Convolution, pooling, and why shared filters beat a flat MLP on images"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 14 Part 1 — CNNs](https://www.youtube.com/watch?v=0wd-LIzzfM0)
+
+## Learning goals
+
+- See a CNN as an MLP with **local receptive fields** and **weight sharing**.
+- Compute a tiny 1-D / 2-D convolution and a pooling step by hand.
+- Name the usual stack: conv $\to$ nonlinearity $\to$ pool $\to$ (repeat) $\to$ dense head.
+
+## Before this clicks
+
+An image is a grid of numbers (channels $\times$ height $\times$ width). A fully connected layer on flattened pixels has one weight per pixel–unit pair — huge, and it ignores that nearby pixels matter more. A **filter** (kernel) is a small weight patch slid across the grid; the same weights are reused everywhere (**parameter sharing**). That is the practical heart of a CNN.
+
+---
+
+## Main ideas
+
+### 1. Convolution as a local weighted sum
+
+For a 1-D signal $x$ and filter $w$ of length $k$, a valid convolution output at position $t$ is
+
+$$
+z_t=\sum_{j=0}^{k-1} w_j\, x_{t+j}
+$$
+
+(plus a bias $b$ in practice). In 2-D, sum over a $k\times k$ window (and over input channels). Sliding the window builds a **feature map**.
+
+### 2. Why this helps on images
+
+| Idea | Plain English |
+|------|----------------|
+| Local connectivity | Each unit sees a patch, not the whole image |
+| Weight sharing | One edge detector is reused at every location |
+| Translation equivariance | Shift the input $\Rightarrow$ feature map shifts similarly |
+
+Fewer parameters than a dense MLP of similar “coverage,” and the inductive bias matches natural images.
+
+### 3. Nonlinearity and pooling
+
+After conv, apply an elementwise activation (commonly ReLU: $\max(0,z)$). **Pooling** (e.g. max over $2\times 2$) downsamples: keeps a strong local response, shrinks spatial size, adds mild translation robustness.
+
+### 4. Stacking and the classifier head
+
+Early layers tend to pick edges/textures; deeper maps become more abstract. Flatten (or global-pool) the last maps and feed a small MLP for class scores. Training uses the same backprop story as MLPs; gradients flow through the shared filters.
+
+### 5. Practical batching intuition
+
+A minibatch is a 4-D tensor: `(batch, channels, height, width)`. One forward pass applies the same filters to every sample in the batch. Data augmentation (crops, flips) is common because CNNs still overfit when labels are scarce.
+
+---
+
+## Worked mini-example
+
+Input row $x=[1,2,0,3]$, filter $w=[1,-1]$, bias $0$, valid conv:
+
+$$
+z_0=1\cdot 1+(-1)\cdot 2=-1,\quad
+z_1=1\cdot 2+(-1)\cdot 0=2,\quad
+z_2=1\cdot 0+(-1)\cdot 3=-3.
+$$
+
+ReLU $\Rightarrow$ $[0,2,0]$. Max-pool with width $2$, stride $2$ on $[0,2,0]$ (pad or drop the last) $\Rightarrow$ e.g. $\max(0,2)=2$. Same arithmetic, in 2-D, is what a first CNN layer does on a tiny patch.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Convolution “understands” objects by itself | Filters learn from data; architecture only biases locality/sharing |
+| Pooling is required | Common, not sacred; stride-in-conv can downsample instead |
+| More filters always better | Capacity $\uparrow$ and overfit risk $\uparrow$; need data/regularization |
+| CNN $\neq$ MLP | It **is** a constrained MLP; the constraints are the point |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (conv nets)
+- Bishop *PRML* — classical pattern recognition context
+
+## Self-check questions
+
+1. What two constraints turn a dense layer into a conv layer?
+2. For $x=[1,2,0,3]$ and $w=[1,-1]$, what is $z_1$?
+3. Why share one filter across locations?
+4. What does $2\times 2$ max-pooling do to a feature map?
+5. Name a typical CNN stack ending in a classifier.
+
+*(Short answers are in `self-check-answers.qmd`.)*

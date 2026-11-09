@@ -1,0 +1,10 @@
+---
+title: "Tutorial 14A — Self-check answers"
+sidebar: mfml
+---
+
+1. Local receptive fields and weight sharing (tied filters).
+2. $z_1=1\cdot 2+(-1)\cdot 0=2$.
+3. The same pattern (e.g. an edge) can appear anywhere; reuse parameters and keep the model small.
+4. Replaces each $2\times 2$ block by its maximum, shrinking spatial size.
+5. Conv $\to$ activation $\to$ pool (repeat) $\to$ flatten/global-pool $\to$ dense head.
