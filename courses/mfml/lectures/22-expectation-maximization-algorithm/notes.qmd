@@ -1,0 +1,129 @@
+---
+title: "Lecture 22 — Expectation Maximization Algorithm"
+subtitle: "Tight ELBO via $q=P_\theta(z\mid x)$, then alternate E and M steps"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 22 — Expectation Maximization Algorithm](https://www.youtube.com/watch?v=ejma0iH1pXE)
+
+---
+
+## Learning goals
+
+- Prove the ELBO gap equals $\mathrm{KL}\bigl(q(z)\,\|\,P_\theta(z\mid x)\bigr)$
+- Conclude the tight choice $q^\star(z)=P_\theta(z\mid x)$
+- Write the **EM** iteration (E-step / M-step)
+- Know when EM applies vs when full variational inference over $q$ is needed
+
+---
+
+## Before this clicks
+
+ELBO: $L(\theta)=\log P_\theta(x)\ge F(\theta,q)=\mathbb{E}_q[\log P_\theta(x,z)-\log q(z)]$.  
+KL divergence between two distributions on $Z$. Posterior $P_\theta(z\mid x)$.
+
+---
+
+## Main ideas
+
+### 1. When is the ELBO tight?
+
+Compute the gap (algebra in lecture):
+
+$$
+L(\theta)-F(\theta,q)=\mathrm{KL}\bigl(q(z)\,\|\,P_\theta(z\mid x)\bigr)\;\ge\; 0.
+$$
+
+Therefore $F=L$ iff
+
+$$
+q(z)=P_\theta(z\mid x).
+$$
+
+**Best variational distribution** (for fixed $\theta$) is the true posterior of the latent given data.
+
+### 2. Two-block view
+
+In full generality one could optimize $F$ over both $q$ (function space — variational calculus) and $\theta$. That is **variational inference**.  
+
+If $P_\theta(z\mid x)$ is **tractable**, skip optimizing $q$: just set $q\leftarrow P_\theta(z\mid x)$ and optimize $\theta$. **GMMs** sit in this tractable-posterior camp. VAEs / many deep models do not — estimate $q$ explicitly (later courses).
+
+### 3. EM algorithm (tractable posterior case)
+
+Initialize $\theta^{(0)}$. For $t=0,1,2,\ldots$ until a stopping rule:
+
+1. **E-step (expectation):** set
+   $$
+   q^{(t)}(z)\;\leftarrow\; P_{\theta^{(t)}}(z\mid x)
+   $$
+   and form the ELBO $F(\theta,q^{(t)})$ as a function of $\theta$ (expectation under fixed $q^{(t)}$).
+
+2. **M-step (maximization):**
+   $$
+   \theta^{(t+1)}\;\leftarrow\;\arg\max_\theta F\bigl(\theta,\,q^{(t)}\bigr).
+   $$
+
+Then repeat: new $\theta$ $\Rightarrow$ new posterior $\Rightarrow$ new bound $\Rightarrow$ new $\theta$.
+
+(For $n$ datapoints, apply with latents $z_i$ and sum ELBO terms — same pattern.)
+
+### 4. Why alternate?
+
+The tight $q$ depends on the current $\theta$. After you move $\theta$, the old $q$ is no longer the posterior at the new parameter, so rebuild the bound and maximize again.
+
+### 5. Correctness teaser (next lecture)
+
+EM guarantees the observed likelihood does **not decrease**:
+
+$$
+L\bigl(\theta^{(t+1)}\bigr)\;\ge\; L\bigl(\theta^{(t)}\bigr).
+$$
+
+It need not strictly increase every time, and need not reach a global maximum — one reason “GMM is universal + EM exists” does not end all of ML.
+
+### 6. Storyline reminder
+
+Want Bayes classifier $\Rightarrow$ estimate class-conditionals $\Rightarrow$ those may be GMMs $\Rightarrow$ GMM MLE via EM as latent-variable ELBO optimization with $q=P(z\mid x)$.
+
+---
+
+## Worked mini-example (conceptual)
+
+Two-component GMM: $z\in\{1,2\}$ is “which Gaussian generated $x$.”
+
+- E-step: compute responsibilities $q(z=j\mid x)=P_{\theta^{(t)}}(z=j\mid x)$ (soft assignment).
+- M-step: re-estimate weights / means / covariances by maximizing the expected complete log-likelihood under those responsibilities (standard GMM updates — detailed in later EM-for-GMM lecture).
+
+One iteration: soft-cluster points, then refit Gaussians to weighted points.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| E-step maximizes something | E-step **sets** $q$ to the current posterior (makes ELBO tight); M-step maximizes over $\theta$ |
+| EM always finds the global MLE | Guarantees non-decreasing likelihood; local optima possible |
+| Always optimize $q$ with gradients | Only when posterior is intractable; else plug in $P_\theta(z\mid x)$ |
+| ELBO gap is mysterious | It is exactly $\mathrm{KL}(q\|P_\theta(z\mid x))$ |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.9 — EM algorithm
+- Dempster, Laird, Rubin (1977) — original EM paper (historical)
+
+## Self-check questions
+
+1. Express $L(\theta)-F(\theta,q)$ as a KL divergence.
+2. Which $q$ makes the ELBO tight for a fixed $\theta$?
+3. Write the E-step and M-step updates in words or equations.
+4. When do we need to optimize $q$ variationally instead of setting it to the posterior?
+5. What likelihood monotonicity property does EM claim (preview)?
+
+*(Short answers are in `self-check-answers.qmd`.)*

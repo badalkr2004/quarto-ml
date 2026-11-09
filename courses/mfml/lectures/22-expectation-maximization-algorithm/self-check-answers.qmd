@@ -1,0 +1,10 @@
+---
+title: "Lecture 22 — Self-check answers"
+sidebar: mfml
+---
+
+1. $L(\theta)-F(\theta,q)=\mathrm{KL}(q(z)\,\|\,P_\theta(z\mid x))$.
+2. $q(z)=P_\theta(z\mid x)$.
+3. E: $q^{(t)}\leftarrow P_{\theta^{(t)}}(z\mid x)$; M: $\theta^{(t+1)}\leftarrow\arg\max_\theta F(\theta,q^{(t)})$.
+4. When $P_\theta(z\mid x)$ cannot be computed (e.g. many deep latent models / VAEs).
+5. $L(\theta^{(t+1)})\ge L(\theta^{(t)})$ (likelihood never decreases along EM iterates).
