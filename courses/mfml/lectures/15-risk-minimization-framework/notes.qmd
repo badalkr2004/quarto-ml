@@ -1,0 +1,136 @@
+---
+title: "Lecture 15 — Risk Minimization Framework"
+subtitle: "True risk, empirical risk, and equivalence to density estimation"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 15 — Risk Minimization Framework](https://www.youtube.com/watch?v=jXCqrFVGwoU)
+
+---
+
+## Learning goals
+
+- Define **loss**, **true risk**, and **empirical risk (ERM)**
+- See why true risk is intractable and what ERM actually optimizes
+- Connect ERM $\leftrightarrow$ MLE / KL minimization (same algorithms, two languages)
+- State the **generalization** question: minimizers, not only objectives, must track
+
+---
+
+## Before this clicks
+
+Supervised data $\mathcal{D}=\{(x_i,y_i)\}_{i=1}^{n}$ drawn IID from unknown $P_{X,Y}$.  
+Hypothesis $h:\mathcal{X}\to\mathcal{Y}$. Lecture 14 already showed MSE ERM $=$ Gaussian conditional MLE.
+
+---
+
+## Main ideas
+
+### 1. Hypothesis and loss
+
+A **hypothesis** $h$ is a candidate map from features to labels (classifier or regressor).
+
+A **loss** $L:\mathcal{Y}\times\mathcal{Y}\to[0,\infty)$ scores one prediction against one true label. Examples:
+
+- Squared error: $L(h(x),y)=\|h(x)-y\|_{2}^{2}$
+- $0$–$1$ loss: $L(h(x),y)=0$ if $h(x)=y$, else $1$
+
+### 2. True risk = expected loss
+
+$$
+R(h)=\mathbb{E}_{(X,Y)\sim P_{X,Y}}\bigl[L(h(X),Y)\bigr].
+$$
+
+Ideal ML problem:
+
+$$
+h^\star \in \arg\min_{h\in\mathcal{H}} R(h).
+$$
+
+This is the **risk minimization** framework.
+
+### 3. Empirical risk (what we can compute)
+
+$P_{X,Y}$ is unknown $\Rightarrow$ true risk cannot be evaluated. Surrogate:
+
+$$
+\hat R(h)=\frac{1}{n}\sum_{i=1}^{n} L\bigl(h(x_i),y_i\bigr).
+$$
+
+**Empirical risk minimization (ERM):**
+
+$$
+\hat h \in \arg\min_{h\in\mathcal{H}} \hat R(h).
+$$
+
+IID + LLN $\Rightarrow$ $\hat R(h)\to R(h)$ for fixed $h$. That does **not** automatically mean $\hat h\to h^\star$. Whether the **minimizer** converges is the **generalization** question (statistical learning theory; overfitting / underfitting live here).
+
+### 4. ERM example $=$ previous MLE example
+
+Regression, parametric $h_\theta$, squared loss:
+
+$$
+\hat\theta\in\arg\min_\theta\frac{1}{n}\sum_{i=1}^{n}\bigl(h_\theta(x_i)-y_i\bigr)^{2}.
+$$
+
+Same as MLE with $P_\theta(y\mid x)=\mathcal{N}(y; h_\theta(x), I)$.
+
+### 5. Two languages, one problem
+
+| Lens | You choose… | You optimize… |
+|------|-------------|----------------|
+| Density estimation | Family $P_\theta$ + divergence (KL) | Parameters of $P_\theta$ |
+| ERM | Hypothesis class + loss | $h$ (or $\theta$ in $h_\theta$) |
+
+- GPT-style training is often described as ERM with cross-entropy.
+- GMMs / many generative models are described as explicit KL / MLE on a density.
+
+They are algorithmically the same story when the loss $\leftrightarrow$ distributional assumption match.
+
+### 6. Cliffhanger for Lecture 16
+
+For binary $Y$ and $0$–$1$ loss, what $h$ minimizes **true** risk? (Answer next lecture: the **Bayes classifier**.)
+
+---
+
+## Worked mini-example
+
+Three points, $0$–$1$ loss, hypotheses that always predict $0$ vs always predict $1$. Labels: $0,0,1$.
+
+$$
+\hat R(h\equiv 0)=\tfrac13,\qquad \hat R(h\equiv 1)=\tfrac23.
+$$
+
+ERM picks $h\equiv 0$. True risk depends on the unknown prior $P(Y=1)$; with tiny $n$, empirical and true minimizers can disagree — that is the generalization gap in miniature.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| $\hat R\to R$ implies $\hat h\to h^\star$ | Not automatically; need conditions / bounds |
+| ERM and MLE are rivals | Matching loss $\leftrightarrow$ model makes them the same optimization |
+| Loss must be $0$–$1$ | Design choice; different losses $\Rightarrow$ different optimal $h$ |
+| Only supervised | Framework extends; unsupervised = no $Y$, different hypothesis/loss story |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Vapnik — statistical learning / ERM viewpoint
+- Bishop *PRML* Ch.1 — decision theory and loss
+
+## Self-check questions
+
+1. Define true risk $R(h)$ in one equation.
+2. Write empirical risk $\hat R(h)$.
+3. Why is true risk minimization usually impossible?
+4. What extra question does generalization ask beyond $\hat R\to R$?
+5. Give one ERM problem that is identical to a named MLE problem from Lecture 14.
+
+*(Short answers are in `self-check-answers.qmd`.)*

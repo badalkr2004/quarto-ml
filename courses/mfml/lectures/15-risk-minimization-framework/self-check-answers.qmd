@@ -1,0 +1,10 @@
+---
+title: "Lecture 15 — Self-check answers"
+sidebar: mfml
+---
+
+1. $R(h)=\mathbb{E}_{(X,Y)\sim P_{X,Y}}[L(h(X),Y)]$.
+2. $\hat R(h)=\frac{1}{n}\sum_i L(h(x_i),y_i)$.
+3. It needs the unknown joint $P_{X,Y}$ to evaluate / optimize the expectation.
+4. Whether the **minimizer** $\hat h$ of empirical risk approaches the minimizer $h^\star$ of true risk.
+5. Squared-loss ERM for $h_\theta$ $=$ MLE under Gaussian $Y\mid X$ with mean $h_\theta(x)$.
