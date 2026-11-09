@@ -1,0 +1,7 @@
+---
+title: "Lecture 25 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Custom annotation + `@annotation` pointcut.\n2. Clear intent at call site.\n3. Retention must be RUNTIME.

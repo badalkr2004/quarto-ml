@@ -1,0 +1,36 @@
+---
+title: "Lecture 25 — Custom annotations with AOP"
+subtitle: "Mark methods with your own @annotation"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Custom annotations with AOP \| Full Course #25](https://www.youtube.com/watch?v=TT-b9ob-lN8)  
+**Playlist index:** 25
+
+---
+## Big idea
+
+Make intent obvious:
+
+```java
+@TrackTime
+public void importData() { ... }
+```
+
+## Steps
+
+1. Declare `@TrackTime` (method annotation, runtime retention).
+2. Write aspect with `@Around("@annotation(TrackTime)")`.
+3. Put annotation on service methods.
+
+## Practice
+
+Build `@TrackTime` and print duration. Optional: `@RequireRole` style guard that throws if a header is missing (learning only — real security later).
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
