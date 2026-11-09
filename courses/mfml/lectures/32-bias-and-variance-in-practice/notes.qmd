@@ -1,0 +1,107 @@
+---
+title: "Lecture 32 — Bias and Variance in Practice"
+subtitle: "Overfitting, underfitting, and the practical path through regularization"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 32 — Bias & Variance in Practice](https://www.youtube.com/watch?v=E-kOTTO5hK8)
+
+## Learning goals
+
+- Read a small squared-loss example: flexible vs rigid hypotheses.
+- Map **overfitting** $\leftrightarrow$ low bias / high variance; **underfitting** $\leftrightarrow$ high bias / low variance.
+- State the practical workflow: overparameterize first, then **regularize** back.
+
+## Before this clicks
+
+Lecture 31: expected error splits into bias, variance, and noise. Today is the **picture** version with polynomial-style capacity, training vs test curves, and what practitioners actually do.
+
+---
+
+## Main ideas
+
+### 1. A 1-D generative story for data
+
+Imagine $X,Y\in\mathbb{R}$ with
+
+$$
+Y = aX^{2}+b+\varepsilon,\qquad \varepsilon\sim\mathcal{N}(0,1).
+$$
+
+Drawing $n\approx 10$ points is sampling from a joint that is Gaussian around a parabola — not “a curve plus noise as an afterthought,” but a full probabilistic generative model you can plot.
+
+### 2. Two extreme hypotheses under squared ERM
+
+1. **Too flexible** (e.g. degree-$n$ polynomial / lookup-table behaviour): can achieve **100% training fit**. Bias can look tiny on that sample; variance is huge — a new draw of $\varepsilon$ yields a wildly different fit.
+2. **Too rigid** (e.g. a line that ignores curvature / a hypothesis almost independent of data): stable across datasets (low variance) but systematically wrong (high bias).
+
+Punch line:
+
+> Perfect **training** accuracy does **not** mean you solved ML — you may sit at low bias / high variance.
+
+### 3. Names in popular culture
+
+| Operating point | Name |
+|-----------------|------|
+| Low bias, high variance | **Overfitting** |
+| High bias, low variance | **Underfitting** |
+
+Goal: a region where **both** are moderate/low. Theory says risk needs both small; small-$n$ practice shows a U-shaped test error vs complexity.
+
+### 4. Model complexity axis
+
+For polynomial regression, **degree** is a simple complexity knob. With $n$ points, a degree-$n$ polynomial can interpolate. Measuring error on a **held-out** validation/test sample (another draw from $P$) reveals the classic pattern: train error falls with complexity; test error falls then rises.
+
+### 5. What people do in practice
+
+Class advice (strong stance):
+
+- Do **not** ship an underfit model as “done.”
+- Prefer to **overparameterize**, reach a low-bias / high-variance regime (even overfit the train set), then **push back** toward lower variance.
+
+That push-back is **regularization** (next lectures), and it will match Bayesian **MAP** with a prior that encodes the bias you want to add.
+
+### 6. Generative models aside
+
+For unsupervised / generative settings, “test data” is still another sample from the law you care about; the hard part is choosing a **metric** (FID, human eval, task pass rates, …), not inventing a mysterious second universe of data.
+
+---
+
+## Worked mini-example
+
+$n=10$ points from a quadratic-mean Gaussian. Fit:
+
+- $h_1$: constant (ignore $x$) — underfit.
+- $h_2$: degree-$9$ polynomial ERM — can interpolate; train error $\approx 0$, test error large under new noise.
+
+A moderate degree (near $2$) sits closer to the sweet spot for this $P$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| “Always prefer the simplest model” | Prefer the complexity that **tests** well; simplicity is a regularizer, not an absolute. |
+| Overfitting is “using too many epochs only” | Capacity, data noise, and optimization all interact; capacity is the clean story here. |
+| Underfitting is acceptable if train looks “honest” | Class view: start by being able to fit train; then regularize. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- ESL / Bishop — figures for train vs test vs complexity
+
+## Self-check questions
+
+1. Link overfitting / underfitting to bias and variance.
+2. Why is 100% training accuracy not enough?
+3. Give one concrete complexity knob for polynomial regression.
+4. What practical path does the lecture recommend before regularizing?
+5. What is regularization, in bias–variance language?
+
+*(Short answers are in `self-check-answers.qmd`.)*

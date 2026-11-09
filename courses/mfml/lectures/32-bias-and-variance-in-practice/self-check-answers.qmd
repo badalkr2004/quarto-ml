@@ -1,0 +1,10 @@
+---
+title: "Lecture 32 — Self-check answers"
+sidebar: mfml
+---
+
+1. Overfit = low bias / high variance; underfit = high bias / low variance.
+2. It can mean memorization: tiny train bias with huge sensitivity to the particular sample.
+3. Polynomial degree (or number of basis features).
+4. Overparameterize / reach a low-bias regime (even overfit train), then push back.
+5. A technique that **increases bias** (deliberately) to reduce variance / improve test risk.
