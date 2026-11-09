@@ -1,0 +1,10 @@
+---
+title: "Lecture 69 — Self-check answers"
+sidebar: mfml
+---
+
+1. State, action, reward (plus policy / value as the decision and evaluation objects); agent interacts with environment.
+2. How actions are chosen given state: $\pi(a\mid s)$ or $a=\pi(s)$.
+3. $G_t=\sum_{k=0}^{\infty}\gamma^k r_{t+k}$ (finite-horizon variants truncate the sum).
+4. Expected return when starting from $s$ and following $\pi$.
+5. Feedback is a scalar reward (possibly delayed), not a correct $y$ for each input; actions also affect future states.

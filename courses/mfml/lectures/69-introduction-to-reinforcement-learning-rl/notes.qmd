@@ -1,0 +1,100 @@
+---
+title: "Lecture 69 — Introduction to Reinforcement Learning (RL)"
+subtitle: "Agent, state, action, reward, policy, value — learning from interaction"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 69 — Introduction to Reinforcement Learning : RL](https://www.youtube.com/watch?v=5AcmvmzE2zU)
+
+## Learning goals
+
+- Name the RL loop: **agent** interacts with an **environment** via states, actions, and rewards.
+- Define **policy** and **value** at a beginner level.
+- Contrast RL with **supervised** learning (no fixed $(x,y)$ dataset of correct actions).
+
+## Before this clicks
+
+Supervised learning: a dataset tells you the right $y$ for each $x$. In RL, an agent chooses actions over time; feedback is a **reward** signal (possibly delayed), not a labeled correct action at every step. The goal is to maximize cumulative reward through trial and error (with structure from MDPs / policies / values).
+
+---
+
+## Main ideas
+
+### 1. Core objects
+
+| Object | Meaning |
+|--------|---------|
+| State $s_t$ | What the agent knows about the world at time $t$ |
+| Action $a_t$ | Choice the agent makes |
+| Reward $r_t$ | Scalar feedback after acting |
+| Policy $\pi$ | Behavior rule: $\pi(a\mid s)$ or deterministic $a=\pi(s)$ |
+| Return $G_t$ | Discounted sum of future rewards, e.g. $G_t=\sum_{k=0}^{\infty}\gamma^k r_{t+k}$ with $\gamma\in[0,1)$ |
+
+### 2. Interaction loop
+
+$$
+s_t \xrightarrow{a_t\sim\pi} r_t,\; s_{t+1}
+$$
+
+Repeat. The environment’s transition $p(s_{t+1},r_t\mid s_t,a_t)$ is usually unknown; the agent must learn from samples.
+
+### 3. Value functions (idea)
+
+How good is it to be in $s$ (and follow $\pi$)?
+
+$$
+V^\pi(s)=\mathbb{E}_\pi[G_t\mid s_t=s].
+$$
+
+Action values $Q^\pi(s,a)$ score taking $a$ then following $\pi$. Optimal policies maximize value. Many algorithms learn $V$ or $Q$ (TD, Q-learning) or optimize $\pi$ directly (policy gradients).
+
+### 4. Contrast with supervised learning
+
+| | Supervised | RL |
+|--|------------|-----|
+| Feedback | Correct label $y$ | Scalar reward (often sparse/delayed) |
+| i.i.d. data? | Usually assumed | Trajectory data; actions change future states |
+| Goal | Predict $y$ | Maximize return |
+
+Imitation learning sits in between: demonstrate actions, then optionally improve with rewards.
+
+### 5. Where RL shows up
+
+Games, robotics, recommendation / bandits (simpler cousins), and aligning LLMs with preference rewards (high-level mention). The math foundations (MDPs, Bellman equations) are the long-term spine; this lecture is the vocabulary.
+
+---
+
+## Worked mini-example
+
+Grid world: states = cells, actions = $\{$N,S,E,W$\}$, reward $-1$ per step and $+10$ at the goal. A random policy wanders; a good policy shortens paths. Delayed reward: only the goal gives a big bonus, so the agent must credit earlier moves (credit assignment) — unlike supervised labels on each move.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Reward = correct action label | Reward scores outcomes; many action sequences can be OK. |
+| Policy = value | Policy chooses actions; value **evaluates** states/actions. |
+| RL needs a full environment model | Model-free methods learn from interaction samples only. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Sutton & Barto, *Reinforcement Learning: An Introduction*
+- Murphy — RL survey chapters
+
+## Self-check questions
+
+1. List the five core RL nouns: agent/environment pieces for decision-making.
+2. What does a policy $\pi$ specify?
+3. Write a discounted return $G_t$.
+4. What is $V^\pi(s)$ in words?
+5. Give one way RL feedback differs from supervised labels.
+
+*(Short answers are in `self-check-answers.qmd`.)*
