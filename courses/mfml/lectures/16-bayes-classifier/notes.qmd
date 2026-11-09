@@ -1,0 +1,116 @@
+---
+title: "Lecture 16 — Bayes Classifier"
+subtitle: "The true-risk minimizer for 0–1 loss"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 16 — Bayes Classifier](https://www.youtube.com/watch?v=-y3SSAIhD4Y)
+
+---
+
+## Learning goals
+
+- State the **Bayes classifier** for binary (and $K$-class) $0$–$1$ loss
+- Sketch why its risk is minimal among all classifiers
+- See that implementing Bayes $\Rightarrow$ **density / posterior estimation**
+- Preview: under squared loss, the risk minimizer is $\mathbb{E}[Y\mid X]$
+
+---
+
+## Before this clicks
+
+True risk $R(h)=\mathbb{E}[L(h(X),Y)]$.  
+For $0$–$1$ loss, $L(h(x),y)=\mathbf{1}\{h(x)\neq y\}$.  
+Posteriors $P(Y=y\mid X=x)$; class-conditionals $P(X\mid Y)$.
+
+---
+
+## Main ideas
+
+### 1. Binary Bayes rule ($0$–$1$ loss)
+
+Define
+
+$$
+h_B(x)=
+\begin{cases}
+0 & \text{if } P(Y=0\mid X=x) > P(Y=1\mid X=x),\\
+1 & \text{otherwise (ties broken arbitrarily).}
+\end{cases}
+$$
+
+Equivalently: predict the label with **largest posterior**. This is the **Bayes classifier**.
+
+**Claim:** for binary classification with $0$–$1$ loss, $R(h_B)\le R(h)$ for every classifier $h$.
+
+### 2. Proof sketch (partition view)
+
+For any $h$, partition $\mathbb{R}^{d}$ into
+
+$$
+S_i(h)=\{x: h(x)=i\},\quad i\in\{0,1\}
+$$
+
+(disjoint, union all space). Under $0$–$1$ loss,
+
+$$
+R(h)=P\bigl(h(X)\neq Y\bigr).
+$$
+
+Split the error event into “predict $1$ when $Y=0$” and “predict $0$ when $Y=1$”, rewrite with class-conditionals, and integrate densities over $S_1(h)$ and $S_0(h)$.
+
+For each $x$, **only one** of the two integrand pieces is active (whichever region $h$ assigns $x$ to). The Bayes rule always picks the region so that the **smaller** of the two non-negative contributions is kept. Integrating the pointwise minimum yields the smallest possible risk.
+
+### 3. Practice: you rarely know the posteriors
+
+Bayes optimality is theoretical until you can compute $P(Y\mid X)$. So “build the best classifier” becomes **estimate the needed densities** (posterior directly, or priors + class-conditionals via Bayes’ rule).
+
+### 4. Extensions stated in class
+
+- **$K$-class, $0$–$1$ loss:** $h_B(x)=\arg\max_{k} P(Y=k\mid X=x)$ (same “pick largest posterior” idea; homework-style proof).
+- **Regression, squared loss:** true-risk minimizer is the **conditional mean** $\mathbb{E}[Y\mid X=x]$ (standard probability result).
+
+Optimal $h$ **depends on the loss**.
+
+### 5. Why this lecture matters in the course arc
+
+ERM $\leftrightarrow$ distribution estimation was about matching **problems**. Bayes shows matching **solutions**: the true-risk minimizer *is* a functional of $P(Y\mid X)$. Next lectures develop estimation tools (MLE examples, mixtures, EM, MAP, …) so you can approximate that posterior / those densities.
+
+---
+
+## Worked mini-example
+
+At a fixed $x$, suppose $P(Y=0\mid x)=0.7$, $P(Y=1\mid x)=0.3$. Bayes predicts $0$.  
+Any rule that predicts $1$ at this $x$ pays conditional error probability $0.7$ instead of $0.3$. Averaging over $x$ cannot beat always taking the locally better choice — that is the Bayes idea in one point.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Bayes classifier uses a Bayesian prior on $\theta$ | Here “Bayes” means decision theory / Bayes risk; it uses class posteriors |
+| We can ship $h_B$ without data | We need estimates of the distributions |
+| Same $h^\star$ for every loss | Squared loss $\Rightarrow$ conditional mean, not $0$–$1$ Bayes rule |
+| Empirical risk minimizer $=$ Bayes | Only in the limit / under conditions; finite samples differ |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork, *Pattern Classification* — Bayes decision theory
+- Bishop *PRML* Ch.1 — optimal classification
+
+## Self-check questions
+
+1. Write $h_B(x)$ for binary $0$–$1$ loss.
+2. Why does the proof care that $S_0(h)$ and $S_1(h)$ are disjoint?
+3. What must you estimate to implement $h_B$ in practice?
+4. State the $K$-class Bayes rule under $0$–$1$ loss.
+5. For squared-loss regression, what function of $x$ minimizes true risk?
+
+*(Short answers are in `self-check-answers.qmd`.)*

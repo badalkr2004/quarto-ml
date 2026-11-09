@@ -1,0 +1,10 @@
+---
+title: "Lecture 16 — Self-check answers"
+sidebar: mfml
+---
+
+1. Predict $0$ if $P(Y=0\mid x)>P(Y=1\mid x)$, else $1$ (ties arbitrary).
+2. Each $x$ contributes to only one error integral; Bayes can choose the cheaper of the two non-negative options pointwise.
+3. The class posteriors $P(Y\mid X)$ (or priors + class-conditionals that determine them).
+4. $h_B(x)=\arg\max_k P(Y=k\mid X=x)$.
+5. The conditional expectation $\mathbb{E}[Y\mid X=x]$.
