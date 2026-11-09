@@ -1,0 +1,7 @@
+---
+title: "Lecture 11 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Controller→Service→Repository.\n2. So HTTP and storage can change independently.\n3. `@PathVariable` from URL; `@RequestBody` from JSON body.

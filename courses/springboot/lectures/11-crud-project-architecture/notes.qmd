@@ -1,0 +1,98 @@
+---
+title: "Lecture 11 — CRUD project from scratch"
+subtitle: "API layers and clean architecture"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [CRUD project from scratch \| Full Course #11](https://www.youtube.com/watch?v=6kCCIdLLGRs)  
+**Playlist index:** 11
+
+---
+## Big idea
+
+Build a small REST API with clear layers. Do not put everything in one class.
+
+```text
+Client (browser / Postman)
+        │  HTTP
+        ▼
+   Controller   ← talk to HTTP only
+        │
+        ▼
+   Service      ← business rules
+        │
+        ▼
+   Repository   ← data access (later: JPA)
+        │
+        ▼
+   Database / in-memory list (for now)
+```
+
+## Layers (plain words)
+
+| Layer | Job | Typical annotation |
+|-------|-----|--------------------|
+| Controller | Accept HTTP, return JSON | `@RestController` |
+| Service | Business logic | `@Service` |
+| Repository | Save / load data | `@Repository` (or interface later) |
+| Entity / model | Shape of the data | plain class / `@Entity` later |
+
+**Rule:** Controller should not talk to the database directly.
+
+## Practice — in-memory product API
+
+1. Boot project + **Web** starter.
+2. Model:
+
+```java
+public class Product {
+    private Long id;
+    private String name;
+    private double price;
+    // constructors, getters, setters
+}
+```
+
+3. Service with a `List<Product>` and methods: create, getAll, getById, update, delete.
+4. Controller:
+
+```java
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+    private final ProductService service;
+    public ProductController(ProductService service) { this.service = service; }
+
+    @GetMapping
+    public List<Product> all() { return service.getAll(); }
+
+    @GetMapping("/{id}")
+    public Product one(@PathVariable Long id) { return service.getById(id); }
+
+    @PostMapping
+    public Product create(@RequestBody Product p) { return service.create(p); }
+
+    @PutMapping("/{id}")
+    public Product update(@PathVariable Long id, @RequestBody Product p) {
+        return service.update(id, p);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) { service.delete(id); }
+}
+```
+
+5. Test with Postman or curl.
+
+## Reasoning
+
+- Why layers? So you can change storage later without rewriting HTTP code.
+- Why constructor injection? Required deps are clear and easy to test.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
