@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. MockMvc.\n2. Mockito mocks deps.\n3. `@SpringBootTest` full context.
+## Exercises (sample)
+
+1. Arrange calculator; Act `add(2,3)`; Assert `assertEquals(5, result)`.
+2. Avoid slow/flaky external calls; focus the test on your service’s decisions.
+3. `@Mock` is plain Mockito; `@MockBean` replaces a bean inside a Spring test context.
+4. A full real HTTP server / browser session for that controller call (it simulates the MVC request path).
+5. When you need more than the web slice—multiple layers, real wiring, broader integration confidence.
+
+## Self-check
+
+1. `@Test` (JUnit Jupiter).
+2. **False.** It fakes **dependencies**; `@InjectMocks` builds the class under test.
+3. `spring-boot-starter-test`.
+4. Examples: `status()`, `jsonPath(...)`, `content()`, `header(...)`.

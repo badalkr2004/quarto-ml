@@ -1,29 +1,240 @@
 ---
-title: "Lecture 40 — Testing Spring Boot"
-subtitle: "JUnit 5, Mockito, MockMvc"
+title: "Lecture 40 — Testing with JUnit 5, Mockito & MockMvc"
+subtitle: "Arrange–Act–Assert without fear (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Testing Spring Boot \| Full Course #40](https://www.youtube.com/watch?v=8MAjlB7g6uI)  
-**Playlist index:** 40
+**Video:** [Testing Spring Boot Applications \| JUnit 5, Mockito & MockMvc \| Full Course #40](https://www.youtube.com/watch?v=8MAjlB7g6uI)  
+**Playlist index:** 40  
+**Builds on:** Services, controllers, and Security from earlier lectures
 
 ---
-## Big idea
 
-- **Unit test:** class in isolation (mock deps with Mockito)
-- **Slice / MockMvc test:** HTTP layer without full server
-- **Integration test:** `@SpringBootTest` with real context
+## Big idea in one line
 
-## Practice
+Automated tests repeat the same check every time you change code.  
+**JUnit** runs tests, **Mockito** fakes dependencies, **MockMvc** hits controllers without starting a real browser server dance.
 
-1. Unit-test service with mocked repository.
-2. `@WebMvcTest` controller with `MockMvc`.
-3. Assert JSON status and body.
+```text
+Arrange  → set up inputs / mocks
+Act      → call the method / endpoint
+Assert   → check the result
+```
+
+---
+
+## Topic 1 — Why test?
+
+Manual clicking misses regressions.  
+A unit test is a small program that:
+
+1. Prepares data  
+2. Runs one behavior  
+3. Fails loudly when the answer is wrong  
+
+Run with:
+
+```bash
+mvn test
+```
+
+Boot projects already include `spring-boot-starter-test` (JUnit Jupiter + Mockito + MockMvc + …).
+
+---
+
+## Topic 2 — JUnit 5 basics
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class PriceServiceTest {
+
+    @Test
+    void discountedPrice_whenCouponApplied() {
+        PriceService service = new PriceService(); // Arrange
+        int actual = service.finalPrice(1000, 20); // Act
+        assertEquals(800, actual);                 // Assert
+    }
+}
+```
+
+Useful assertions:
+
+| Method | Meaning |
+|--------|---------|
+| `assertEquals(expected, actual)` | values equal |
+| `assertTrue(condition)` | condition must be true |
+| `assertThrows(Ex.class, () -> …)` | code must throw |
+
+`@Test` comes from **JUnit Jupiter**. Maven surefire finds these methods.
+
+---
+
+## Topic 3 — Mockito (fake the neighbors)
+
+If `OrderService` needs `PaymentClient`, a real payment call makes tests slow/flaky.
+
+```text
+Real collaborators  → integration pain
+Mock collaborators  → test only YOUR logic
+```
+
+```java
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+
+    @Mock
+    PaymentClient paymentClient;
+
+    @InjectMocks
+    OrderService orderService;
+
+    @Test
+    void placeOrder_chargesOnce() {
+        when(paymentClient.charge(100)).thenReturn(true);
+
+        boolean ok = orderService.placeOrder(100);
+
+        assertTrue(ok);
+        verify(paymentClient).charge(100);
+    }
+}
+```
+
+| Annotation / API | Meaning |
+|------------------|---------|
+| `@Mock` | create a fake bean |
+| `@InjectMocks` | create class under test; inject mocks |
+| `when(...).thenReturn(...)` | stub behavior |
+| `verify(...)` | assert a collaboration happened |
+
+---
+
+## Topic 4 — Slice vs full Spring context
+
+| Annotation | What loads | Good for |
+|------------|------------|----------|
+| Plain Mockito unit test | almost nothing | pure service logic |
+| `@WebMvcTest(YourController.class)` | web layer slice | controller + HTTP mapping |
+| `@SpringBootTest` | larger / full context | broader integration |
+
+Start small. Full context tests are slower and fail for more reasons.
+
+---
+
+## Topic 5 — MockMvc (controller tests)
+
+`@WebMvcTest` builds a **limited** web context.  
+`MockMvc` performs HTTP requests **without** needing you to open a browser.
+
+```java
+@WebMvcTest(ProductController.class)
+class ProductControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockBean
+    ProductService productService;
+
+    @Test
+    void getProduct_returnsJson() throws Exception {
+        when(productService.get(1L)).thenReturn(new Product(1L, "Pen"));
+
+        mockMvc.perform(get("/api/products/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Pen"));
+    }
+}
+```
+
+Flow MockMvc simulates:
+
+```text
+perform(GET ...)
+  → filters (depending on test setup)
+  → controller
+  → status / body assertions
+```
+
+If Security is on the classpath, `@WebMvcTest` may require security test helpers or excluding security for the slice—expect 401 until you configure test security.
+
+---
+
+## Topic 6 — Practice lab (IDE)
+
+### Step 1 — Confirm test dependency
+
+`pom.xml` should have `spring-boot-starter-test` with `<scope>test</scope>`.
+
+### Step 2 — Pure unit test
+
+1. Create `src/test/java/.../PriceServiceTest.java`  
+2. Write Arrange–Act–Assert with `assertEquals`  
+3. Run the test method from the IDE gutter  
+4. Break the expected value on purpose → see red failure → fix
+
+### Step 3 — Service + Mockito
+
+1. Service depends on a repository / client  
+2. `@ExtendWith(MockitoExtension.class)`  
+3. Stub with `when`  
+4. `verify` the dependency call  
+
+### Step 4 — Controller + MockMvc
+
+1. `@WebMvcTest(YourController.class)`  
+2. `@MockBean` the service  
+3. `mockMvc.perform(get(...)).andExpect(...)`  
+4. Run `mvn test`
+
+### Step 5 — One integration smoke (optional)
+
+`@SpringBootTest` + `@AutoConfigureMockMvc` for a wider path when the slice is not enough.
+
+---
+
+## Topic 7 — How to reason when tests fail
+
+1. **Assertion failed** → logic or expected value wrong  
+2. **Wanted but not invoked** (Mockito) → collaboration never called  
+3. **Unnecessary stubbing** → you stubbed something unused  
+4. **401 in MockMvc** → Security filter; fix test security config  
+5. **Context failed to load** → missing bean in slice / wrong annotation  
+
+---
+
+## Short map to keep
+
+```text
+JUnit     → @Test + assertions + mvn test
+Mockito   → @Mock / @InjectMocks / when / verify
+MockMvc   → perform HTTP against controllers
+WebMvcTest → thin web slice
+SpringBootTest → heavier context
+AAA       → Arrange, Act, Assert
+```
+
+---
+
+## Exercises
+
+1. Write Arrange / Act / Assert for `add(2, 3) == 5`.  
+2. Why mock a payment client in a unit test?  
+3. Difference between `@Mock` and `@MockBean`?  
+4. What does `MockMvc.perform` avoid starting?  
+5. When would you choose `@SpringBootTest` over `@WebMvcTest`?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Which annotation marks a JUnit 5 test method?  
+2. True/False: Mockito replaces the class under test.  
+3. What starter brings testing libraries in Boot?  
+4. Name one `MockMvc` expectation method.
+
+Answers: [self-check-answers](self-check-answers.qmd)
