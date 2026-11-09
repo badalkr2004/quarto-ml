@@ -1,0 +1,109 @@
+---
+title: "Tutorial 10B — Numerical Example on MLE and MAP"
+subtitle: "Uniform MLE for an unknown endpoint; Bernoulli MAP with a two-point prior"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 10 Part B](https://www.youtube.com/watch?v=ysjGmQW4HOo)
+
+## Learning goals
+
+- Compute a likelihood for IID Uniform$(0,\theta)$ data and find the **MLE**.
+- Contrast MLE with **MAP** under a discrete prior on a coin bias.
+- Practice turning a posterior odds comparison into a simple counting rule.
+
+## Before this clicks
+
+**Likelihood** $L(\theta;\mathcal{D})=p(\mathcal{D}\mid\theta)$ (product under IID). **MLE** $=\arg\max_\theta L$. **MAP** $=\arg\max_\theta p(\theta\mid\mathcal{D})\propto p(\mathcal{D}\mid\theta)p(\theta)$. Indicators matter: Uniform$(0,\theta)$ likelihood is zero unless $\theta$ exceeds every sample.
+
+---
+
+## Main ideas
+
+### 1. Uniform$(0,\theta)$ likelihood
+
+Density: $p(x\mid\theta)=1/\theta$ for $0\le x\le\theta$ (and $0$ otherwise), $\theta>0$.
+
+For IID $x_1,\ldots,x_n$,
+
+$$
+L(\theta;\mathcal{D})
+=\theta^{-n}\prod_{i=1}^{n}\mathbf{1}\{0\le x_i\le\theta\}
+=\theta^{-n}\,\mathbf{1}\{\theta\ge\max_i x_i\}.
+$$
+
+So for $\theta$ below the sample maximum, likelihood is **exactly zero**.
+
+### 2. MLE for $\theta$
+
+On $\theta\ge m:=\max_i x_i$, $L=\theta^{-n}$ is **decreasing** in $\theta$. Hence
+
+$$
+\hat{\theta}_{\mathrm{MLE}}=m=\max_i x_i.
+$$
+
+Tutorial numbers (illustrative): samples like $1.75,0.5,2.2$ $\Rightarrow$ $m=2.2$. Then $L(10)=(1/10)^3>0$, while $L(1.9)=0$ because $1.9<2.2$.
+
+### 3. MAP for a two-point prior on a Bernoulli bias
+
+Second problem spirit: $\theta\in\{0.5,0.6\}$ with prior mass $1/2$ on each (zero elsewhere). Data: $n$ IID Bernoulli$(\theta)$ trials with $n_H$ heads.
+
+Posterior odds reduce to a likelihood-ratio test. Taking logs yields a threshold on $n_H$:
+
+$$
+\hat{\theta}_{\mathrm{MAP}}
+=
+\begin{cases}
+0.6 & \text{if } n_H \gtrsim c\cdot n,\\
+0.5 & \text{otherwise,}
+\end{cases}
+$$
+
+with $c$ from $\ln$ ratios (tutorial obtained about $0.55$). Intuition: you need enough heads before the prior’s $0.6$ hypothesis wins.
+
+### 4. Moral
+
+MLE ignores $p(\theta)$; MAP multiplies by the prior and can **shrink / discretize** the estimate onto a preferred set. Same theme as regularized ERM later.
+
+---
+
+## Worked mini-example
+
+Uniform samples $\{0.5,1.75,2.2\}$:
+
+| $\theta$ | $L(\theta)$ |
+|----------|--------------|
+| $1.9$ | $0$ (below max) |
+| $2.2$ | $(1/2.2)^3$ (MLE) |
+| $10$ | $(1/10)^3$ (smaller than at $2.2$) |
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| MLE for Uniform$(0,\theta)$ is the sample mean | No — it is the **maximum**. |
+| Likelihood can be positive for $\theta$ inside the data range | Any $\theta<\max x_i$ is impossible under the model. |
+| MAP always equals MLE | Only if the prior is flat on the relevant set. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Blitzstein & Hwang — MLE examples
+- Murphy / Bishop — MAP vs MLE
+
+## Self-check questions
+
+1. Write $L(\theta)$ for IID Uniform$(0,\theta)$ data.
+2. Why is $\hat{\theta}_{\mathrm{MLE}}=\max_i x_i$?
+3. Evaluate the idea: “try $\theta=1.9$ when max sample is $2.2$.”
+4. What ingredients enter a MAP estimate that MLE lacks?
+5. In the two-point Bernoulli prior example, what does the decision reduce to?
+
+*(Short answers are in `self-check-answers.qmd`.)*

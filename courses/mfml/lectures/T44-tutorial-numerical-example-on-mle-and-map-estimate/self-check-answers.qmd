@@ -1,0 +1,10 @@
+---
+title: "Tutorial 10B — Self-check answers"
+sidebar: mfml
+---
+
+1. $L(\theta)=\theta^{-n}\mathbf{1}\{\theta\ge\max_i x_i\}$.
+2. For $\theta\ge\max x_i$, $L=\theta^{-n}$ decreases in $\theta$, so the maximizer is the left endpoint $\max x_i$.
+3. Likelihood is zero — that $\theta$ cannot generate the largest sample.
+4. The prior $p(\theta)$.
+5. A threshold rule on the head count $n_H$ (likelihood-ratio / posterior odds test).
