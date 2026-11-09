@@ -1,0 +1,10 @@
+---
+title: "Lecture 28 — Self-check answers"
+sidebar: mfml
+---
+
+1. Gaussian conditional MLE with mean $h_\theta(x)$ $\Leftrightarrow$ minimize $\sum_i\|y_i-h_\theta(x_i)\|^2$.  
+2. $p(y\mid x)=\mathcal{N}(h_\theta(x),I)$ (or scalar $\sigma^2 I$).  
+3. $\theta^\star=(X^\top X)^{-1}X^\top y$ (full column rank).  
+4. Append a constant feature $1$ to each $x$ and fold the intercept into $\theta$.  
+5. The label $Y$ is continuous (in $\mathbb{R}$ / $\mathbb{R}^k$), not a discrete class id.

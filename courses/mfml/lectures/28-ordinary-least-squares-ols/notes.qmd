@@ -1,0 +1,112 @@
+---
+title: "Lecture 28 — Ordinary Least Squares (OLS)"
+subtitle: "ERM with squared loss equals Gaussian conditional MLE"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 28 — Ordinary Least Squares (OLS)](https://www.youtube.com/watch?v=s_DfCCobgnA)
+
+---
+
+## Learning goals
+
+- Connect **divergence / MLE** estimation to **empirical risk minimization (ERM)**.
+- See squared-loss ERM $\Leftrightarrow$ Gaussian $p(y\mid x)$ with mean $h_\theta(x)$.
+- Solve linear regression / OLS in closed form via the pseudoinverse.
+
+---
+
+## Before this clicks
+
+Two cultures, one problem:
+
+| Probabilistic view | ERM view |
+|--------------------|----------|
+| Estimate distributions from $\mathcal{D}$ via divergence / likelihood | Estimate a function $h:\mathcal{X}\to\mathcal{Y}$ by minimizing average loss |
+
+Claim in class: under matching assumptions, each divergence problem is an ERM with some loss, and each ERM is an MLE under some distributional assumption — checked **case by case**.
+
+---
+
+## Main ideas
+
+### 1. Equivalence example (squared loss)
+
+Assume
+
+$$
+p_\theta(y\mid x) = \mathcal{N}\bigl(y;\, h_\theta(x),\, I\bigr).
+$$
+
+Maximizing likelihood (minimizing KL to the empirical conditional) reduces to
+
+$$
+\theta^\star = \arg\min_\theta \sum_{i=1}^{n}\bigl\|y_i - h_\theta(x_i)\bigr\|^2,
+$$
+
+i.e. **ERM with squared error**. Conversely, using squared loss implicitly assumes Gaussian noise around $h_\theta(x)$.
+
+The story “$y=h_\theta(x)+\varepsilon$, $\varepsilon\sim\mathcal{N}(0,I)$” is the same Gaussian conditional in generative clothing.
+
+### 2. Linear family
+
+$$
+h_\theta(x) = \theta^\top x
+$$
+
+(with $x$ optionally **augmented** by a trailing $1$ so the bias sits inside $\theta$). Intuition: learn how much each measured feature contributes to the prediction.
+
+### 3. OLS solution
+
+ERM objective:
+
+$$
+\theta^\star = \arg\min_\theta \sum_{i=1}^{n}(\theta^\top x_i - y_i)^2.
+$$
+
+Stack rows $x_i^\top$ into matrix $X\in\mathbb{R}^{n\times d}$ and targets into $y\in\mathbb{R}^n$. Normal equations yield
+
+$$
+\theta^\star = (X^\top X)^{-1} X^\top y
+$$
+
+(when $X^\top X$ is invertible). The map $y\mapsto (X^\top X)^{-1}X^\top y$ uses the **Moore–Penrose-style** left pseudoinverse of $X$.
+
+This is **linear regression** because $Y$ is continuous (not classification).
+
+---
+
+## Worked mini-example
+
+Two points $(x,y)=(1,1),(2,2)$, no bias term, scalar $\theta$. OLS: $\theta^\star=1$ (perfect line through origin). With bias via $x\leftarrow(x,1)$, you can fit intercept as well.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| ERM ignores probability | Squared loss secretly assumes Gaussian $p(y\mid x)$. |
+| Pseudoinverse always needs invertibility | Use $(X^\top X)^{-1}$ when full rank; otherwise a generalized inverse / regularization. |
+| Bias term forgotten | Augment $x$ with a $1$ coordinate or keep an explicit $\theta_0$. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie, Tibshirani, Friedman, ESL Ch.3 — linear regression
+- Bishop PRML §3.1 — linear basis models / least squares
+
+## Self-check questions
+
+1. State the ERM $\leftrightarrow$ MLE equivalence for squared loss.
+2. What distributional assumption sits behind squared error?
+3. Write the OLS closed form for $\theta^\star$.
+4. How do you include a bias without a separate $\theta_0$?
+5. Why is this called regression rather than classification?
+
+*(Short answers are in `self-check-answers.qmd`.)*
