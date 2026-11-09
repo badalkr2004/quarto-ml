@@ -1,0 +1,10 @@
+---
+title: "Lecture 68 — Self-check answers"
+sidebar: mfml
+---
+
+1. $p(w_1,\ldots,w_T)=\prod_{t=1}^{T}p(w_t\mid w_{1:t-1})$.
+2. Cross-entropy / negative log-likelihood of the true next token.
+3. Self-attention (weighted combination of other positions’ values).
+4. Finetuning updates weights on a dataset; prompting only changes the input context.
+5. Hallucination (confident false statements), among others.

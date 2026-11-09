@@ -1,0 +1,98 @@
+---
+title: "Lecture 68 — Introduction to Large Language Models (LLMs)"
+subtitle: "Next-token prediction, transformers, pretrain / finetune / prompt"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 68 — Introduction to Large Language Models : LLMs](https://www.youtube.com/watch?v=41tyjrCeENA)
+
+## Learning goals
+
+- Frame an LLM as a **next-token** generative model over text.
+- Sketch why **transformers** (attention) scale to long context.
+- Distinguish **pretraining**, **finetuning**, and **prompting** at an intro level.
+
+## Before this clicks
+
+Text is a sequence of tokens $w_1,w_2,\ldots,w_T$ (subword pieces). A language model assigns probability
+
+$$
+p(w_1,\ldots,w_T)=\prod_{t=1}^{T}p(w_t\mid w_1,\ldots,w_{t-1}).
+$$
+
+Training on huge corpora to predict the next token teaches syntax, facts, and many skills as a side effect of compression / prediction. “Large” refers to scale: parameters, data, and compute.
+
+---
+
+## Main ideas
+
+### 1. Next-token prediction
+
+At each step the model outputs a softmax over the vocabulary. Loss is cross-entropy of the true next token (maximum likelihood for the autoregressive factorization). Generation: sample or greedily pick $\hat w_t$, append, repeat.
+
+### 2. Transformers (intuition)
+
+Instead of processing tokens only left-to-right with a recurrent hidden state, **self-attention** lets each position form a weighted mix of other positions’ representations:
+
+$$
+\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\Big(\frac{QK^\top}{\sqrt{d_k}}\Big)V
+$$
+
+(schematic). Stacked attention + feed-forward blocks yield deep contextual embeddings. Positional information is added so order matters.
+
+### 3. Pretrain $\to$ adapt
+
+| Stage | What happens |
+|-------|----------------|
+| **Pretrain** | Next-token (or related) loss on broad unlabeled text |
+| **Finetune** | Continue training on a narrower labeled / instruction dataset |
+| **Prompt** | Freeze weights; steer behavior with carefully chosen input text (and optional few-shot examples) |
+
+Instruction tuning and RLHF-style preference optimization are common post-pretrain stages in modern chat models — course-level: adaptation need not always mean full retraining from scratch.
+
+### 4. Capabilities and limits (honest intro)
+
+- Strengths: fluent text, translation-ish behavior, coding assist, tool use when wrapped in systems.
+- Limits: hallucinations (fluent wrong answers), context-window bounds, sensitivity to prompt wording, cost/latency, data bias.
+
+### 5. Link to the course
+
+LLMs are **generative sequence models**. Attention is a learned similarity-weighted combination — kin in spirit to kernels / soft lookup, but trained end-to-end at scale. Prompting is inference-time control of a conditional generative model $p(w\mid\mathrm{context})$.
+
+---
+
+## Worked mini-example
+
+Context: “The capital of France is”. The model’s next-token distribution should put high mass on “Paris”. Pretraining saw many such patterns; no explicit geography database is required for that particular fact to appear — but the same mechanism can invent plausible-sounding errors, which is why verification matters.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| LLM = search engine | It **generates** tokens from $p(w_t\mid\mathrm{past})$, not retrieve-by-default. |
+| Prompting trains the model | Ordinary prompting does **not** update weights. |
+| Bigger always true | Scale helps many benchmarks; it does not guarantee factuality. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Vaswani et al. — Attention Is All You Need
+- Goodfellow / modern NLP surveys — sequence models overview
+- Murphy — deep sequence / transformer notes
+
+## Self-check questions
+
+1. Write the autoregressive factorization of $p(w_1,\ldots,w_T)$.
+2. What loss is used for next-token pretraining?
+3. What mechanism lets transformers mix information across positions?
+4. Difference between finetuning and prompting?
+5. Name one failure mode of LLMs despite fluent output.
+
+*(Short answers are in `self-check-answers.qmd`.)*
