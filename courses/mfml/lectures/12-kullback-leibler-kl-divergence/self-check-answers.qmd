@@ -1,0 +1,10 @@
+---
+title: "Lecture 12 — Self-check answers"
+sidebar: mfml
+---
+
+1. $H(p,q)=\mathbb{E}_{x\sim p}[-\log q(x)]$.
+2. $H(p,q)-H(p)=\mathbb{E}_{p}[-\log q]-\mathbb{E}_{p}[-\log p]=\mathbb{E}_{p}[\log(p/q)]$.
+3. KL is $0$.
+4. It is not symmetric: $D_{\mathrm{KL}}(p\|q)$ need not equal $D_{\mathrm{KL}}(q\|p)$.
+5. Usually $q=p_{\theta}$ (the model); $p$ is the unknown true law of the data.

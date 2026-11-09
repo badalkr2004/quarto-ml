@@ -1,0 +1,165 @@
+---
+title: "Lecture 12 — Kullback-Leibler (KL) Divergence"
+subtitle: "Cross-entropy minus entropy: a directed gap between distributions"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 12 — Kullback-Leibler (KL) Divergence](https://www.youtube.com/watch?v=ihkGbIdbbxc)
+
+### Learning goals
+- Define **cross-entropy** $H(p,q)$
+- Define **KL divergence** $D_{\mathrm{KL}}(p\|q)$ as cross-entropy minus entropy
+- Know KL is $\ge 0$, zero iff $p=q$, and **not symmetric**
+- Write discrete and continuous formulas used in this course
+
+### Before this clicks
+Entropy (Lecture 11): $H(p)=\mathbb{E}_{p}[-\log p(X)]$. Surprisal under a candidate law $q$ is $-\log q(x)$. We need a directed measure of “using $q$ when truth is $p$.”
+
+Notation care: here $p,q$ are **PMFs** (discrete) or **densities** (continuous) — not the abstract set-function $P$.
+
+---
+
+## 1. Cross-entropy
+
+Let $p$ and $q$ be two distributions on the **same** space. Define
+
+$$
+H(p,q)
+=\mathbb{E}_{x\sim p}\bigl[-\log q(x)\bigr].
+$$
+
+**Story:** samples are truly drawn from $p$, but you score surprise with $-\log q$. Average that surprise under the true $p$.
+
+- If $q=p$, cross-entropy collapses to ordinary entropy $H(p)$.
+- If $q$ is a wrong model (e.g. Gaussian mean $3$ while truth has mean $0$), cross-entropy measures how costly that wrong assumption is **on average under the truth**.
+
+**Not symmetric:** $H(p,q)\neq H(q,p)$ in general.
+
+Discrete form:
+
+$$
+H(p,q)=-\sum_{i} p(x_i)\log q(x_i).
+$$
+
+---
+
+## 2. KL divergence = extra surprise
+
+Class definition (after fixing the algebra live):
+
+$$
+D_{\mathrm{KL}}(p\|q)
+=H(p,q)-H(p).
+$$
+
+Expand:
+
+$$
+\begin{aligned}
+D_{\mathrm{KL}}(p\|q)
+&=\mathbb{E}_{p}[-\log q]-\mathbb{E}_{p}[-\log p]\\
+&=\mathbb{E}_{p}\bigl[\log p(X)-\log q(X)\bigr]\\
+&=\mathbb{E}_{p}\Bigl[\log\frac{p(X)}{q(X)}\Bigr].
+\end{aligned}
+$$
+
+Discrete:
+
+$$
+D_{\mathrm{KL}}(p\|q)=\sum_{i} p(x_i)\log\frac{p(x_i)}{q(x_i)}.
+$$
+
+Continuous (densities):
+
+$$
+D_{\mathrm{KL}}(p\|q)=\int p(x)\log\frac{p(x)}{q(x)}\,dx.
+$$
+
+**Reading:** entropy is average information in $p$; cross-entropy is average information when coding / scoring with $q$ under true $p$. Their difference is the **extra** bits (nats) you pay for using $q$ instead of $p$.
+
+Because cross-entropy is at least entropy (Gibbs inequality / Jensen on $-\log$), this difference is **non-negative**.
+
+---
+
+## 3. Properties you should prove as homework
+
+1. **Non-negativity:** $D_{\mathrm{KL}}(p\|q)\ge 0$.
+2. **Identity of indiscernibles (one side):** $D_{\mathrm{KL}}(p\|q)=0$ iff $p=q$ (almost everywhere).
+3. **Asymmetry:** $D_{\mathrm{KL}}(p\|q)\neq D_{\mathrm{KL}}(q\|p)$ in general.
+4. **Not a metric:** asymmetry alone already means it fails to be a metric; triangle inequality also fails.
+
+Still: when $p$ and $q$ match, KL is $0$; when they diverge, KL grows — exactly the kind of training signal Lecture 10 asked for.
+
+---
+
+## 4. Tiny concrete example
+
+Two Bernoullis on $\{0,1\}$:
+
+$$
+p(1)=\tfrac12,\quad q(1)=\tfrac34.
+$$
+
+Then
+
+$$
+\begin{aligned}
+D_{\mathrm{KL}}(p\|q)
+&=
+\tfrac12\log\frac{1/2}{3/4}
++
+\tfrac12\log\frac{1/2}{1/4}
+=
+\tfrac12\log\frac{2}{3}
++
+\tfrac12\log 2.
+\end{aligned}
+$$
+
+Swap $p\leftrightarrow q$ and the number changes — asymmetry in one line.
+
+---
+
+## 5. Role in the ML recipe
+
+With model $p_{\theta}$ playing the role of $q$,
+
+$$
+\theta^{\star}=\arg\min_{\theta}\, D_{\mathrm{KL}}\bigl(p\,\|\,p_{\theta}\bigr)
+$$
+
+is a canonical training goal. Later lectures connect this to **maximum likelihood** (minimizing KL is tightly linked to maximizing likelihood of the data under $p_{\theta}$).
+
+---
+
+## 6. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| KL is a distance like Euclidean | Directed divergence; not symmetric. |
+| $D_{\mathrm{KL}}(p\|q)$ vs $D_{\mathrm{KL}}(q\|p)$ | Different numbers; pick the order that matches “truth vs model.” |
+| Cross-entropy = KL | KL $=$ cross-entropy $-$ entropy (entropy depends only on $p$). |
+| Continuous KL uses probabilities at points | Uses **densities** inside the log ratio; still integrates against $p$. |
+
+---
+
+## 7. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Cover & Thomas, *Elements of Information Theory* — KL divergence chapter
+- Murphy, *Probabilistic Machine Learning* — KL and MLE connection
+- Bishop, *PRML* — KL in variational / approximation settings (optional)
+
+---
+
+## 8. Self-check
+
+1. Write $H(p,q)$ as an expectation under $p$.
+2. Show $D_{\mathrm{KL}}(p\|q)=H(p,q)-H(p)$ equals $\mathbb{E}_{p}[\log(p/q)]$.
+3. What happens to KL when $p=q$?
+4. Give one reason KL is not a metric.
+5. In ML training, which argument is usually the model $p_{\theta}$?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
