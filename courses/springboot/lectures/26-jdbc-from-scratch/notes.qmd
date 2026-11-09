@@ -1,0 +1,41 @@
+---
+title: "Lecture 26 — JDBC from scratch"
+subtitle: "Talk to MySQL with plain Java JDBC"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [JDBC from scratch \| Full Course #26](https://www.youtube.com/watch?v=IbCHISQOMUA)  
+**Playlist index:** 26
+
+---
+## Big idea
+
+Before Spring JDBC, learn raw JDBC:
+
+```text
+DriverManager → Connection → PreparedStatement → ResultSet
+```
+
+## Steps
+
+1. Add MySQL driver.
+2. `Connection conn = DriverManager.getConnection(url, user, pass);`
+3. `PreparedStatement` with `?` placeholders (never string-concat user input).
+4. `executeUpdate` / `executeQuery`.
+5. Close resources (try-with-resources).
+
+## Practice
+
+CRUD a `product` table with plain JDBC in a small main class.
+
+## Reasoning
+
+SQL injection risk is why prepared statements matter. Spring JDBC will wrap this boilerplate next.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
