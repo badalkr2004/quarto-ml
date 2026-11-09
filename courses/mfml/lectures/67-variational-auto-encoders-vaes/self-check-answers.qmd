@@ -1,0 +1,10 @@
+---
+title: "Lecture 67 — Self-check answers"
+sidebar: mfml
+---
+
+1. Marginalizing $z$ in $p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz$ is intractable.
+2. Approximate posterior (encoder) and conditional likelihood / decoder.
+3. $\mathcal{L}=\mathbb{E}_{q(z\mid x)}[\log p(x\mid z)]-\mathrm{KL}(q(z\mid x)\|p(z))$.
+4. Sample $z\sim p(z)$, then $x\sim p_\theta(x\mid z)$ (no encoder needed).
+5. VAEs often give blurrier samples; GANs often sharper but less stable / no easy likelihood.

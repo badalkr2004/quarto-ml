@@ -1,0 +1,111 @@
+---
+title: "Lecture 67 — Variational Autoencoders (VAEs)"
+subtitle: "Encoder $q(z\mid x)$, decoder $p(x\mid z)$, train with the ELBO"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 67 — Variational Auto Encoders : VAEs](https://www.youtube.com/watch?v=8LAKmtw0WvQ)
+
+## Learning goals
+
+- Pose a latent-variable model $p(z)p_\theta(x\mid z)$ and why $\log p_\theta(x)$ is hard.
+- Introduce the encoder (approximate posterior) $q_\phi(z\mid x)$.
+- Decompose the **ELBO** into reconstruction + KL regularizer.
+
+## Before this clicks
+
+We want $z\sim p(z)$ (often $\mathcal{N}(0,I)$) and a decoder $p_\theta(x\mid z)$ (e.g. Gaussian or Bernoulli with NN means). The marginal
+
+$$
+p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz
+$$
+
+is typically intractable, so MLE is blocked. A VAE introduces a recognition network $q_\phi(z\mid x)$ and optimizes a **lower bound** on $\log p_\theta(x)$ — the ELBO — which is tractable with reparameterized sampling.
+
+---
+
+## Main ideas
+
+### 1. Encoder and decoder
+
+- **Encoder** $q_\phi(z\mid x)$: maps $x$ to a distribution over latents (often diagonal Gaussian with mean/variance nets).
+- **Decoder** $p_\theta(x\mid z)$: reconstructs $x$ from $z$.
+
+Together they resemble an autoencoder, but both sides are **probabilistic**, and $q$ is trained to match the true posterior in a variational sense.
+
+### 2. ELBO
+
+For each $x$,
+
+$$
+\log p_\theta(x)\ge
+\mathbb{E}_{q_\phi(z\mid x)}[\log p_\theta(x\mid z)]
+-\mathrm{KL}\big(q_\phi(z\mid x)\,\|\,p(z)\big)
+\;=\;\mathcal{L}(\theta,\phi;x).
+$$
+
+- **Reconstruction term:** encourage $z\sim q(\cdot\mid x)$ to decode back to $x$.
+- **KL term:** keep $q(z\mid x)$ close to the prior $p(z)$ so latents stay well-behaved for ancestral sampling.
+
+Maximize $\mathcal{L}$ (equivalently minimize $-\mathcal{L}$) over $\theta,\phi$.
+
+### 3. Reparameterization (sketch)
+
+For $q_\phi(z\mid x)=\mathcal{N}(\mu_\phi(x),\mathrm{diag}(\sigma_\phi^2(x)))$, sample
+
+$$
+z=\mu_\phi(x)+\sigma_\phi(x)\odot\varepsilon,\qquad\varepsilon\sim\mathcal{N}(0,I),
+$$
+
+so gradients flow through $\mu,\sigma$ into the encoder.
+
+### 4. Generation after training
+
+Drop the encoder: sample $z\sim p(z)$, then $x\sim p_\theta(x\mid z)$. The encoder is for training / representation; the prior+decoder is the generative model.
+
+### 5. Contrast with GANs
+
+| | VAE | GAN |
+|--|-----|-----|
+| Density | ELBO / approximate likelihood | Usually implicit |
+| Training | Single ELBO objective | Adversarial min-max |
+| Samples | Often blurrier | Often sharper |
+| Encoder | Built-in $q(z\mid x)$ | Not required |
+
+---
+
+## Worked mini-example
+
+MNIST digit $x$. Encoder outputs $(\mu,\sigma)$ in $\mathbb{R}^{16}$; sample $z$; decoder outputs pixel Bernoulli probabilities. Reconstruction loss pushes decoded pixels toward $x$; KL keeps $q(z\mid x)$ from wandering arbitrarily far from $\mathcal{N}(0,I)$. After training, $z\sim\mathcal{N}(0,I)$ through the decoder yields new digit-like images.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| ELBO = exact $\log p(x)$ | It is a **lower bound**; gap is $\mathrm{KL}(q\|p(z\mid x))$. |
+| VAE is only an autoencoder | Prior + probabilistic decoder make it **generative**. |
+| KL destroys all information in $z$ | It trades compression vs fidelity; $\beta$-VAE tunes that tradeoff. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Kingma & Welling — Auto-Encoding Variational Bayes
+- Goodfellow et al., *Deep Learning* — VAE chapter
+- Murphy — variational inference / VAEs
+
+## Self-check questions
+
+1. Why is $\log p_\theta(x)$ hard for a deep latent-variable model?
+2. What do $q_\phi(z\mid x)$ and $p_\theta(x\mid z)$ represent?
+3. Write the ELBO as reconstruction minus KL.
+4. How do you sample new $x$ at test time?
+5. Name one qualitative sample-quality difference vs GANs.
+
+*(Short answers are in `self-check-answers.qmd`.)*
