@@ -1,0 +1,10 @@
+---
+title: "Lecture 56 — Self-check answers"
+sidebar: mfml
+---
+
+1. Bootstrap resampling of the training set (sample $n$ rows with replacement) for each base model.
+2. $f_{\mathrm{ens}}(x)=\frac{1}{B}\sum_{b=1}^{B} f_b(x)$ (or majority vote).
+3. At each split, only a random subset of features is eligible.
+4. Boosting trains models sequentially to fix remaining errors; bagging trains them independently on bootstrap draws.
+5. Variance $\to\rho\sigma^{2}$ — residual dependence limits the gain; lowering $\rho$ still helps.

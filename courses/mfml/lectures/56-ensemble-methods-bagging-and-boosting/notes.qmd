@@ -1,0 +1,111 @@
+---
+title: "Lecture 56 — Ensemble Methods, Bagging and Boosting"
+subtitle: "Many weak trees beat one: parallel averages vs sequential residual focus"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 56 — Ensemble Methods, Bagging and Boosting](https://www.youtube.com/watch?v=2wyxSgVolJg)
+
+## Learning goals
+
+- Motivate ensembles: reduce variance (and sometimes bias) by combining models.
+- Define **bagging** (bootstrap aggregating) and the random-forest idea.
+- Contrast bagging with **boosting**: sequential reweighting / residual fitting.
+
+## Before this clicks
+
+A single deep tree is a low-bias, high-variance learner: change the sample a little, splits jump. Averaging many such trees trained on different bootstrap samples **stabilizes** predictions (**bagging**). **Boosting** instead builds models one after another, each fixing mistakes the current ensemble still makes. Same base learner (often a shallow tree); different collaboration pattern.
+
+---
+
+## Main ideas
+
+### 1. Ensemble prediction
+
+Regression average / classification vote (or probability average):
+
+$$
+f_{\mathrm{ens}}(x)=\frac{1}{B}\sum_{b=1}^{B} f_b(x)
+$$
+
+(with $\mathrm{sign}$ or majority for $\pm 1$ labels when appropriate).
+
+### 2. Bagging
+
+For $b=1,\ldots,B$:
+
+1. Draw a bootstrap sample $\mathcal{D}_b$ (sample $n$ rows with replacement from the training set).
+2. Train tree $f_b$ on $\mathcal{D}_b$.
+
+Aggregate as above. Trees are noisy but roughly unbiased; averaging cuts variance if errors are not perfectly correlated.
+
+**Random forest** adds feature randomness: at each split, choose among a random subset of features — decorrelates trees further.
+
+### 3. Boosting (big picture)
+
+Fit $f_1$, then $f_2$ emphasizing points (or residuals) where $f_1$ failed, then $f_3$, … Final model is a **weighted sum**
+
+$$
+F_M(x)=\sum_{m=1}^{M}\nu\, f_m(x)
+$$
+
+with small step size $\nu$ (shrinkage) often helping generalization. Details differ for AdaBoost vs gradient boosting (next lectures).
+
+### 4. Bagging vs boosting intuition
+
+| | Bagging | Boosting |
+|--|---------|----------|
+| Order | Parallel / independent | Sequential |
+| Focus | Equal-ish bootstrap draws | Hard examples / residuals |
+| Typical trees | Deep, unpruned | Shallow (weak learners) |
+| Main effect | Variance $\downarrow$ | Bias $\downarrow$ (risk of overfit if $M$ huge) |
+
+### 5. Why trees ensemble so well?
+
+Trees are unstable (good for bagging) and easy to make weak (good for boosting). Axis-aligned fragments combine into flexible surfaces without assuming linearity.
+
+---
+
+## Worked mini-example
+
+Three bootstrap trees vote on a test point: $+1,+1,-1$ $\Rightarrow$ bagged vote $+1$. Separately, a boosted stack might be $0.5\,f_1+0.3\,f_2+0.2\,f_3$ with each $f_m$ correcting the previous weighted error — same base tree type, different combination logic.
+
+Variance sketch: if $B$ i.i.d. predictors each have variance $\sigma^{2}$ and pairwise correlation $\rho$,
+
+$$
+\mathrm{Var}\Bigl(\tfrac{1}{B}\sum_b f_b\Bigr)=\rho\sigma^{2}+\frac{1-\rho}{B}\sigma^{2}.
+$$
+
+Bagging helps through the $(1-\rho)/B$ term; forests try to shrink $\rho$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Bagging = boosting | Parallel average vs sequential correction |
+| More trees always overfit in bagging | Bagging average usually plateaus; boosting can overfit with large $M$ |
+| Forest needs boosting | Random forest is bagging + feature subsets |
+| Ensemble needs different algorithms | Same algorithm, different data/weights, is enough |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al. — *ESL* (bagging, boosting, random forests)
+- Bishop *PRML* — combining models
+
+## Self-check questions
+
+1. What sampling step defines bagging?
+2. Write a simple averaged ensemble predictor.
+3. How does a random forest decorrelate trees beyond bagging?
+4. In one sentence, how does boosting differ from bagging?
+5. In the variance formula, what happens as $B\to\infty$?
+
+*(Short answers are in `self-check-answers.qmd`.)*
