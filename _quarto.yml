@@ -102,6 +102,72 @@ website:
             - courses/springboot/lectures/08-spring-xml-configuration/self-check-answers.qmd
             - courses/springboot/lectures/09-spring-boot-core/notes.qmd
             - courses/springboot/lectures/09-spring-boot-core/self-check-answers.qmd
+            - courses/springboot/lectures/10-application-properties-value-runners/notes.qmd
+            - courses/springboot/lectures/10-application-properties-value-runners/self-check-answers.qmd
+            - courses/springboot/lectures/11-crud-project-architecture/notes.qmd
+            - courses/springboot/lectures/11-crud-project-architecture/self-check-answers.qmd
+            - courses/springboot/lectures/12-crud-mysql-jpa/notes.qmd
+            - courses/springboot/lectures/12-crud-mysql-jpa/self-check-answers.qmd
+            - courses/springboot/lectures/13-crud-soft-delete/notes.qmd
+            - courses/springboot/lectures/13-crud-soft-delete/self-check-answers.qmd
+            - courses/springboot/lectures/14-java-web-servlets-tomcat/notes.qmd
+            - courses/springboot/lectures/14-java-web-servlets-tomcat/self-check-answers.qmd
+            - courses/springboot/lectures/15-spring-mvc-architecture/notes.qmd
+            - courses/springboot/lectures/15-spring-mvc-architecture/self-check-answers.qmd
+            - courses/springboot/lectures/16-dtos-validations/notes.qmd
+            - courses/springboot/lectures/16-dtos-validations/self-check-answers.qmd
+            - courses/springboot/lectures/17-exception-handling/notes.qmd
+            - courses/springboot/lectures/17-exception-handling/self-check-answers.qmd
+            - courses/springboot/lectures/18-profiles-yaml/notes.qmd
+            - courses/springboot/lectures/18-profiles-yaml/self-check-answers.qmd
+            - courses/springboot/lectures/19-filters-basics/notes.qmd
+            - courses/springboot/lectures/19-filters-basics/self-check-answers.qmd
+            - courses/springboot/lectures/20-filters-advanced/notes.qmd
+            - courses/springboot/lectures/20-filters-advanced/self-check-answers.qmd
+            - courses/springboot/lectures/21-interceptors/notes.qmd
+            - courses/springboot/lectures/21-interceptors/self-check-answers.qmd
+            - courses/springboot/lectures/22-aop-basics/notes.qmd
+            - courses/springboot/lectures/22-aop-basics/self-check-answers.qmd
+            - courses/springboot/lectures/23-aop-advice-types/notes.qmd
+            - courses/springboot/lectures/23-aop-advice-types/self-check-answers.qmd
+            - courses/springboot/lectures/24-aop-pointcuts-proxies/notes.qmd
+            - courses/springboot/lectures/24-aop-pointcuts-proxies/self-check-answers.qmd
+            - courses/springboot/lectures/25-aop-custom-annotations/notes.qmd
+            - courses/springboot/lectures/25-aop-custom-annotations/self-check-answers.qmd
+            - courses/springboot/lectures/26-jdbc-from-scratch/notes.qmd
+            - courses/springboot/lectures/26-jdbc-from-scratch/self-check-answers.qmd
+            - courses/springboot/lectures/27-spring-jdbc/notes.qmd
+            - courses/springboot/lectures/27-spring-jdbc/self-check-answers.qmd
+            - courses/springboot/lectures/28-hibernate-fundamentals/notes.qmd
+            - courses/springboot/lectures/28-hibernate-fundamentals/self-check-answers.qmd
+            - courses/springboot/lectures/29-hibernate-internals/notes.qmd
+            - courses/springboot/lectures/29-hibernate-internals/self-check-answers.qmd
+            - courses/springboot/lectures/30-jpa-relationships/notes.qmd
+            - courses/springboot/lectures/30-jpa-relationships/self-check-answers.qmd
+            - courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/notes.qmd
+            - courses/springboot/lectures/31-jpa-cascading-lazy-nplus1/self-check-answers.qmd
+            - courses/springboot/lectures/32-spring-data-jpa/notes.qmd
+            - courses/springboot/lectures/32-spring-data-jpa/self-check-answers.qmd
+            - courses/springboot/lectures/33-spring-transactions/notes.qmd
+            - courses/springboot/lectures/33-spring-transactions/self-check-answers.qmd
+            - courses/springboot/lectures/34-transaction-propagation-isolation/notes.qmd
+            - courses/springboot/lectures/34-transaction-propagation-isolation/self-check-answers.qmd
+            - courses/springboot/lectures/35-spring-security-basics/notes.qmd
+            - courses/springboot/lectures/35-spring-security-basics/self-check-answers.qmd
+            - courses/springboot/lectures/36-security-db-password/notes.qmd
+            - courses/springboot/lectures/36-security-db-password/self-check-answers.qmd
+            - courses/springboot/lectures/37-security-auth-internals/notes.qmd
+            - courses/springboot/lectures/37-security-auth-internals/self-check-answers.qmd
+            - courses/springboot/lectures/38-jwt-authentication/notes.qmd
+            - courses/springboot/lectures/38-jwt-authentication/self-check-answers.qmd
+            - courses/springboot/lectures/39-oauth2-oidc/notes.qmd
+            - courses/springboot/lectures/39-oauth2-oidc/self-check-answers.qmd
+            - courses/springboot/lectures/40-testing-junit-mockito-mockmvc/notes.qmd
+            - courses/springboot/lectures/40-testing-junit-mockito-mockmvc/self-check-answers.qmd
+            - courses/springboot/lectures/41-production-project-microservices/notes.qmd
+            - courses/springboot/lectures/41-production-project-microservices/self-check-answers.qmd
+            - courses/springboot/lectures/42-api-gateway-gatekeeper/notes.qmd
+            - courses/springboot/lectures/42-api-gateway-gatekeeper/self-check-answers.qmd
         - courses/springboot/references.qmd
     # --- Paste a new sidebar block when you add a series ---
     # - id: SERIES_ID

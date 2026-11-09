@@ -31,3 +31,12 @@ Course-specific links. Shared site references: [References](../../references/ind
 | Bean lifecycle, `@PostConstruct` / `@PreDestroy` | Lecture 07 |
 | XML config, `ClassPathXmlApplicationContext` | Lecture 08 |
 | `@SpringBootApplication`, starters, auto-config | Lecture 09 |
+| Properties, `@Value`, runners | Lecture 10 |
+| CRUD API → JPA → soft delete | Lectures 11–13 |
+| Servlets & Spring MVC | Lectures 14–15 |
+| DTOs, errors, profiles, filters, interceptors | Lectures 16–21 |
+| AOP | Lectures 22–25 |
+| JDBC → JPA → transactions | Lectures 26–34 |
+| Security, JWT, OAuth | Lectures 35–39 |
+| Testing & production projects | Lectures 40–42 |
+

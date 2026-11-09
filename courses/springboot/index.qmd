@@ -38,7 +38,39 @@ These pages are written so anyone can **type code in their own editor**, one ste
 | 07 | [Bean lifecycle — `@PostConstruct`, `@PreDestroy`, scopes, `@Lazy`](lectures/07-bean-lifecycle/notes.qmd) | [Self-check](lectures/07-bean-lifecycle/self-check-answers.qmd) |
 | 08 | [Spring XML configuration — beans, DI, scopes, lifecycle](lectures/08-spring-xml-configuration/notes.qmd) | [Self-check](lectures/08-spring-xml-configuration/self-check-answers.qmd) |
 | 09 | [Spring Boot core — `@SpringBootApplication`, starters, auto-config](lectures/09-spring-boot-core/notes.qmd) | [Self-check](lectures/09-spring-boot-core/self-check-answers.qmd) |
-| 10+ | *Add next playlist lectures the same way* | |
+| 10 | [Application properties, `@Value` & runners](lectures/10-application-properties-value-runners/notes.qmd) | [Self-check](lectures/10-application-properties-value-runners/self-check-answers.qmd) |
+| 11 | [CRUD project architecture](lectures/11-crud-project-architecture/notes.qmd) | [Self-check](lectures/11-crud-project-architecture/self-check-answers.qmd) |
+| 12 | [CRUD with MySQL & JPA](lectures/12-crud-mysql-jpa/notes.qmd) | [Self-check](lectures/12-crud-mysql-jpa/self-check-answers.qmd) |
+| 13 | [Soft delete & custom JPA methods](lectures/13-crud-soft-delete/notes.qmd) | [Self-check](lectures/13-crud-soft-delete/self-check-answers.qmd) |
+| 14 | [Java web apps — servlets, Tomcat, WAR](lectures/14-java-web-servlets-tomcat/notes.qmd) | [Self-check](lectures/14-java-web-servlets-tomcat/self-check-answers.qmd) |
+| 15 | [Spring MVC architecture](lectures/15-spring-mvc-architecture/notes.qmd) | [Self-check](lectures/15-spring-mvc-architecture/self-check-answers.qmd) |
+| 16 | [DTOs & validations](lectures/16-dtos-validations/notes.qmd) | [Self-check](lectures/16-dtos-validations/self-check-answers.qmd) |
+| 17 | [Exception handling](lectures/17-exception-handling/notes.qmd) | [Self-check](lectures/17-exception-handling/self-check-answers.qmd) |
+| 18 | [Profiles & YAML](lectures/18-profiles-yaml/notes.qmd) | [Self-check](lectures/18-profiles-yaml/self-check-answers.qmd) |
+| 19 | [Filters (basics)](lectures/19-filters-basics/notes.qmd) | [Self-check](lectures/19-filters-basics/self-check-answers.qmd) |
+| 20 | [Filters (request/response)](lectures/20-filters-advanced/notes.qmd) | [Self-check](lectures/20-filters-advanced/self-check-answers.qmd) |
+| 21 | [Interceptors](lectures/21-interceptors/notes.qmd) | [Self-check](lectures/21-interceptors/self-check-answers.qmd) |
+| 22 | [AOP basics](lectures/22-aop-basics/notes.qmd) | [Self-check](lectures/22-aop-basics/self-check-answers.qmd) |
+| 23 | [AOP advice types](lectures/23-aop-advice-types/notes.qmd) | [Self-check](lectures/23-aop-advice-types/self-check-answers.qmd) |
+| 24 | [AOP pointcuts & proxies](lectures/24-aop-pointcuts-proxies/notes.qmd) | [Self-check](lectures/24-aop-pointcuts-proxies/self-check-answers.qmd) |
+| 25 | [AOP custom annotations](lectures/25-aop-custom-annotations/notes.qmd) | [Self-check](lectures/25-aop-custom-annotations/self-check-answers.qmd) |
+| 26 | [JDBC from scratch](lectures/26-jdbc-from-scratch/notes.qmd) | [Self-check](lectures/26-jdbc-from-scratch/self-check-answers.qmd) |
+| 27 | [Spring JDBC](lectures/27-spring-jdbc/notes.qmd) | [Self-check](lectures/27-spring-jdbc/self-check-answers.qmd) |
+| 28 | [Hibernate fundamentals](lectures/28-hibernate-fundamentals/notes.qmd) | [Self-check](lectures/28-hibernate-fundamentals/self-check-answers.qmd) |
+| 29 | [Hibernate internals](lectures/29-hibernate-internals/notes.qmd) | [Self-check](lectures/29-hibernate-internals/self-check-answers.qmd) |
+| 30 | [JPA relationships](lectures/30-jpa-relationships/notes.qmd) | [Self-check](lectures/30-jpa-relationships/self-check-answers.qmd) |
+| 31 | [Cascade, lazy loading, N+1](lectures/31-jpa-cascading-lazy-nplus1/notes.qmd) | [Self-check](lectures/31-jpa-cascading-lazy-nplus1/self-check-answers.qmd) |
+| 32 | [Spring Data JPA](lectures/32-spring-data-jpa/notes.qmd) | [Self-check](lectures/32-spring-data-jpa/self-check-answers.qmd) |
+| 33 | [Spring transactions](lectures/33-spring-transactions/notes.qmd) | [Self-check](lectures/33-spring-transactions/self-check-answers.qmd) |
+| 34 | [Propagation & isolation](lectures/34-transaction-propagation-isolation/notes.qmd) | [Self-check](lectures/34-transaction-propagation-isolation/self-check-answers.qmd) |
+| 35 | [Spring Security basics](lectures/35-spring-security-basics/notes.qmd) | [Self-check](lectures/35-spring-security-basics/self-check-answers.qmd) |
+| 36 | [Security DB auth & passwords](lectures/36-security-db-password/notes.qmd) | [Self-check](lectures/36-security-db-password/self-check-answers.qmd) |
+| 37 | [Security auth internals](lectures/37-security-auth-internals/notes.qmd) | [Self-check](lectures/37-security-auth-internals/self-check-answers.qmd) |
+| 38 | [JWT authentication](lectures/38-jwt-authentication/notes.qmd) | [Self-check](lectures/38-jwt-authentication/self-check-answers.qmd) |
+| 39 | [OAuth 2.0 & OIDC](lectures/39-oauth2-oidc/notes.qmd) | [Self-check](lectures/39-oauth2-oidc/self-check-answers.qmd) |
+| 40 | [Testing — JUnit, Mockito, MockMvc](lectures/40-testing-junit-mockito-mockmvc/notes.qmd) | [Self-check](lectures/40-testing-junit-mockito-mockmvc/self-check-answers.qmd) |
+| 41 | [Production project — microservices](lectures/41-production-project-microservices/notes.qmd) | [Self-check](lectures/41-production-project-microservices/self-check-answers.qmd) |
+| 42 | [API gateway — GateKeeper](lectures/42-api-gateway-gatekeeper/notes.qmd) | [Self-check](lectures/42-api-gateway-gatekeeper/self-check-answers.qmd) |
 
 ## Prerequisites
 
