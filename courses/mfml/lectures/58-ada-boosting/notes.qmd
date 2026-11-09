@@ -1,0 +1,102 @@
+---
+title: "Lecture 58 — Ada-Boosting"
+subtitle: "Reweight misclassified points; combine weak classifiers with alpha-weighted votes"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 58 — Ada-Boosting](https://www.youtube.com/watch?v=27cAa8L0JQo)
+
+## Learning goals
+
+- Run AdaBoost: maintain sample weights, train a weak classifier, update weights.
+- Compute the stage weight $\alpha_m$ from the weighted error.
+- See the final predictor as a signed weighted vote of the weak learners.
+
+## Before this clicks
+
+Labels $y_i\in\{-1,+1\}$. A **weak** classifier $G_m$ need only beat chance (weighted error $<1/2$). AdaBoost raises weights on points $G_m$ got wrong so the next learner focuses there, and assigns a larger vote $\alpha_m$ to more accurate stages. The ensemble is $\mathrm{sign}(\sum_m\alpha_m G_m(x))$.
+
+---
+
+## Main ideas
+
+### 1. Weights and weighted error
+
+Start with $w_i^{(1)}=1/n$. After training $G_m$ with weights $w_i^{(m)}$,
+
+$$
+\varepsilon_m=\sum_{i=1}^{n} w_i^{(m)}\,\mathbf{1}\{G_m(x_i)\neq y_i\}
+$$
+
+(assume weights sum to $1$; else normalize). Need $\varepsilon_m<1/2$.
+
+### 2. Stage coefficient
+
+$$
+\alpha_m=\frac12\log\frac{1-\varepsilon_m}{\varepsilon_m}.
+$$
+
+Smaller $\varepsilon_m$ $\Rightarrow$ larger $\alpha_m$ (more trust).
+
+### 3. Weight update
+
+$$
+w_i^{(m+1)}\propto w_i^{(m)}\exp\bigl(-\alpha_m y_i G_m(x_i)\bigr),
+$$
+
+then renormalize to sum to $1$. Since $y_i G_m(x_i)=+1$ on correct points and $-1$ on errors, mistakes get multiplied by $e^{\alpha_m}$ (upweighted) and correct points by $e^{-\alpha_m}$.
+
+### 4. Final classifier
+
+$$
+F(x)=\sum_{m=1}^{M}\alpha_m G_m(x),\qquad
+\hat{y}(x)=\mathrm{sign}\bigl(F(x)\bigr).
+$$
+
+### 5. Link to losses / GB
+
+AdaBoost can be viewed as stagewise minimization of exponential loss $\ell(y,F)=e^{-yF}$. Gradient boosting on that loss recovers a close cousin; AdaBoost’s classic presentation is the reweighting story above.
+
+---
+
+## Worked mini-example
+
+$n=4$ points, equal weights $w_i=1/4$. Weak rule $G_1$ misses $1$ point $\Rightarrow$ $\varepsilon_1=1/4$.
+
+$$
+\alpha_1=\frac12\log\frac{3/4}{1/4}=\frac12\log 3\approx 0.549.
+$$
+
+The missed point’s weight is multiplied by $e^{\alpha_1}=\sqrt{3}$; each correct point by $e^{-\alpha_1}=1/\sqrt{3}$; then renormalize. Next stump $G_2$ is trained on the new weights and will try harder on that hard point. Final vote: $\mathrm{sign}(\alpha_1 G_1+\alpha_2 G_2+\cdots)$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Weights are model parameters $w$ in $w^\top x$ | Here $w_i$ are **training-sample** importance weights |
+| $\varepsilon_m\ge 1/2$ is fine | Then $\alpha_m\le 0$; flip the weak learner or stop — need $\varepsilon_m<1/2$ |
+| AdaBoost = gradient boosting on SSE | AdaBoost $\leftrightarrow$ exponential loss / classification reweighting |
+| Only works with trees | Any weak classifier API works; trees/stumps are common |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al. — *ESL* (AdaBoost, exponential loss)
+- Freund & Schapire — original AdaBoost papers
+
+## Self-check questions
+
+1. Write $\alpha_m$ in terms of $\varepsilon_m$.
+2. How do weights change for a misclassified point?
+3. What is the final AdaBoost prediction rule?
+4. Why require $\varepsilon_m<1/2$?
+5. Which loss is AdaBoost associated with?
+
+*(Short answers are in `self-check-answers.qmd`.)*

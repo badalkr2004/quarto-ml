@@ -1,0 +1,10 @@
+---
+title: "Lecture 58 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\alpha_m=\frac12\log\frac{1-\varepsilon_m}{\varepsilon_m}$.
+2. Their weights are multiplied by $e^{\alpha_m}$ (then all weights are renormalized).
+3. $\hat{y}(x)=\mathrm{sign}\bigl(\sum_m\alpha_m G_m(x)\bigr)$.
+4. So $\alpha_m>0$ and the weak learner is better than chance under the current weights.
+5. Exponential loss $\ell(y,F)=\exp(-yF)$.
