@@ -1,0 +1,119 @@
+---
+title: "Lecture 21 — MLE for Latent Variable Models"
+subtitle: "Jensen’s inequality and the evidence lower bound (ELBO)"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 21 — MLE for Latent Variable Models](https://www.youtube.com/watch?v=BMj-TWtK83A)
+
+---
+
+## Learning goals
+
+- Write the observed-data log-likelihood with a latent sum/integral inside the $\log$
+- Introduce a variational distribution $q(z)$ and apply **Jensen** to get a lower bound
+- Recognize the **ELBO** (evidence lower bound) and the new optimization target
+
+---
+
+## Before this clicks
+
+Latent model: $P_\theta(x)=\sum_z P_\theta(x,z)$.  
+Want $\max_\theta\log P_\theta(x)$ but have $\log\sum_z$.  
+Jensen: for concave $\log$, $\log\mathbb{E}[U]\ge\mathbb{E}[\log U]$ (discrete expectations OK).
+
+---
+
+## Main ideas
+
+### 1. Likelihood with one datapoint (notation)
+
+Class algebra uses a single $x$ for clarity; for $n$ points, add an outer sum over $i$.
+
+$$
+L(\theta)=\log P_\theta(x)=\log\sum_z P_\theta(x,z)
+$$
+
+(discrete latent; continuous $\mapsto$ integral).
+
+Goal: maximize $L(\theta)$, and also deal with unknown $z$ by estimating a density/mass on $Z$.
+
+### 2. Insert $q(z)$
+
+Let $q(z)>0$ be any distribution on $Z$ (mass function if discrete). Then
+
+$$
+P_\theta(x)=\sum_z q(z)\,\frac{P_\theta(x,z)}{q(z)},
+$$
+
+so
+
+$$
+L(\theta)=\log\mathbb{E}_{z\sim q}\Bigl[\frac{P_\theta(x,z)}{q(z)}\Bigr].
+$$
+
+### 3. Jensen $\Rightarrow$ ELBO
+
+Because $\log$ is concave,
+
+$$
+L(\theta)\;\ge\; \mathbb{E}_{z\sim q}\Bigl[\log\frac{P_\theta(x,z)}{q(z)}\Bigr]
+\;=\; F(\theta,q).
+$$
+
+$F(\theta,q)$ is the **evidence lower bound (ELBO)** (“evidence” $=$ log-likelihood). It replaces $\log$sum by an expectation of logs — much friendlier structure.
+
+### 4. New optimization problem
+
+Instead of maximizing $L(\theta)$ directly (intractable for many latent models), maximize the lower bound $F(\theta,q)$ over $\theta$ (and, in full generality, over $q$).
+
+Caveat stated in class: maximizing a lower bound does **not** automatically maximize $L$; we need algorithms (EM next) that control the gap.
+
+### 5. Link forward
+
+Lecture 22 asks: which $q$ makes the bound **tight** ($F=L$)? Answer: $q(z)=P_\theta(z\mid x)$. That choice yields the EM iteration when the posterior is tractable (e.g. GMMs).
+
+---
+
+## Worked mini-example
+
+Binary latent $z\in\{0,1\}$, some joint $P_\theta(x,z)$. Pick $q(0)=q(1)=\tfrac12$. Then
+
+$$
+F(\theta,q)=\tfrac12\sum_{z=0}^{1}\log\frac{P_\theta(x,z)}{1/2}
+=\tfrac12\sum_{z=0}^{1}\log\bigl(2P_\theta(x,z)\bigr),
+$$
+
+while $L(\theta)=\log\bigl(P_\theta(x,0)+P_\theta(x,1)\bigr)$. Jensen guarantees $L\ge F$; equality only for special $q$ (next lecture).
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| ELBO replaces the true likelihood forever | It is a bound we optimize when $L$ is hard; tightness matters |
+| $q$ must equal the prior $P(z)$ | $q$ is a free variational distribution on $Z$ |
+| Jensen gives an upper bound | For concave $\log$, Jensen gives a **lower** bound on $\log\mathbb{E}$ |
+| Only neural VAEs use ELBO | EM for mixtures is the same ELBO idea with a special $q$ |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.9.4 — EM / lower bound view
+- Murphy *Probabilistic ML* — ELBO / variational inference intro
+
+## Self-check questions
+
+1. Why is $L(\theta)=\log\sum_z P_\theta(x,z)$ awkward for closed-form MLE?
+2. Write the ELBO $F(\theta,q)$ as an expectation under $q$.
+3. Which inequality produces $L(\theta)\ge F(\theta,q)$?
+4. What is “evidence” in “evidence lower bound”?
+5. Does maximizing $F$ automatically maximize $L$? Why care about tightness?
+
+*(Short answers are in `self-check-answers.qmd`.)*

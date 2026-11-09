@@ -1,0 +1,10 @@
+---
+title: "Lecture 21 — Self-check answers"
+sidebar: mfml
+---
+
+1. The latent sum sits inside the logarithm ($\log$sum), so derivatives do not separate cleanly like sum-of-logs exponential-family cases.
+2. $F(\theta,q)=\mathbb{E}_{z\sim q}[\log(P_\theta(x,z)/q(z))]$.
+3. Jensen’s inequality for the concave function $\log$.
+4. The log-likelihood $\log P_\theta(x)$ of the observed data.
+5. Not automatically; a loose bound can be maximized while $L$ stays far away — so we want $q$ that makes $F$ close to $L$.
