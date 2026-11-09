@@ -1,0 +1,109 @@
+---
+title: "Lecture 57 — Gradient Boosting Algorithm"
+subtitle: "Add a tree that fits the negative gradient (residuals for squared loss)"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 57 — Gradient Boosting Algorithm](https://www.youtube.com/watch?v=_YKxmyP5PWU)
+
+## Learning goals
+
+- View boosting as stagewise minimization of an empirical loss.
+- For squared loss, see each step as **fitting residuals**.
+- State the generic gradient-boosting update with shrinkage.
+
+## Before this clicks
+
+We want $F$ minimizing $\sum_i \ell(y_i,F(x_i))$. Gradient boosting builds $F$ as a sum of simple trees. At stage $m$, treat the current prediction $F_{m-1}(x_i)$ as fixed and add a tree $f_m$ that points roughly in the direction that most reduces loss — the **negative gradient** of $\ell$ w.r.t. the prediction at each training point. For $\ell=(y-F)^{2}/2$, that direction is exactly the residual $y-F$.
+
+---
+
+## Main ideas
+
+### 1. Additive model
+
+$$
+F_M(x)=F_0(x)+\sum_{m=1}^{M}\nu\, f_m(x),
+$$
+
+with $F_0$ a constant (e.g. $\bar{y}$), $\nu\in(0,1]$ a learning rate (shrinkage), and each $f_m$ a shallow regression tree.
+
+### 2. Pseudo-residuals (functional gradient)
+
+At points $x_i$,
+
+$$
+r_{im}=-\left[\frac{\partial\ell(y_i,F(x_i))}{\partial F(x_i)}\right]_{F=F_{m-1}}.
+$$
+
+Fit tree $f_m$ to pairs $(x_i,r_{im})$ by least squares (CART regression). Then set $F_m=F_{m-1}+\nu f_m$.
+
+### 3. Squared loss $\Rightarrow$ ordinary residuals
+
+If $\ell(y,F)=\frac12(y-F)^{2}$, then
+
+$$
+r_{im}=y_i-F_{m-1}(x_i).
+$$
+
+So gradient boosting **literally fits the residuals** of the current model, then adds a fraction $\nu$ of that tree.
+
+### 4. Algorithm sketch
+
+1. Initialize $F_0(x)=\arg\min_c\sum_i\ell(y_i,c)$.
+2. For $m=1,\ldots,M$: compute $r_{im}$; fit $f_m$ to $\{r_{im}\}$; optionally line-search leaf values; $F_m\leftarrow F_{m-1}+\nu f_m$.
+3. Return $F_M$.
+
+### 5. Tuning knobs
+
+| Knob | Effect |
+|------|--------|
+| $M$ | More stages $\to$ lower train loss; validate to stop |
+| $\nu$ | Smaller $\Rightarrow$ need larger $M$, often better test error |
+| Tree depth | Depth $1$–$3$ keeps base learners weak |
+
+---
+
+## Worked mini-example
+
+Points: $(x,y)$ with $y=(1.0,\,2.0,\,3.0)$. $F_0\equiv 2$. Residuals $r=(1-2,\,2-2,\,3-2)=(-1,\,0,\,1)$.
+
+A stump might predict $f_1(x)\approx(-1,\,0,\,1)$ on those three rows. With $\nu=0.5$,
+
+$$
+F_1=2+0.5\,f_1\;\Rightarrow\;\text{predictions }(1.5,\,2.0,\,2.5).
+$$
+
+New residuals $(1-1.5,\,2-2,\,3-2.5)=(-0.5,\,0,\,0.5)$. Next tree fits these; predictions march toward $y$. Same loop, in high dimension, is gradient boosting.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Always fit $y$ again | After stage 0, trees fit **gradients/residuals**, not raw $y$ |
+| Same as AdaBoost | AdaBoost reweights classification errors; GB fits loss gradients |
+| $\nu=1$ is optimal | Full steps often overfit; shrinkage is standard |
+| Need differentiable $x$ | Gradients are w.r.t. **predictions** $F(x_i)$, not features |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al. — *ESL* (gradient boosting)
+- Friedman — greedy function approximation (gradient boosting machines)
+
+## Self-check questions
+
+1. For squared loss, what is the pseudo-residual $r_{im}$?
+2. Write the update $F_m$ in terms of $F_{m-1}$, $\nu$, and $f_m$.
+3. What does the tree $f_m$ regress on?
+4. Why use $\nu<1$?
+5. What is a typical $F_0$ for regression with squared loss?
+
+*(Short answers are in `self-check-answers.qmd`.)*
