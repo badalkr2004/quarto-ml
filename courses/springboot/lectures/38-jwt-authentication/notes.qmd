@@ -1,0 +1,30 @@
+---
+title: "Lecture 38 — JWT authentication"
+subtitle: "Stateless tokens"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [JWT authentication \| Full Course #38](https://www.youtube.com/watch?v=pUWp1EuVnGs)  
+**Playlist index:** 38
+
+---
+## Big idea
+
+JWT = signed token the client sends each request. Server does not store session (stateless).
+
+```text
+Login → JWT
+Request + Authorization: Bearer <token> → filter validates → SecurityContext
+```
+
+## Practice
+
+Issue JWT on login; create filter that validates JWT; protect APIs.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
