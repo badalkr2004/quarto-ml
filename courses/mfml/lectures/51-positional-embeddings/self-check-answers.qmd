@@ -1,0 +1,10 @@
+---
+title: "Lecture 51 — Self-check answers"
+sidebar: mfml
+---
+
+1. Plain self-attention is permutation-equivariant in the token set; positions restore order.
+2. $p_i^{(2k)}=\sin(i/10000^{2k/d})$, $p_i^{(2k+1)}=\cos(i/10000^{2k/d})$.
+3. No position parameters; formula defined for lengths beyond those seen in training (quality may degrade).
+4. Can adapt to the data distribution within $L_{\max}$; often strong in practice for fixed context.
+5. No — they complement attention by encoding where tokens sit.

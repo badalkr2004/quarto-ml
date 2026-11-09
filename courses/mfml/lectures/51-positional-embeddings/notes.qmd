@@ -1,0 +1,96 @@
+---
+title: "Lecture 51 — Positional Embeddings"
+subtitle: "Telling the Transformer where each token sits in the sequence"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 51 — Positional Embeddings](https://www.youtube.com/watch?v=xbkJIeLoGyw)
+
+## Learning goals
+
+- See why bag-of-tokens attention is **permutation-equivariant** without positions.
+- Write the **sinusoidal** positional encoding from Vaswani et al.
+- Contrast fixed sinusoids with **learned** absolute position embeddings (and note relative variants).
+
+## Before this clicks
+
+Self-attention mixes tokens by content. If you shuffle the input embeddings, the set of pairwise scores is the same up to permutation — the model does not “know” order from attention alone. RNNs baked order into time steps; Transformers add **positional signals** to embeddings so $e_i$ and $e_j$ differ when $i\neq j$ even if the tokens match.
+
+---
+
+## Main ideas
+
+### 1. Inject position into the residual stream
+
+Common absolute scheme: add a position vector $p_i\in\mathbb{R}^{d}$ to the token embedding $t_i$:
+
+$$
+e_i = t_i + p_i.
+$$
+
+Then every later layer sees content **and** location.
+
+### 2. Sinusoidal positional encoding
+
+For dimension index $k=0,\ldots,d/2-1$ and position $i$:
+
+$$
+\begin{aligned}
+p_i^{(2k)} &= \sin\!\left(\frac{i}{10000^{2k/d}}\right),\\
+p_i^{(2k+1)} &= \cos\!\left(\frac{i}{10000^{2k/d}}\right).
+\end{aligned}
+$$
+
+Even dims: sine; odd dims: cosine; wavelengths stretch geometrically across channels. No parameters — same formula for any length (extrapolation is imperfect but defined).
+
+**Intuition:** different frequencies give a unique “fingerprint” for each $i$; linear functions of $p_i$ can represent relative offsets $i-j$ in useful ways (paper’s motivation).
+
+### 3. Learned absolute embeddings
+
+Store a table $P\in\mathbb{R}^{L_{\max}\times d}$ and set $p_i=P_i$ for $i<L_{\max}$. Trained with the rest of the model. Simple and strong inside the training length; weaker if you need $i>L_{\max}$ unless you extend carefully.
+
+### 4. Relative and modern variants (awareness)
+
+Many later models encode **relative** distances (how far $j$ is from $i$) inside attention logits, or use rotary embeddings (RoPE), ALiBi, etc. Same problem — order — different parameterization. For this course, absolute sinusoidal vs learned tables are the core contrast.
+
+### 5. Where they sit in the architecture
+
+Positions are added **once** at the bottom (classic Transformer) or sometimes also at other depths; they are not an alternative to multi-head attention — they complement it.
+
+---
+
+## Worked mini-example
+
+$d=4$, position $i=0$: all sines/cosines of $0$ give $p_0=(0,1,0,1)$ (sin $0$, cos $0$, sin $0$, cos $0$). Position $i=1$ yields nonzero sines on even channels and $\cos(\cdot)$ on odd channels — a different vector. Token “cat” at index $0$ vs index $5$ therefore enters attention as two different $e_i$ even if $t_i$ matches.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Attention already knows order | Without $p_i$ (or relative bias), pure content attention is order-blind up to permutation. |
+| Sinusoids are learned | In the original paper they are **fixed** formulas. |
+| Learned positions work for any length | Table size caps $L_{\max}$ unless you extrapolate. |
+| Position replaces token embedding | They are **added** (or otherwise fused), not swapped. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Vaswani et al. (2017) — *Attention Is All You Need* (positional encodings)
+- Goodfellow et al. — *Deep Learning*
+
+## Self-check questions
+
+1. Why add positional information at all?
+2. Write the sinusoidal formulas for even/odd dimensions.
+3. Name one pro of sinusoids vs learned tables.
+4. Name one pro of learned tables vs sinusoids.
+5. Are positional encodings a replacement for multi-head attention?
+
+*(Short answers are in `self-check-answers.qmd`.)*
