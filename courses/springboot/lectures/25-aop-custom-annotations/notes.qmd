@@ -1,36 +1,214 @@
 ---
-title: "Lecture 25 — Custom annotations with AOP"
-subtitle: "Mark methods with your own @annotation"
+title: "Lecture 25 — Custom annotations + AOP"
+subtitle: "Mark methods with @LogExecution (etc.); aspect binds with @annotation"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Custom annotations with AOP \| Full Course #25](https://www.youtube.com/watch?v=TT-b9ob-lN8)  
-**Playlist index:** 25
+**Video:** [Custom Annotations in Spring AOP \| @annotation Binding & Proxies \| Spring Boot Full Course #25](https://www.youtube.com/watch?v=TT-b9ob-lN8)  
+**Playlist index:** 25  
+**Builds on:** [23–24 Advice & pointcuts](../23-aop-advice-types/notes.qmd)
 
 ---
-## Big idea
 
-Make intent obvious:
+## Big idea in one line
+
+Instead of matching every method in a package, **you mark** the methods that need the behavior:
 
 ```java
-@TrackTime
-public void importData() { ... }
+@LogExecution
+public void placeOrder() { ... }
 ```
 
-## Steps
+An aspect uses `@annotation(...)` to find those marks and run advice.  
+Readable at the call site; no giant `execution` strings for every special case.
 
-1. Declare `@TrackTime` (method annotation, runtime retention).
-2. Write aspect with `@Around("@annotation(TrackTime)")`.
-3. Put annotation on service methods.
+```text
+custom annotation on method
+        │
+        ▼
+@Around("@annotation(logExecution)")
+        │
+        ▼
+timing / security / audit code
+```
 
-## Practice
+---
 
-Build `@TrackTime` and print duration. Optional: `@RequireRole` style guard that throws if a header is missing (learning only — real security later).
+## Topic 1 — Define a custom annotation
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogExecution {
+    String value() default "";
+}
+```
+
+| Meta-annotation | Why it matters |
+|-----------------|----------------|
+| `@Target(METHOD)` | only on methods (can also allow TYPE) |
+| `@Retention(RUNTIME)` | must survive to runtime or AOP cannot see it |
+
+Optional attributes (`value`, `level`, …) let the annotation carry config.
+
+---
+
+## Topic 2 — Aspect with `@annotation` binding
+
+```java
+@Aspect
+@Component
+public class LogExecutionAspect {
+
+    @Around("@annotation(logExecution)")
+    public Object around(ProceedingJoinPoint pjp, LogExecution logExecution) throws Throwable {
+        String label = logExecution.value().isBlank()
+            ? pjp.getSignature().toShortString()
+            : logExecution.value();
+
+        long start = System.currentTimeMillis();
+        try {
+            return pjp.proceed();
+        } finally {
+            System.out.println(label + " took " + (System.currentTimeMillis() - start) + "ms");
+        }
+    }
+}
+```
+
+### Binding trick
+
+Parameter name `logExecution` matches `@annotation(logExecution)`.  
+Spring injects the annotation instance so you can read `value()`.
+
+Alternative form:
+
+```java
+@Around("@annotation(com.example.demo.aop.LogExecution)")
+public Object around(ProceedingJoinPoint pjp) throws Throwable { ... }
+```
+
+Then look up the annotation via reflection if you need attributes.
+
+---
+
+## Topic 3 — Use it on services
+
+```java
+@Service
+public class OrderService {
+
+    @LogExecution("place-order")
+    public void placeOrder() {
+        // business only
+    }
+
+    public void internalHelper() {
+        // no annotation → no timing aspect
+    }
+}
+```
+
+**Still proxied:** the method must be called through the Spring bean/proxy.  
+Self-invocation still skips the aspect (lecture 24).
+
+---
+
+## Topic 4 — Design patterns that fit custom annotations
+
+| Annotation idea | Aspect behavior |
+|-----------------|-----------------|
+| `@LogExecution` | time + log |
+| `@RequiresApiKey` | check header/security before `proceed` |
+| `@Audited` | write who/when/what after success |
+| `@Cacheable`-style learning demo | simple map cache around `proceed` |
+
+Keep annotations **intention-revealing**. Business readers should understand `@Audited` without opening the aspect first.
+
+---
+
+## Topic 5 — Combine annotation + execution (optional)
+
+```java
+@Around("@annotation(audited) && execution(* com.example.demo.service.*.*(..))")
+public Object audit(ProceedingJoinPoint pjp, Audited audited) throws Throwable {
+    // ...
+}
+```
+
+Useful when similar annotations might appear outside the layer you care about.
+
+---
+
+## Picture: annotation-driven AOP
+
+```text
+Developer puts @LogExecution on method
+Spring creates proxy for the bean
+Caller → proxy
+          ├─ sees annotation match
+          ├─ runs @Around advice
+          └─ proceed() → real method
+```
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Create `@LogExecution`
+
+`@Target(METHOD)` + `@Retention(RUNTIME)` + optional `String value()`.
+
+### Step 2 — Aspect
+
+`@Around("@annotation(logExecution)")` with `ProceedingJoinPoint` + annotation param.  
+Log start/end + duration.
+
+### Step 3 — Annotate selectively
+
+Put `@LogExecution` on two service methods only.  
+Call three methods from a controller — only the annotated ones should log timing.
+
+### Step 4 — Use the attribute
+
+`@LogExecution("checkout")` → confirm the custom label appears in logs.
+
+### Step 5 — Gate without proceed (mini auth annotation)
+
+Create `@RequiresHeader` and an `@Around` that returns 401 / throws if a request header is missing.  
+(Inject `HttpServletRequest` carefully via `RequestContextHolder` or pass data another way — keep the demo small.)
+
+---
+
+## Short map to keep
+
+```text
+Custom annotation = marker (+ optional config)
+RUNTIME retention  = required
+@annotation(...)   = pointcut
+Bind annotation param to read attributes
+Proxy rules still apply (external calls only)
+```
+
+---
+
+## Exercises
+
+1. Why is `SOURCE` retention useless for Spring AOP?  
+2. How does the aspect receive the annotation’s `value()`?  
+3. What happens if you annotate a private method and call it only via `this`?  
+4. Name one benefit of `@LogExecution` over a wide `execution(*..service.*.*(..))`.  
+5. Which starter must still be on the classpath?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Which two meta-annotations does a typical AOP marker need?  
+2. True/False: putting `@LogExecution` on a method always runs advice even without an aspect.  
+3. What pointcut designator matches annotated methods?  
+4. Can annotation attributes be read inside `@Around`?
+
+Answers: [self-check-answers](self-check-answers.qmd)

@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Custom annotation + `@annotation` pointcut.\n2. Clear intent at call site.\n3. Retention must be RUNTIME.
+## Exercises (sample)
+
+1. SOURCE annotations are discarded at compile time — runtime proxies/aspects cannot see them.
+2. Bind it as a method parameter via `@annotation(logExecution)` (name match), then call `logExecution.value()`.
+3. No proxy involvement → advice does not run (and private methods are not Spring AOP targets in the usual setup).
+4. Opt-in clarity: only marked methods are advised; readers see intent at the method.
+5. `spring-boot-starter-aop`.
+
+## Self-check
+
+1. `@Target` (e.g. METHOD) and `@Retention(RUNTIME)`.
+2. **False.** You still need an `@Aspect` bean with a matching pointcut/advice.
+3. `@annotation(...)`.
+4. **Yes** — bind the annotation parameter (or read it reflectively).
