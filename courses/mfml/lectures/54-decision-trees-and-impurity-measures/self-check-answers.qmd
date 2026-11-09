@@ -1,0 +1,10 @@
+---
+title: "Lecture 54 — Self-check answers"
+sidebar: mfml
+---
+
+1. $G=1-\sum_k p_k^{2}$ (equivalently $\sum_k p_k(1-p_k)$).
+2. $\mathrm{Gain}=I(S)-\frac{n_L}{n}I(S_L)-\frac{n_R}{n}I(S_R)$.
+3. $G(S)=3/8$.
+4. Majority class among training points in that leaf (or the leaf class distribution).
+5. Deep pure trees overfit noise; depth limits / pruning trade bias for lower variance.

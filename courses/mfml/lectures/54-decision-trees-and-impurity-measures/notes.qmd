@@ -1,0 +1,118 @@
+---
+title: "Lecture 54 — Decision Trees and Impurity Measures"
+subtitle: "Recursive splits that purify labels; Gini, entropy, and information gain"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 54 — Decision Trees and Impurity Measures](https://www.youtube.com/watch?v=b2ScFHIhnB0)
+
+## Learning goals
+
+- Describe a classification tree as a partition of $\mathcal{X}$ into axis-aligned regions with constant class votes.
+- Define **impurity** via Gini and entropy; pick splits by **information gain**.
+- See greedy growing and the need to stop / prune to avoid memorizing noise.
+
+## Before this clicks
+
+A decision tree asks a sequence of yes/no questions on features (e.g. “is $x_1\le 3$?”). Each leaf predicts by majority class (or class frequencies). **Impurity** measures how mixed the labels are in a node: pure node $\Rightarrow$ impurity $0$. A good split reduces average impurity of the children — that reduction is the **gain**.
+
+---
+
+## Main ideas
+
+### 1. Node class proportions
+
+At a node $S$ with $n$ samples, let $p_k$ be the fraction of class $k$ ($k=1,\ldots,K$). Then $\sum_k p_k=1$.
+
+### 2. Impurity measures
+
+**Gini:**
+
+$$
+G(S)=\sum_{k=1}^{K} p_k(1-p_k)=1-\sum_{k=1}^{K} p_k^{2}.
+$$
+
+**Entropy:**
+
+$$
+H(S)=-\sum_{k=1}^{K} p_k\log p_k
+$$
+
+(with $0\log 0:=0$). Both are $0$ if one $p_k=1$, and largest when classes are balanced.
+
+### 3. Information gain (impurity decrease)
+
+Split $S$ into $S_L,S_R$ with sizes $n_L,n_R$:
+
+$$
+\mathrm{Gain}(S;\text{split})
+=I(S)-\frac{n_L}{n}I(S_L)-\frac{n_R}{n}I(S_R),
+$$
+
+where $I$ is Gini or entropy. CART-style training picks the feature threshold maximizing gain (equivalently minimizing weighted child impurity).
+
+### 4. Growing the tree
+
+Recursively split leaves until pure, or hit a stop rule (max depth, min samples per leaf, gain too small). Deep trees fit training data almost perfectly $\Rightarrow$ high variance; prune or constrain depth.
+
+### 5. Prediction
+
+Send $x$ down the path of true/false answers; return the leaf’s majority label (or $\arg\max_k p_k$).
+
+---
+
+## Worked mini-example
+
+Node $S$: 4 points, labels $[+,+,+,-]$ so $p_+=3/4$, $p_-=1/4$.
+
+Gini:
+
+$$
+G(S)=1-\bigl((3/4)^2+(1/4)^2\bigr)=1-\bigl(9/16+1/16\bigr)=\frac{6}{16}=\frac{3}{8}.
+$$
+
+Entropy (nats, $\ln$):
+
+$$
+H(S)=-\frac{3}{4}\ln\frac{3}{4}-\frac{1}{4}\ln\frac{1}{4}.
+$$
+
+Suppose a split yields $S_L$: $[+,+]$ ($G=0$) and $S_R$: $[+,-]$ ($G=1-(1/2)^2-(1/2)^2=1/2$), sizes $2,2$:
+
+$$
+\mathrm{Gain}=G(S)-\tfrac12\cdot 0-\tfrac12\cdot\tfrac12=\frac{3}{8}-\frac{1}{4}=\frac{1}{8}.
+$$
+
+Any competing split with smaller gain loses.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Gini vs entropy | Both measure mix; splits usually similar in practice |
+| Gain must use $\log_2$ | Base only rescales entropy; argmax of gain unchanged |
+| Trees are linear classifiers | Boundaries are piecewise constant, axis-aligned staircases |
+| Pure leaves always best | On noisy data, purity can mean overfitting |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie, Tibshirani, Friedman — *Elements of Statistical Learning* (trees)
+- Bishop *PRML* — classification and regression trees
+
+## Self-check questions
+
+1. Write the Gini impurity for proportions $(p_k)$.
+2. Write information gain for a binary split using impurity $I$.
+3. For labels $[+,+,+,-]$, what is $G(S)$?
+4. What does a leaf predict in classification?
+5. Why stop splitting early or prune?
+
+*(Short answers are in `self-check-answers.qmd`.)*
