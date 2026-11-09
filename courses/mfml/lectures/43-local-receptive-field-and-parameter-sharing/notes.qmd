@@ -1,0 +1,89 @@
+---
+title: "Lecture 43 — Local Receptive Field and Parameter Sharing"
+subtitle: "Exploit image locality: each unit sees a patch, and the same weights slide across the image"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 43 — Local Receptive Field and Parameter Sharing](https://www.youtube.com/watch?v=rm0VmbTQE8Y)
+
+## Learning goals
+
+- Motivate **structure** in $\mathcal{H}$ when inputs are images (or similarly grid-like).
+- Define a **local receptive field**: a hidden unit depends on a small spatial neighborhood.
+- Define **parameter sharing** (tied weights): the same filter is reused at every location.
+- See these as **inductive biases** that cut parameters and encode translation-friendly features — prelude to CNNs.
+
+## Before this clicks
+
+A fully connected MLP on a $H\times W$ image with $C$ channels flattens to $d=HWC$ inputs. One dense hidden layer with $m$ units needs $m\cdot d$ weights — enormous for even modest images, and it ignores that nearby pixels are more related than far ones. We want constraints on $\mathcal{H}$ that match vision structure **before** learning, like a soft regularizer on which functions we even consider.
+
+---
+
+## Main ideas
+
+### 1. Local receptive fields
+
+A unit at spatial location $(i,j)$ computes a function of pixels only inside a small window (e.g. $3\times 3$ or $5\times 5$) centered near $(i,j)$. That window is its **receptive field** in the input (or previous layer).
+
+Intuition: edges, corners, and local textures are local phenomena. Detecting a vertical edge at the top-left should not require looking at the bottom-right corner.
+
+### 2. Parameter sharing
+
+If “vertical edge” is useful in one place, it is useful everywhere. Use the **same** weight kernel $K$ at every location:
+
+$$
+(h\ast K)_{i,j}=\sum_{u,v} h_{i+u,j+v}\,K_{u,v}
+$$
+
+(plus bias; discrete convolution / cross-correlation conventions vary by library). One small $K$ replaces a separate weight matrix per location.
+
+Effects:
+
+- Far fewer parameters than a dense map of the same output size.
+- Feature detectors become **approximately translation equivariant**: shift the input, and feature maps shift similarly (idealized, ignoring boundaries/pooling).
+
+### 3. Multiple filters = multiple feature maps
+
+One kernel $K$ yields one feature map. Stack many kernels $\{K^{(c)}\}$ to get several channels (horizontal edges, vertical edges, color blobs, …). Depth stacks such layers so receptive fields in the **input** grow: deeper units “see” larger regions while each connection stays local.
+
+### 4. Link to regularization / ERM
+
+Constraining weights to be local and tied shrinks effective capacity versus a giant MLP. That is architectural regularization: we bake prior knowledge into $\mathcal{H}$ instead of only adding $\|\theta\|^2$ penalties. Next lecture: CNNs as MLPs with these constraints made systematic (convolution + pooling).
+
+---
+
+## Worked mini-example
+
+$28\times 28$ grayscale digit. Dense hidden layer with $100$ units: $100\times 784\approx 7.8\times 10^{4}$ weights. Instead, ten $5\times 5$ shared filters: $10\times 25=250$ weights (plus biases), each producing a feature map by sliding over the image. Same “stroke detector” fires wherever the stroke appears.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Receptive field = filter size only | Filter size sets **local** connections; stacking layers grows the effective field in the input. |
+| Sharing means all layers use one kernel | Sharing is **across space** for a given filter; different filters and layers have different kernels. |
+| Local + shared = no learning | Kernels are still learned by backprop; structure only restricts **who connects to whom** and **which weights are tied**. |
+| Only for images | Same ideas apply to 1-D signals, grids, and some graphs; sequences often use recurrence / attention instead. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (convolution / CNN motivation)
+- Bishop — *PRML* (context on structured models)
+
+## Self-check questions
+
+1. What is a local receptive field, in plain English?
+2. What does parameter sharing mean for a spatial filter?
+3. Give one reason sharing reduces overfitting risk relative to a dense MLP.
+4. How can a deep stack see a large region if each filter is small?
+5. How is this an inductive bias for ERM?
+
+*(Short answers are in `self-check-answers.qmd`.)*

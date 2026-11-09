@@ -1,0 +1,10 @@
+---
+title: "Lecture 43 — Self-check answers"
+sidebar: mfml
+---
+
+1. A hidden unit depends only on a small neighborhood of the input (or previous map), not on every pixel.
+2. The same kernel weights are reused at every spatial location instead of learning a separate matrix per place.
+3. Far fewer free parameters (and translation-friendly features), so the hypothesis class is smaller / better matched to images.
+4. Effective receptive field grows as local filters are stacked; each layer aggregates neighborhoods of neighborhoods.
+5. It restricts $\mathcal{H}$ a priori (local + tied weights), encoding vision structure into which $f_\theta$ we optimize over.
