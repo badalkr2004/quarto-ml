@@ -7,9 +7,14 @@ toc: true
 ---
 
 **Video:** [Lec 01 — Overview of Function Approximation](https://www.youtube.com/watch?v=G2h7nD_Stxg)
-**Course:** Mathematical Foundations of Machine Learning (NPTEL, IISc)  
-**Instructor:** Prof. Prathosh A.P.  
-**Video:** [Lec 01 — Overview of Function Approximation](https://www.youtube.com/watch?v=G2h7nD_Stxg)
+
+### Learning goals
+- State ML as estimating an unknown map $f$ from paired data
+- Separate **model family** (guess) from **learning algorithm** (refine)
+- See why hard problems need a **probabilistic** view
+
+### Before this clicks
+You only need: what a function $f:\mathcal{X}\to\mathcal{Y}$ is, and that a dataset is a list of pairs $(x_i,y_i)$.
 
 ---
 
@@ -266,7 +271,14 @@ When physics of $f$ is unavailable → use **statistics / probability** and lots
 
 ---
 
-## 9. Self-check questions
+## 9. References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- For “models are wrong but useful”: Box’s aphorism; see also Bishop PRML Ch.1 (modeling viewpoint)
+- History of statistical speech recognition (optional background): Rabiner & Juang, *Fundamentals of Speech Recognition*
+
+## 10. Self-check questions
 
 1. State the function approximation problem in one sentence using $\mathcal{D}$ and $f$.  
 2. Why is “set $\hat{f}(x_i)=y_i$ at training points” a bad philosophy for ML?  
