@@ -1,0 +1,7 @@
+---
+title: "Lecture 24 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Pointcut selects join points.\n2. JDK vs CGLIB.\n3. Self-invocation bypasses proxy.

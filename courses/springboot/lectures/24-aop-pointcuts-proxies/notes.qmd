@@ -1,0 +1,39 @@
+---
+title: "Lecture 24 — Pointcuts and proxy types"
+subtitle: "Who gets advice, and JDK vs CGLIB"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Pointcuts and proxy types \| Full Course #24](https://www.youtube.com/watch?v=Kf2V2QYikVY)  
+**Playlist index:** 24
+
+---
+## Pointcuts
+
+Examples:
+
+- `execution(* com.example.demo.service.*.*(..))`
+- `@annotation(com.example.demo.Logged)`
+
+Be precise — too wide slows and surprises.
+
+## Proxy types
+
+| Kind | Used when |
+|------|-----------|
+| JDK dynamic proxy | Bean implements interface; proxy implements interface |
+| CGLIB subclass | Concrete class proxy (common with Spring Boot) |
+
+**Self-invocation problem:** `this.method()` inside the same class bypasses the proxy → advice may not run. Call through injected bean instead.
+
+## Practice
+
+Prove self-invocation skips advice; then fix by moving call to another bean.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
