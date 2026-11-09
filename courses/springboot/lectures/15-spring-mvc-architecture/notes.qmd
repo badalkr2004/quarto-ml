@@ -1,0 +1,410 @@
+---
+title: "Lecture 15 — Spring MVC architecture"
+subtitle: "DispatcherServlet, HandlerMapping, JSON APIs & JSP view flow"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring MVC Architecture \| DispatcherServlet, HandlerMapping & JSP Flow \| Full Course #15](https://www.youtube.com/watch?v=M7_XxF6Zczw&list=PLEYgx5hMdopw&index=15)  
+**Playlist index:** 15  
+**Builds on:** [Lecture 14](../14-java-web-servlets-tomcat/notes.qmd) · [Lectures 11–13](../11-crud-project-architecture/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**Spring MVC is still servlet-based.**  
+One front controller — `DispatcherServlet` — receives every request, finds the right controller method, and builds the response (JSON or a JSP page).
+
+```text
+Client → Tomcat → DispatcherServlet → Controller method → Response
+```
+
+Boot makes this easy. This lecture shows what Boot was hiding.
+
+---
+
+## Topic 1 — Spring MVC vs Spring Boot
+
+| Piece | Role |
+|-------|------|
+| **Spring MVC** (`spring-webmvc`) | Web framework: mapping, controllers, views, JSON |
+| **Spring Boot** | Auto-configures MVC + embedded Tomcat + Jackson for you |
+
+Boot does **not** replace MVC. Your `@GetMapping` methods are MVC features.
+
+Without Boot you would manually:
+
+- start Tomcat  
+- create Spring web context  
+- register `DispatcherServlet`  
+- enable WebMvc / component scan  
+- add Jackson  
+
+With Boot + `spring-boot-starter-web`, most of that appears automatically.
+
+---
+
+## Topic 2 — Why `DispatcherServlet`?
+
+Pure servlet style: one servlet per URL family.
+
+```text
+/student/create → CreateStudentServlet
+/student/get    → GetStudentServlet
+/student/update → UpdateStudentServlet
+```
+
+Each servlet repeats parsing, routing ideas, response writing…
+
+Spring MVC idea:
+
+> One central servlet receives everything, then **dispatches** to the correct handler method.
+
+That central servlet is `DispatcherServlet`. It is still a normal servlet Tomcat can call.
+
+```text
+Traditional:  URL → YourServlet
+Spring MVC:   URL → DispatcherServlet → @Controller method
+```
+
+---
+
+## Topic 3 — High-level request flow
+
+```text
+Client HTTP request
+        │
+        ▼
+Tomcat receives it
+        │
+        ▼
+Tomcat calls DispatcherServlet
+        │
+        ▼
+HandlerMapping: "which controller method?"
+        │
+        ▼
+HandlerAdapter: "invoke that method"
+        │
+        ▼
+Args resolved (@PathVariable, @RequestBody, …)
+        │
+        ▼
+Controller → Service → Repository (your layers)
+        │
+        ▼
+Return value handled
+  ├─ REST: object → JSON (message converter)
+  └─ MVC page: view name → ViewResolver → JSP
+        │
+        ▼
+Client gets response
+```
+
+DispatcherServlet **coordinates**. Other components do specialized jobs.
+
+| Component | Job |
+|-----------|-----|
+| DispatcherServlet | Front controller / coordinator |
+| HandlerMapping | Map request → handler method |
+| HandlerAdapter | Actually call the method |
+| Argument resolvers | Fill method parameters |
+| HttpMessageConverter | JSON ↔ Java (often Jackson) |
+| ViewResolver | Logical view name → real page (JSP) |
+
+---
+
+## Topic 4 — HandlerMapping
+
+DispatcherServlet does not hardcode “`GET /students/1` means `getStudent`.”
+
+At startup:
+
+1. Component scan finds `@RestController` / `@Controller`  
+2. HandlerMapping reads `@GetMapping`, `@PostMapping`, …  
+3. Builds an internal table  
+
+```text
+GET    /students/{id}  → StudentController.getStudent
+POST   /students       → StudentController.createStudent
+PUT    /students/{id}  → StudentController.updateStudent
+DELETE /students/{id}  → StudentController.deleteStudent
+```
+
+At runtime it looks up that table.  
+Same path + different HTTP method can mean different handlers (`GET` list vs `POST` create).
+
+---
+
+## Topic 5 — HandlerAdapter
+
+HandlerMapping **finds** the method.  
+HandlerAdapter **runs** it (prepare args, invoke, handle return).
+
+```text
+DispatcherServlet
+   asks Mapping  → "getStudent"
+   asks Adapter  → "please call getStudent properly"
+```
+
+---
+
+## Topic 6 — How data reaches method parameters
+
+### Path variable
+
+`GET /students/10` + `@GetMapping("/{id}")` + `@PathVariable Integer id` → `id = 10`
+
+### Query param
+
+`GET /students?name=Rohit` + `@RequestParam String name` → `name = Rohit`
+
+### Request body
+
+`POST` JSON + `@RequestBody Student student` → Jackson fills the object.
+
+```text
+JSON bytes → HttpMessageConverter (Jackson) → Student
+Student return value → converter → JSON response
+```
+
+No-arg constructor on the model helps Jackson construct objects.
+
+---
+
+## Topic 7 — Manual Spring MVC lab (no Boot)
+
+The video builds a small in-memory Student API to reveal the wiring Boot hides.
+
+### Dependencies (idea)
+
+- `spring-webmvc`  
+- `tomcat-embed-core`  
+- `jackson-databind`  
+
+### Layers (same as before)
+
+```text
+controller → service → repository (Map as fake DB) → model
+```
+
+### `WebConfig`
+
+```java
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = "in.strikes")
+public class WebConfig {
+}
+```
+
+| Annotation | Meaning |
+|------------|---------|
+| `@Configuration` | Spring config class |
+| `@EnableWebMvc` | Turn on MVC infrastructure |
+| `@ComponentScan` | Find controllers/services/repos |
+
+### `App` — start Tomcat + register DispatcherServlet
+
+```java
+public class App {
+    public static void main(String[] args) throws Exception {
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(8080);
+        tomcat.getConnector();
+
+        Context context = tomcat.addContext("",
+                new File("src/main/webapp").getAbsolutePath());
+
+        var springContext = new AnnotationConfigWebApplicationContext();
+        springContext.register(WebConfig.class);
+
+        var dispatcher = new DispatcherServlet(springContext);
+        Tomcat.addServlet(context, "dispatcherServlet", dispatcher);
+        context.addServletMappingDecoded("/", "dispatcherServlet");
+
+        tomcat.start();
+        tomcat.getServer().await();
+    }
+}
+```
+
+Read this slowly:
+
+1. Create embedded Tomcat on 8080  
+2. Create a web context (`docBase` folder Tomcat expects)  
+3. Create Spring web ApplicationContext + register config  
+4. Create `DispatcherServlet` **with** that context (it needs the IoC container)  
+5. Register servlet with Tomcat; map `/` so **all** requests go to it  
+6. `start` + `await` so the process stays alive  
+
+```text
+Why pass Spring context into DispatcherServlet?
+Because after Tomcat hands over the request, DispatcherServlet
+must know which beans/controllers/converters exist.
+```
+
+### Same app in Boot
+
+One dependency: `spring-boot-starter-web`.  
+One main: `SpringApplication.run(...)`.  
+Controllers stay almost the same. Boot registers DispatcherServlet for you.
+
+| Work | Manual | Boot |
+|------|--------|------|
+| Tomcat | You start it | Embedded auto |
+| DispatcherServlet | You create/map | Auto |
+| Jackson | You add jar | Via starter |
+| `@EnableWebMvc` / scan | You configure | Via `@SpringBootApplication` |
+
+---
+
+## Topic 8 — `@Controller` vs `@RestController`
+
+| Annotation | Typical return | Meaning |
+|------------|----------------|---------|
+| `@RestController` | Object / List | Write JSON (or text) to **response body** |
+| `@Controller` | String view name | Resolve a **page** (e.g. JSP) |
+
+`@RestController` ≈ `@Controller` + `@ResponseBody`.
+
+```java
+// REST
+@GetMapping("/student")
+public Student get() { return student; }  // → JSON
+
+// Page
+@GetMapping("/home")
+public String home() { return "home"; }   // → view named "home"
+```
+
+---
+
+## Topic 9 — JSP flow & ViewResolver
+
+Spring MVC was not invented only for REST. Classic style returns HTML views.
+
+### ViewResolver
+
+Controller returns `"home"`. Resolver adds prefix/suffix:
+
+```text
+"home"  →  /WEB-INF/views/home.jsp
+```
+
+```java
+@Bean
+public ViewResolver viewResolver() {
+    var resolver = new InternalResourceViewResolver();
+    resolver.setPrefix("/WEB-INF/views/");
+    resolver.setSuffix(".jsp");
+    return resolver;
+}
+```
+
+JSP under `WEB-INF` so users cannot hit the file directly — they go through the controller.
+
+### Controller + Model
+
+```java
+@Controller
+public class HomeController {
+    @GetMapping("/home")
+    public String home(Model model) {
+        model.addAttribute("title", "Spring MVC");
+        model.addAttribute("message", "Welcome");
+        return "home";
+    }
+}
+```
+
+| Piece | Role in classic MVC |
+|-------|---------------------|
+| Model | Data for the page |
+| View | JSP |
+| Controller | Handles request, fills model, picks view |
+
+JSP engine for embedded Tomcat needs something like `tomcat-embed-jasper`.  
+Static CSS/JS often needs a resource handler (`/resources/**`).
+
+### JSP request mindmap
+
+```text
+GET /home
+  → DispatcherServlet
+  → HomeController.home
+  → return "home"
+  → ViewResolver → /WEB-INF/views/home.jsp
+  → HTML to browser
+```
+
+---
+
+## Practice lab (pick a path)
+
+### Path A — REST mental model (Boot project you already have)
+
+1. Hit `GET /api/students/1`  
+2. Narrate: Tomcat → DispatcherServlet → HandlerMapping → controller → JSON  
+
+### Path B — Manual App (follow the video)
+
+1. Add webmvc + embed tomcat + jackson  
+2. Write in-memory Student CRUD layers  
+3. Wire `WebConfig` + `App` as above  
+4. Test with Postman on `http://localhost:8080/students`  
+
+### Path C — JSP hello
+
+1. `@Controller` returning `"home"`  
+2. `InternalResourceViewResolver`  
+3. `home.jsp` under `WEB-INF/views`  
+4. Open `/home` in a browser  
+
+---
+
+## How to reason when something fails
+
+1. **404 with Boot REST?** Mapping/path/method mismatch — HandlerMapping found nothing.  
+2. **Manual app: Tomcat up but Spring silent?** DispatcherServlet not registered/mapped, or context not started with config.  
+3. **JSON null / fail?** Missing Jackson, missing getters, or no no-arg constructor.  
+4. **JSP 404?** ViewResolver prefix/suffix wrong, or file not under `WEB-INF/views`.  
+5. **Returns literal `"home"` as text?** You used `@RestController` instead of `@Controller` for a view.
+
+---
+
+## Short map to keep
+
+```text
+Tomcat calls DispatcherServlet (front controller)
+  → HandlerMapping picks @RequestMapping method
+  → HandlerAdapter invokes it
+  → converters / view resolvers finish the response
+
+Boot = same MVC, less wiring
+REST = @RestController + JSON
+Pages = @Controller + ViewResolver + JSP
+```
+
+---
+
+## Exercises
+
+1. Why is `DispatcherServlet` called a front controller?  
+2. What does HandlerMapping do at startup vs at request time?  
+3. Who actually invokes the controller method — Mapping or Adapter?  
+4. List three pieces Boot auto-wires that the manual `App` class did by hand.  
+5. What does returning `"home"` mean for `@Controller` vs `@RestController`?
+
+---
+
+## Self-check
+
+1. True/False: Spring Boot replaces Spring MVC.  
+2. Is `DispatcherServlet` still a servlet?  
+3. What component turns a logical view name into `/WEB-INF/views/home.jsp`?  
+4. Why does `DispatcherServlet` need a Spring `ApplicationContext`?
+
+Answers: [self-check-answers](self-check-answers.qmd)

@@ -1,0 +1,20 @@
+---
+title: "Lecture 15 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. All requests enter one central servlet first; it then dispatches to the right handler.
+2. Startup: builds the URL/method → handler table. Request time: looks up the matching handler.
+3. **HandlerAdapter** invokes; HandlerMapping only selects.
+4. Examples: start Tomcat, create/register `DispatcherServlet`, add Jackson, enable MVC / component scan.
+5. `@Controller`: view name for ViewResolver. `@RestController`: write the string `"home"` as the response body.
+
+## Self-check
+
+1. **False.** Boot configures and starts MVC for you; MVC still handles web requests.
+2. **Yes.** Tomcat calls it like any other servlet.
+3. **ViewResolver** (e.g. `InternalResourceViewResolver`).
+4. It needs the IoC container to know controllers, mappings, services, converters, and other MVC beans.
