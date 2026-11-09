@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd)  
 **Next:** [31 — Cascading, lazy, N+1](../31-jpa-cascading-lazy-nplus1/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -23,7 +23,7 @@ Java: student.getDepartment()
 DB:   students.department_id → departments.id
 ```
 
----
+***
 
 ## Topic 1 — Cardinality map
 
@@ -40,7 +40,7 @@ Many students ↔ many courses       @ManyToMany
 | `@OneToOne` | One ↔ one |
 | `@ManyToMany` | Many ↔ many (usually join table) |
 
----
+***
 
 ## Topic 2 — Owning side vs inverse side
 
@@ -62,7 +62,7 @@ public void addItem(OrderItem item) {
 }
 ```
 
----
+***
 
 ## Topic 3 — Many-to-one / one-to-many (most common)
 
@@ -100,7 +100,7 @@ students
 
 **Rule of thumb:** put `@ManyToOne` + `@JoinColumn` on the child (many side). That is usually the owning side.
 
----
+***
 
 ## Topic 4 — One-to-one
 
@@ -129,7 +129,7 @@ public class Profile {
 
 FK often lives on one table (`profile.user_id`). That side owns the relationship.
 
----
+***
 
 ## Topic 5 — Many-to-many
 
@@ -169,7 +169,7 @@ student_course
 
 Prefer `Set` to avoid duplicate join rows from bag semantics.
 
----
+***
 
 ## Topic 6 — Uni vs bidirectional
 
@@ -180,7 +180,7 @@ Prefer `Set` to avoid duplicate join rows from bag semantics.
 
 Start unidirectional if you do not need the other navigation. Add inverse side when queries need it.
 
----
+***
 
 ## Topic 7 — Lombok caution (quick)
 
@@ -188,7 +188,7 @@ Start unidirectional if you do not need the other navigation. Add inverse side w
 
 Safer learning approach: hand-written getters/setters, or Lombok with careful excludes on relation fields.
 
----
+***
 
 ## Practice lab (IDE)
 
@@ -199,7 +199,7 @@ Safer learning approach: hand-written getters/setters, or Lombok with careful ex
 5. Enable `show-sql` and find the FK / join table SQL.  
 6. Break owning side on purpose (only add to inverse list) and see FK **not** set.
 
----
+***
 
 ## Short map to keep
 
@@ -210,7 +210,7 @@ Safer learning approach: hand-written getters/setters, or Lombok with careful ex
 @ManyToMany + @JoinTable     → join table
 ```
 
----
+***
 
 ## Exercises
 
@@ -219,7 +219,7 @@ Safer learning approach: hand-written getters/setters, or Lombok with careful ex
 3. Why use a join table for many-to-many?  
 4. Why sync both sides in bidirectional mappings?
 
----
+***
 
 ## Self-check
 

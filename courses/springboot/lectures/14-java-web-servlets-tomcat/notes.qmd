@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 14  
 **Builds on:** [Lecture 2](../02-first-spring-boot-app/notes.qmd) · [Lectures 11–13](../11-crud-project-architecture/notes.qmd) (you already used HTTP APIs)
 
----
+***
 
 ## Big idea in one line
 
@@ -21,7 +21,7 @@ Tomcat (a servlet container) receives HTTP and calls your Java servlet. Spring B
 Browser ──HTTP text──► Tomcat ──calls──► Your Servlet (doGet/doPost/…)
 ```
 
----
+***
 
 ## Why this lecture after Boot CRUD?
 
@@ -34,7 +34,7 @@ You already wrote `@RestController` methods. Under the hood, something still:
 
 That “something” is the **servlet** world. Spring MVC sits on top of it (next lecture).
 
----
+***
 
 ## Topic 1 — Browser only sends HTTP
 
@@ -63,7 +63,7 @@ With servlet container:
   Browser → Tomcat → HttpServletRequest/Response → your Servlet class
 ```
 
----
+***
 
 ## Topic 2 — Static vs dynamic
 
@@ -74,7 +74,7 @@ With servlet container:
 
 Dynamic needs Java (or another language). The missing link: **how does HTTP enter Java?** → Servlet.
 
----
+***
 
 ## Topic 3 — What is a Servlet?
 
@@ -105,7 +105,7 @@ Tomcat listens on the port
         └── on match, calls doGet / doPost / …
 ```
 
----
+***
 
 ## Topic 4 — Tomcat = Servlet Container
 
@@ -132,7 +132,7 @@ Tomcat manages:
 
 Same IoC idea. Different container.
 
----
+***
 
 ## Topic 5 — Request path through Tomcat
 
@@ -152,7 +152,7 @@ helloServlet.doGet(request, response)
 `HttpServletRequest` gives method, path, params, headers, body access.  
 `HttpServletResponse` lets you write status, headers, body.
 
----
+***
 
 ## Topic 6 — Servlet lifecycle
 
@@ -176,7 +176,7 @@ Second GET /lifecycle → service, doGet   (no second init)
 Stop Tomcat           → destroy
 ```
 
----
+***
 
 ## Topic 7 — External Tomcat + WAR
 
@@ -216,7 +216,7 @@ Port is configured in `conf/server.xml` (often 8080).
 
 After deploy: `http://localhost:8080/servlet-crud/` (context path = WAR name).
 
----
+***
 
 ## Topic 8 — Servlet API scope `provided`
 
@@ -233,7 +233,7 @@ Meaning: needed to compile; **do not** package into the WAR (container provides 
 
 If you package a second copy → classloading pain.
 
----
+***
 
 ## Topic 9 — Embedded Tomcat (Spring Boot style)
 
@@ -255,7 +255,7 @@ You usually ship a JAR and run `main` — no separate Tomcat install for local/d
 
 Boot did not remove servlets. It made the container easier to start.
 
----
+***
 
 ## Topic 10 — Many servlets vs one front controller (preview)
 
@@ -275,7 +275,7 @@ All URLs → DispatcherServlet → correct @Controller method
 
 Next lecture unpacks that architecture.
 
----
+***
 
 ## Practice lab (conceptual + optional hands-on)
 
@@ -308,7 +308,7 @@ Compare: Boot JAR vs WAR-in-Tomcat.
 Ask: who calls `init`? who calls `doGet`? who calls `destroy`?  
 Answer every time: **the container**, not your `main`.
 
----
+***
 
 ## Short map to keep
 
@@ -323,7 +323,7 @@ Boot embedded Tomcat   = server inside app
 Spring MVC             = one DispatcherServlet front controller
 ```
 
----
+***
 
 ## Exercises
 
@@ -333,7 +333,7 @@ Spring MVC             = one DispatcherServlet front controller
 4. Explain WAR in one sentence.  
 5. How is Boot’s embedded Tomcat different from external Tomcat?
 
----
+***
 
 ## Self-check
 

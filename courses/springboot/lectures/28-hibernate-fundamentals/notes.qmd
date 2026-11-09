@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [27 — Spring JDBC](../27-spring-jdbc/notes.qmd)  
 **Next:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -33,7 +33,7 @@ Your code (Student objects)
 
 Spring JDBC still needs you to write SQL + map rows. Hibernate understands “`Student` is table `students`.”
 
----
+***
 
 ## Topic 1 — Why ORM after JDBC?
 
@@ -47,7 +47,7 @@ That grows painful with many entities and relationships.
 
 **Object-relational impedance mismatch:** Java thinks in objects/references; DB thinks in tables/keys/joins. ORM is the translator.
 
----
+***
 
 ## Topic 2 — JPA vs Hibernate (simple)
 
@@ -63,7 +63,7 @@ JPA   → Hibernate
 
 In Boot you usually import `jakarta.persistence.*`. Runtime engine is still Hibernate when JPA starter is used.
 
----
+***
 
 ## Topic 3 — Project setup (IDE)
 
@@ -88,7 +88,7 @@ spring.jpa.properties.hibernate.format_sql=true
 
 For production you usually manage schema with migrations — not free-form `update`.
 
----
+***
 
 ## Topic 4 — First entity
 
@@ -129,7 +129,7 @@ public class Student {
 @Column          → rename / constraints when needed
 ```
 
----
+***
 
 ## Topic 5 — `EntityManager` CRUD
 
@@ -194,7 +194,7 @@ public void delete(Long id) {
 }
 ```
 
----
+***
 
 ## Topic 6 — Mapping cheat sheet
 
@@ -214,7 +214,7 @@ Example rename:
 private String name;
 ```
 
----
+***
 
 ## Practice lab
 
@@ -225,7 +225,7 @@ private String name;
 5. Watch console SQL for INSERT / SELECT / UPDATE / DELETE.  
 6. Rename a field with `@Column` and confirm column name in SQL.
 
----
+***
 
 ## Short map to keep
 
@@ -243,7 +243,7 @@ EntityManager
 Hibernate → JDBC → MySQL
 ```
 
----
+***
 
 ## Exercises
 
@@ -252,7 +252,7 @@ Hibernate → JDBC → MySQL
 3. Why is there no `em.update(student)` in the rename example?  
 4. What does `ddl-auto=update` do in learning projects?
 
----
+***
 
 ## Self-check
 

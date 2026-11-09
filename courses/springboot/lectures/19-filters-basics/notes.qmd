@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 19  
 **Builds on:** Spring MVC request flow (DispatcherServlet)
 
----
+***
 
 ## Big idea in one line
 
@@ -28,7 +28,7 @@ Request
 Response
 ```
 
----
+***
 
 ## Why Filters? (cross-cutting for HTTP)
 
@@ -41,7 +41,7 @@ Cross-cutting = the same concern on many endpoints:
 
 If you copy that into 20 controllers, you will miss endpoints. Filters sit **outside** controllers once.
 
----
+***
 
 ## Topic 1 — Where Filters sit in the flow
 
@@ -63,7 +63,7 @@ HandlerMapping → Controller → View/JSON
 **Key:** Filters see the raw `HttpServletRequest` / `HttpServletResponse`.  
 They run even for paths that later 404 inside MVC (depending on mapping), and they are older servlet API — not Spring MVC-specific.
 
----
+***
 
 ## Topic 2 — `Filter` + `FilterChain`
 
@@ -110,7 +110,7 @@ if (auth == null || auth.isBlank()) {
 chain.doFilter(request, response);
 ```
 
----
+***
 
 ## Topic 3 — Registering Filters in Boot
 
@@ -135,7 +135,7 @@ FilterRegistrationBean<LoggingFilter> loggingFilter() {
 
 Use URL patterns when the filter should **not** run on every static path.
 
----
+***
 
 ## Topic 4 — Multiple Filters + order
 
@@ -148,7 +148,7 @@ Use URL patterns when the filter should **not** run on every static path.
 
 Like nested function calls: the first filter’s code **after** `doFilter` runs last on the way out.
 
----
+***
 
 ## Topic 5 — What to log / check (practical)
 
@@ -160,7 +160,7 @@ Safe, useful request facts:
 - selected headers (never log raw passwords or full tokens in prod logs)  
 - response status + duration  
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -187,7 +187,7 @@ Call `/hello` outside `/api` → auth filter should not block it.
 
 Swap `@Order` values and watch which log line appears first.
 
----
+***
 
 ## When Filters are a good fit
 
@@ -197,7 +197,7 @@ Swap `@Order` values and watch which log line appears first.
 | Early reject before MVC | Business validation of body → `@Valid` |
 | Servlet-level headers | Spring MVC model tweaks → Interceptor (next lecture) |
 
----
+***
 
 ## Short map to keep
 
@@ -210,7 +210,7 @@ skip chain   → you own the response
 Runs BEFORE DispatcherServlet
 ```
 
----
+***
 
 ## Exercises
 
@@ -220,7 +220,7 @@ Runs BEFORE DispatcherServlet
 4. Why is stuffing auth checks into every controller worse than a filter?  
 5. Name two request details worth logging.
 
----
+***
 
 ## Self-check
 

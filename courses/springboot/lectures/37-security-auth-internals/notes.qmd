@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 37  
 **Builds on:** [Lectures 35](../35-spring-security-basics/notes.qmd)–[36](../36-security-db-password/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -36,7 +36,7 @@ Authenticated Authentication
 SecurityContextHolder  (saved for this request / session)
 ```
 
----
+***
 
 ## Topic 1 — Stop hand-rolled “fake login”
 
@@ -50,7 +50,7 @@ Problems:
 
 **Better:** let Security’s authentication architecture own the verify step; your code supplies **UserDetailsService** + **PasswordEncoder** + URL rules.
 
----
+***
 
 ## Topic 2 — `AuthenticationManager` and providers
 
@@ -69,7 +69,7 @@ AuthenticationManager
 
 You rarely call the provider yourself. The manager does.
 
----
+***
 
 ## Topic 3 — `UsernamePasswordAuthenticationToken`
 
@@ -82,7 +82,7 @@ Two common states of the same class:
 
 That is how a “claim” becomes a “verified identity.”
 
----
+***
 
 ## Topic 4 — Filter chain groups (mental model)
 
@@ -99,7 +99,7 @@ Request walks the chain. Fail early when needed. Success → controller.
 
 **CSRF note:** browser form/session apps care a lot; pure Bearer-token APIs often disable CSRF when sessions are not used (JWT lecture next). Know *why* before copying a snippet.
 
----
+***
 
 ## Topic 5 — What “login success” stores
 
@@ -117,7 +117,7 @@ Next lecture (JWT):
   login once → token to client → each request sends token → rebuild Authentication
 ```
 
----
+***
 
 ## Topic 6 — Practice lab (IDE)
 
@@ -174,7 +174,7 @@ Example role rule:
 .requestMatchers("/admin/**").hasRole("ADMIN")
 ```
 
----
+***
 
 ## Topic 7 — How to reason when login breaks
 
@@ -186,7 +186,7 @@ Ask in order:
 4. Is the URL permitted or secured as you think?  
 5. Did the `Authentication` land in `SecurityContext` after success?
 
----
+***
 
 ## Short map to keep
 
@@ -201,7 +201,7 @@ Filter receives credentials
   → Controller
 ```
 
----
+***
 
 ## Exercises
 
@@ -211,7 +211,7 @@ Filter receives credentials
 4. Name the four filter “groups” from the mental model.  
 5. Stateful login remembers the user using what browser artifact?
 
----
+***
 
 ## Self-check
 

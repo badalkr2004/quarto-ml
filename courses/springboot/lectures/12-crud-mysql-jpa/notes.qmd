@@ -9,7 +9,7 @@ toc: true
 **Video:** [CRUD with MySQL and Spring Data JPA \| Full Course #12](https://www.youtube.com/watch?v=uRr8_0x_HYw)  
 **Playlist index:** 12
 
----
+***
 ## Big idea
 
 Same CRUD API as lecture 11, but data lives in **MySQL** through **Spring Data JPA**.
@@ -80,7 +80,7 @@ Inject `ProductRepository` instead of a `List`. Call repository methods.
 - `ddl-auto=update` is handy for learning; use migrations (Flyway/Liquibase) in real apps.
 - Repository interfaces keep data access thin and testable.
 
----
+***
 
 ## Self-check
 

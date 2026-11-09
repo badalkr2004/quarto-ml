@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 39  
 **Builds on:** [Lecture 38](../38-jwt-authentication/notes.qmd) (tokens & trust)
 
----
+***
 
 ## Big idea in one line
 
@@ -24,14 +24,14 @@ Your app ↔ Google        exchange code → tokens
 Your app                 create local session / your JWT
 ```
 
----
+***
 
 ## Topic 1 — Why not collect Google passwords?
 
 If users gave you their Google password, you could open Drive, Photos, Mail, …  
 Nobody should do that. OAuth exists so Google stays the **identity provider**; you only get **scoped** access the user approved.
 
----
+***
 
 ## Topic 2 — Main actors
 
@@ -42,7 +42,7 @@ Nobody should do that. OAuth exists so Google stays the **identity provider**; y
 | Authorization server | Google (login + consent + codes/tokens) |
 | Resource server | Google APIs (Calendar, …) when you call them with an access token |
 
----
+***
 
 ## Topic 3 — Scope and consent
 
@@ -55,7 +55,7 @@ Ask fewer scopes → easier consent → less risk
 Ask powerful scopes → user may refuse
 ```
 
----
+***
 
 ## Topic 4 — OAuth vs OpenID Connect (OIDC)
 
@@ -72,7 +72,7 @@ ID token     → for your app (identity claims: sub, email, …)
 Access token → for calling Google APIs (if scopes allow)
 ```
 
----
+***
 
 ## Topic 5 — Authorization Code flow (browser apps)
 
@@ -87,7 +87,7 @@ Common happy path:
 
 **`state`** parameter: random value you send and verify on return → helps stop CSRF on the redirect.
 
----
+***
 
 ## Topic 6 — PKCE (why mobile / public clients need it)
 
@@ -106,7 +106,7 @@ Token exchange:
 
 Even if an attacker steals the redirect **code**, they lack the verifier → exchange fails.
 
----
+***
 
 ## Topic 7 — Practice lab (IDE + Google Cloud)
 
@@ -157,7 +157,7 @@ http
 
 Many APIs still issue **your** JWT after Google login succeeds, so mobile clients talk to you the same way as password login.
 
----
+***
 
 ## Topic 8 — Safety checklist
 
@@ -168,7 +168,7 @@ Many APIs still issue **your** JWT after Google login succeeds, so mobile client
 | Store secrets in env / secret manager | Log ID tokens / access tokens |
 | Understand redirect URI must match exactly | Treat OAuth as “share Google password with us” |
 
----
+***
 
 ## Short map to keep
 
@@ -180,7 +180,7 @@ PKCE       → protect public clients during code exchange
 Spring     → oauth2Login + client registration for Google
 ```
 
----
+***
 
 ## Exercises
 
@@ -190,7 +190,7 @@ Spring     → oauth2Login + client registration for Google
 4. What problem does PKCE solve?  
 5. Why must redirect URIs match exactly?
 
----
+***
 
 ## Self-check
 

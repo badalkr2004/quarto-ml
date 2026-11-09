@@ -9,7 +9,7 @@ toc: true
 **Video:** [Spring Boot & Spring Framework Full Course #1](https://www.youtube.com/watch?v=Q04sTEwC7Kg)  
 **Playlist:** [Spring Boot Full Course](https://www.youtube.com/playlist?list=PLEYgx5hMdopw) · index 1
 
----
+***
 
 ## Goal
 
@@ -21,7 +21,7 @@ After this lecture you should be able to explain, in your own words:
 
 This lecture is **conceptual**. You still practice by writing short explanations and a tiny diagram — so you can track the ideas before code arrives in lecture 2.
 
----
+***
 
 ## 1. Client–server in one picture
 
@@ -50,7 +50,7 @@ Write 4–6 bullet points in a notebook (or a `notes.md` in any folder) answerin
 
 Include: client, server, request, response. Do **not** copy jargon — use plain language first.
 
----
+***
 
 ## 2. Why Spring at all?
 
@@ -76,7 +76,7 @@ Fill this table yourself (answers in self-check):
 | Spring MVC | |
 | Spring Core / IoC | |
 
----
+***
 
 ## 3. Series roadmap (so you know where you are)
 
@@ -90,7 +90,7 @@ Fill this table yourself (answers in self-check):
 
 Lectures **04** and **05** are where tracking “code vs video” usually gets hard — this site slows those down into editor steps.
 
----
+***
 
 ## 4. Setup checklist (do this before lecture 2)
 
@@ -115,7 +115,7 @@ public class Hello {
 
 Compile and run (`javac Hello.java` then `java Hello`, or Run in the IDE). You should see `JDK ready`.
 
----
+***
 
 ## Self-check
 

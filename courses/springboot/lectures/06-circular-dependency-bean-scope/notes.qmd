@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 6  
 **Builds on:** [Lecture 5 — IoC container](../05-spring-ioc-container/notes.qmd)
 
----
+***
 
 ## Goal
 
@@ -23,7 +23,7 @@ In your editor, you will:
 
 Reuse the Spring Core / Boot lab from lecture 5 (`AnnotationConfigApplicationContext` + `@Configuration` + `@ComponentScan`, or a Boot app).
 
----
+***
 
 ## Concepts
 
@@ -79,7 +79,7 @@ Two `@Bean` methods that both return `OrderService` → **two** singleton defini
 
 Tradeoff: eager = slower startup, faster discovery of broken wiring; lazy = faster startup, later failures.
 
----
+***
 
 ## Practice A — healthy one-way dependency (baseline)
 
@@ -160,7 +160,7 @@ Payment done
 Order placed
 ```
 
----
+***
 
 ## Practice B — force a circular dependency
 
@@ -206,7 +206,7 @@ Run `Main` again.
 
 **Checkpoint:** context fails while creating beans. Read the stack trace — find the circular reference mention. Screenshot or copy the exception name into your notes.
 
----
+***
 
 ## Practice C — workarounds (then undo them)
 
@@ -242,7 +242,7 @@ Remove the cycle from constructors: inject one dependency via setter/`@Autowired
 
 When finished experimenting, **restore a clean one-way design** (Practice A) before scopes — circular demos confuse later prints.
 
----
+***
 
 ## Practice D — singleton vs prototype
 
@@ -317,7 +317,7 @@ Asking `getBean("reportOne")` twice returns the same instance; `getBean("reportT
 
 If another `@Component` needs a single `ReportService` type while two definitions exist, you get **NoUniqueBeanDefinitionException** — fix with `@Primary` / `@Qualifier` (lecture 5 exercise territory).
 
----
+***
 
 ## Practice E — eager vs `@Lazy`
 
@@ -349,7 +349,7 @@ public class HeavyService { /* ... */ }
 
 Compare with **prototype**: prototypes are not pre-created at startup the way singletons are; they appear when requested.
 
----
+***
 
 ## When to choose which scope (practical rule)
 
@@ -360,7 +360,7 @@ Compare with **prototype**: prototypes are not pre-created at startup the way si
 | Expensive bean rarely used | Consider **`@Lazy`** singleton |
 | You want wiring mistakes at boot | Keep important singletons **eager** |
 
----
+***
 
 ## Exercises
 
@@ -369,7 +369,7 @@ Compare with **prototype**: prototypes are not pre-created at startup the way si
 3. Prove with `==` and constructor logs that prototype ≠ singleton.
 4. Explain in one sentence: why “singleton = one object in the container” is incomplete.
 
----
+***
 
 ## Self-check
 

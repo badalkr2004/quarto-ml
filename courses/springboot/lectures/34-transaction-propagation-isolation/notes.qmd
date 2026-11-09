@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 34  
 **Builds on:** [33 — Spring transactions](../33-spring-transactions/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -31,7 +31,7 @@ public void performOperation() { }
 
 Still needs a **proxy call** to apply.
 
----
+***
 
 ## Topic 1 — Default behaviour (refresh)
 
@@ -41,7 +41,7 @@ Typical Boot defaults you feel in practice:
 - Rollback on **runtime** exceptions  
 - Isolation: database default (often READ_COMMITTED)
 
----
+***
 
 ## Topic 2 — Propagation cheat sheet
 
@@ -73,7 +73,7 @@ Outer REQUIRED
 
 Use `REQUIRES_NEW` for things like audit logs that must persist even when the business TX fails — carefully.
 
----
+***
 
 ## Topic 3 — Commit / rollback attributes
 
@@ -91,7 +91,7 @@ public void importFile() throws Exception {
 }
 ```
 
----
+***
 
 ## Topic 4 — Isolation levels (why they exist)
 
@@ -124,7 +124,7 @@ public void reportBalances() { }
 
 Exact behaviour is **database-specific**. Always verify with your DB docs when tuning.
 
----
+***
 
 ## Topic 5 — Choosing attributes (practical)
 
@@ -137,7 +137,7 @@ Ask:
 
 Do not crank isolation to `SERIALIZABLE` everywhere “to be safe.” Measure need vs throughput.
 
----
+***
 
 ## Practice lab
 
@@ -147,7 +147,7 @@ Do not crank isolation to `SERIALIZABLE` everywhere “to be safe.” Measure ne
 4. Add `rollbackFor = Exception.class` and throw a checked exception — confirm rollback.  
 5. (Optional) Two threads: demonstrate why isolation matters with concurrent updates (keep the demo small).
 
----
+***
 
 ## Short map to keep
 
@@ -159,7 +159,7 @@ Do not crank isolation to `SERIALIZABLE` everywhere “to be safe.” Measure ne
   readOnly / timeout → intent & limits
 ```
 
----
+***
 
 ## Exercises
 
@@ -168,7 +168,7 @@ Do not crank isolation to `SERIALIZABLE` everywhere “to be safe.” Measure ne
 3. Name one concurrency anomaly isolation tries to control.  
 4. Why is `SERIALIZABLE` not the default for every method?
 
----
+***
 
 ## Self-check
 

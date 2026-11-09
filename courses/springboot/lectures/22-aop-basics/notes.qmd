@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 22  
 **Builds on:** IoC beans, Filters/Interceptors (HTTP-only cross-cutting)
 
----
+***
 
 ## Big idea in one line
 
@@ -28,7 +28,7 @@ OrderService.place()                OrderService.place()  ← clean business
                                         └─ real OrderService.place()
 ```
 
----
+***
 
 ## Topic 1 — Cross-cutting concerns
 
@@ -44,7 +44,7 @@ A concern is “cross-cutting” when it cuts across many classes:
 Filters/Interceptors help for **HTTP**.  
 AOP helps for **any Spring bean method** (service layer especially).
 
----
+***
 
 ## Topic 2 — Core vocabulary (simple)
 
@@ -70,7 +70,7 @@ Mindmap:
           Your @Service
 ```
 
----
+***
 
 ## Topic 3 — Why proxies?
 
@@ -88,7 +88,7 @@ Client → orderService.place()
 
 **Important limitation (preview):** self-calls inside the same class (`this.otherMethod()`) do **not** go through the proxy, so advice may not run. Call through the injected bean/proxy instead. More in lecture 24.
 
----
+***
 
 ## Topic 4 — Enable AOP in Boot
 
@@ -115,7 +115,7 @@ public class LoggingAspect {
 
 `@Aspect` alone is not enough — it must also be a Spring bean (`@Component` or `@Bean`).
 
----
+***
 
 ## Topic 5 — Tiny first taste (`@Before`)
 
@@ -135,7 +135,7 @@ Call any matching service method → log appears **without** editing that servic
 
 We will unpack advice types and pointcuts in lectures 23–24.
 
----
+***
 
 ## Picture: HTTP tools vs AOP
 
@@ -145,7 +145,7 @@ Any bean method concerns  → Spring AOP aspect
 DB transaction boundary   → @Transactional (AOP under the hood)
 ```
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -168,7 +168,7 @@ You should see the aspect log, then business output — service class itself has
 
 Comment out AOP starter / or the `@Aspect` bean → logs disappear. Confirms advice is not “magic in the service.”
 
----
+***
 
 ## Short map to keep
 
@@ -180,7 +180,7 @@ starter-aop + @Aspect + @Component
 Filters ≠ AOP (different layer)
 ```
 
----
+***
 
 ## Exercises
 
@@ -190,7 +190,7 @@ Filters ≠ AOP (different layer)
 4. Does `@Aspect` work without registering the class as a Spring bean?  
 5. Which starter enables Spring AOP in Boot?
 
----
+***
 
 ## Self-check
 

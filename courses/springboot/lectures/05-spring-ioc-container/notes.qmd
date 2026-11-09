@@ -9,7 +9,7 @@ toc: true
 **Video:** [Spring IOC Container \| Beans, @Component, @Autowired & @Bean \| Full Course #5](https://www.youtube.com/watch?v=Az9tIgCdaRU)  
 **Playlist index:** 5
 
----
+***
 
 ## Goal
 
@@ -35,7 +35,7 @@ Package example: `com.example.ioclab`
 If you use Spring Boot, `@SpringBootApplication` already includes component scanning from its package downward. For a pure Spring demo, you will use `AnnotationConfigApplicationContext` as shown below.
 :::
 
----
+***
 
 ## Concepts
 
@@ -83,7 +83,7 @@ Asks Spring: “find a bean that matches this dependency and inject it.”
 Spring looks in configured packages for stereotype annotations.  
 Boot: scanning starts from the package of the `@SpringBootApplication` class — **keep your components in that package or subpackages**.
 
----
+***
 
 ## Practice A — manual DI reminder (Payment / Order)
 
@@ -130,7 +130,7 @@ Payment done
 Order placed
 ```
 
----
+***
 
 ## Practice B — let Spring manage beans (`@Component`)
 
@@ -226,7 +226,7 @@ Temporarily **remove** `@Component` from `PaymentService`, restart:
 
 This error is your friend — it proves the container is doing the wiring.
 
----
+***
 
 ## Practice C — `@Bean` + `@Configuration`
 
@@ -271,7 +271,7 @@ orderService.placeOrder();
 | `@Component` on a class | “Spring, scan me and manage an instance.” |
 | `@Bean` on a method | “Spring, call this method to obtain a managed instance.” |
 
----
+***
 
 ## Practice D — `@Autowired` explicitly (optional)
 
@@ -292,7 +292,7 @@ public class OrderService {
 
 Prefer constructor injection. Avoid field injection while learning (`@Autowired` on fields) — it hides dependencies and complicates tests.
 
----
+***
 
 ## Common mistakes checklist
 
@@ -303,7 +303,7 @@ Prefer constructor injection. Avoid field injection while learning (`@Autowired`
 | Two beans of same type | Ambiguity — add `@Primary` or `@Qualifier` |
 | Calling `new OrderService(...)` yourself | Bypasses container — dependencies won’t be injected into *that* instance |
 
----
+***
 
 ## Exercises
 
@@ -312,7 +312,7 @@ Prefer constructor injection. Avoid field injection while learning (`@Autowired`
 3. Explain in two sentences when you would choose `@Bean` over `@Component`.
 4. True/False: every object created with `new` inside a `@Component` method body is automatically a Spring bean.
 
----
+***
 
 ## Bridge to later lectures
 
@@ -325,7 +325,7 @@ Next playlist topics build on this container:
 
 If you can create two beans and inject one into the other **without watching the video on mute-copy**, you are ready to continue.
 
----
+***
 
 ## Self-check
 

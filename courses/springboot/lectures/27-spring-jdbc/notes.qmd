@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [26 — JDBC from scratch](../26-jdbc-from-scratch/notes.qmd)  
 **Next:** [28 — Hibernate fundamentals](../28-hibernate-fundamentals/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -29,7 +29,7 @@ map ResultSet                    RowMapper (you or helper)
 close + catch                    Spring closes + translates
 ```
 
----
+***
 
 ## Topic 1 — Pain of raw JDBC
 
@@ -45,7 +45,7 @@ Every method repeats:
 
 Only steps 3–5 are your real work. Spring JDBC templates the rest.
 
----
+***
 
 ## Topic 2 — `DataSource` (connection factory)
 
@@ -72,7 +72,7 @@ spring.datasource.username=root
 spring.datasource.password=your_password
 ```
 
----
+***
 
 ## Topic 3 — Connection pooling & HikariCP
 
@@ -93,7 +93,7 @@ With pool:     each request → borrow → use → return
 
 `DataSource` ≠ always a pool. Boot’s default **is** pooled (Hikari). A simple single-connection DataSource also exists for tiny cases.
 
----
+***
 
 ## Topic 4 — Make a Spring JDBC project (IDE)
 
@@ -113,7 +113,7 @@ spring-boot-starter-jdbc
 + mysql driver JAR
 ```
 
----
+***
 
 ## Topic 5 — `JdbcTemplate` CRUD
 
@@ -197,7 +197,7 @@ return jdbc.query(sql, new BeanPropertyRowMapper<>(Student.class));
 
 Handy for demos. Custom `RowMapper` is clearer when names differ.
 
----
+***
 
 ## Topic 6 — Exception translation
 
@@ -212,7 +212,7 @@ Spring JDBC wraps vendor codes into **unchecked** Spring DAO exceptions, for exa
 
 **Why it helps:** service code can catch Spring’s hierarchy without MySQL-specific error codes everywhere.
 
----
+***
 
 ## Topic 7 — Keep repository behind an interface
 
@@ -225,7 +225,7 @@ Controller → Service → StudentRepository (interface)
 
 Upper layers should not care if SQL is raw JDBC, Spring JDBC, or JPA.
 
----
+***
 
 ## Practice lab
 
@@ -236,7 +236,7 @@ Upper layers should not care if SQL is raw JDBC, Spring JDBC, or JPA.
 5. Break the SQL on purpose once; notice Spring’s translated exception message.  
 6. Compare line count to your lecture-26 raw JDBC class.
 
----
+***
 
 ## Raw JDBC vs Spring JDBC
 
@@ -248,7 +248,7 @@ Upper layers should not care if SQL is raw JDBC, Spring JDBC, or JPA.
 | Row mapping | Manual | `RowMapper` / helpers |
 | Exceptions | Checked SQLException | Runtime DataAccessException family |
 
----
+***
 
 ## Short map to keep
 
@@ -264,7 +264,7 @@ application.properties → DataSource (Hikari)
            (C/U/D)       (list + map)     (one + map)
 ```
 
----
+***
 
 ## Exercises
 
@@ -273,7 +273,7 @@ application.properties → DataSource (Hikari)
 3. What is a `RowMapper`?  
 4. Why wrap `SQLException` into Spring exceptions?
 
----
+***
 
 ## Self-check
 

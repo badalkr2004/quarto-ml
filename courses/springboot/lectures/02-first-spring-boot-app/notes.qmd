@@ -9,7 +9,7 @@ toc: true
 **Video:** [Build Your First Spring Boot Application \| REST API \| Full Course #2](https://www.youtube.com/watch?v=PVreyET_Q6I)  
 **Playlist index:** 2
 
----
+***
 
 ## Goal
 
@@ -21,7 +21,7 @@ GET http://localhost:8080/hello  →  Hello World
 
 You will type every step in your IDE. Pause the video and implement here — that is the point of these notes.
 
----
+***
 
 ## Concepts you need while coding
 
@@ -52,7 +52,7 @@ Adding **Spring Web** pulls in an **embedded Apache Tomcat**. When you run the m
 | `@RestController` | Marks a class as an HTTP API “gateway” |
 | `@GetMapping("/hello")` | Maps HTTP GET `/hello` to a method |
 
----
+***
 
 ## Practice — build it step by step
 
@@ -178,7 +178,7 @@ public String hello() {
 
 The browser will render the heading. (Real apps usually return JSON and let a frontend render HTML — that comes later.)
 
----
+***
 
 ## Mental model after this lecture
 
@@ -197,7 +197,7 @@ Browser  --GET /hello-->  Embedded Tomcat (port 8080)
 
 You have **not** yet learned *how* mapping works internally. That is intentional. Lecture 1–2 show the destination; later lectures open the engine.
 
----
+***
 
 ## Exercises
 
@@ -206,7 +206,7 @@ You have **not** yet learned *how* mapping works internally. That is intentional
 3. Temporarily remove `@RestController`, restart, hit `/hello` — what happens? Put it back.
 4. Write three bullet points: What did Initializr save you from doing by hand?
 
----
+***
 
 ## Self-check
 

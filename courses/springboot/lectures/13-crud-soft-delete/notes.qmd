@@ -9,7 +9,7 @@ toc: true
 **Video:** [Soft delete and custom JPA methods \| Full Course #13](https://www.youtube.com/watch?v=1lUBVZkDANg)  
 **Playlist index:** 13
 
----
+***
 ## Big idea
 
 **Hard delete:** row is gone.  
@@ -77,7 +77,7 @@ List endpoints should call `findByDeletedFalse()`, not `findAll()`.
 
 Always decide: does “delete” mean *hide* or *erase*? Soft delete changes every read query — do not forget filters.
 
----
+***
 
 ## Self-check
 

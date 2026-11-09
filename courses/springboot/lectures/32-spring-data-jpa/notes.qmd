@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [28](../28-hibernate-fundamentals/notes.qmd)–[31](../31-jpa-cascading-lazy-nplus1/notes.qmd)  
 **Next:** [33 — Spring transactions](../33-spring-transactions/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -27,7 +27,7 @@ Spring creates a proxy at runtime
    → @Query JPQL / native when needed
 ```
 
----
+***
 
 ## Topic 1 — Where Spring Data sits
 
@@ -44,7 +44,7 @@ Controller → Service → Spring Data repository interface
 JPA = mapping + EntityManager API.  
 **Spring Data JPA** = repository abstraction on top.
 
----
+***
 
 ## Topic 2 — Interface hierarchy (simple)
 
@@ -64,7 +64,7 @@ Repository
 - flush / batch helpers
 - paging & sorting overloads
 
----
+***
 
 ## Topic 3 — Declare a repository (IDE)
 
@@ -98,7 +98,7 @@ public class StudentService {
 - **New** entity (no id / unsaved) → insert path  
 - **Managed** entity already loaded in a TX → changing fields is enough; `save` often redundant but common in Spring Data style  
 
----
+***
 
 ## Topic 4 — Derived query methods
 
@@ -119,7 +119,7 @@ And / Or / Between / IsNull / OrderBy...
 
 If the name is wrong, startup often fails fast — good.
 
----
+***
 
 ## Topic 5 — JPQL with `@Query`
 
@@ -149,7 +149,7 @@ List<Student> nativeOlder(Integer age);
 
 Prefer JPQL when portable mapping matters; native when you need DB-specific SQL.
 
----
+***
 
 ## Topic 6 — Sorting & pagination
 
@@ -173,7 +173,7 @@ Derived + pageable:
 Page<Student> findByAgeGreaterThan(Integer age, Pageable pageable);
 ```
 
----
+***
 
 ## Practice lab
 
@@ -185,7 +185,7 @@ Page<Student> findByAgeGreaterThan(Integer age, Pageable pageable);
 6. Compare `Page` vs `Slice` SQL (count query presence).  
 7. Watch `show-sql` for derived method SQL.
 
----
+***
 
 ## Short map to keep
 
@@ -197,7 +197,7 @@ JpaRepository
   └─ Pageable / Sort / Page / Slice
 ```
 
----
+***
 
 ## Exercises
 
@@ -206,7 +206,7 @@ JpaRepository
 3. When do you need `@Modifying`?  
 4. `Page` vs `Slice` — which runs a count query?
 
----
+***
 
 ## Self-check
 

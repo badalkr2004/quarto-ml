@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 26  
 **Builds on:** plain Java + MySQL. Next: [27 — Spring JDBC](../27-spring-jdbc/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -32,7 +32,7 @@ Your Java code
 
 A `String sql = "SELECT ..."` alone does **nothing**. You must open a connection and execute it.
 
----
+***
 
 ## Why learn raw JDBC first?
 
@@ -48,7 +48,7 @@ Today you will:
 6. Prefer `PreparedStatement`
 7. Close resources safely
 
----
+***
 
 ## Topic 1 — JDBC API vs driver
 
@@ -75,7 +75,7 @@ DriverManager.getConnection(
 );
 ```
 
----
+***
 
 ## Topic 2 — IDE / MySQL setup (hands-on)
 
@@ -114,7 +114,7 @@ Maven snippet:
 </dependency>
 ```
 
----
+***
 
 ## Topic 3 — Open a connection
 
@@ -141,7 +141,7 @@ jdbc:mysql://localhost:3306/student_db
 
 Modern drivers usually auto-register. You rarely need `Class.forName(...)` anymore.
 
----
+***
 
 ## Topic 4 — Execute SQL
 
@@ -177,7 +177,7 @@ try (PreparedStatement ps = connection.prepareStatement(sql)) {
 - Same SQL plan can be reused
 - Types are set explicitly (`setString`, `setInt`, …)
 
----
+***
 
 ## Topic 5 — Read rows with `ResultSet`
 
@@ -206,7 +206,7 @@ ResultSet cursor starts BEFORE first row
  getInt / getString / getLong on current row
 ```
 
----
+***
 
 ## Topic 6 — Full CRUD (type this)
 
@@ -270,7 +270,7 @@ public void delete(Connection connection, int id) throws SQLException {
 }
 ```
 
----
+***
 
 ## Topic 7 — Close resources
 
@@ -288,7 +288,7 @@ try (Connection c = DriverManager.getConnection(url, user, password);
 
 Leaking connections = MySQL hits max connections and new apps fail.
 
----
+***
 
 ## Common setup problems
 
@@ -300,7 +300,7 @@ Leaking connections = MySQL hits max connections and new apps fail.
 | `ClassNotFoundException` for driver | dependency / JAR missing |
 | Empty ResultSet | wrong table / wrong WHERE / no rows yet |
 
----
+***
 
 ## Practice lab
 
@@ -312,7 +312,7 @@ Leaking connections = MySQL hits max connections and new apps fail.
 6. Print again.  
 7. Replace any string-concatenated SQL with `PreparedStatement`.
 
----
+***
 
 ## Short map to keep
 
@@ -331,7 +331,7 @@ DriverManager.getConnection
         └─ close (try-with-resources)
 ```
 
----
+***
 
 ## Exercises
 
@@ -340,7 +340,7 @@ DriverManager.getConnection
 3. What does `rs.next()` return when there are no more rows?  
 4. Name three things that must be closed after a query.
 
----
+***
 
 ## Self-check
 

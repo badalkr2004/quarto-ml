@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd), [32 — Spring Data JPA](../32-spring-data-jpa/notes.qmd)  
 **Next:** [34 — Propagation & isolation](../34-transaction-propagation-isolation/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -25,7 +25,7 @@ Transfer ₹1000 A → B
 Must be ONE transaction (not half a transfer)
 ```
 
----
+***
 
 ## Topic 1 — ACID (plain)
 
@@ -38,7 +38,7 @@ Must be ONE transaction (not half a transfer)
 
 Isolation details deepen in lecture 34.
 
----
+***
 
 ## Topic 2 — Begin / commit / rollback
 
@@ -72,7 +72,7 @@ proxy begins TX
   → rollback-eligible exception → rollback
 ```
 
----
+***
 
 ## Topic 3 — Layers (same DB TX, different APIs)
 
@@ -94,7 +94,7 @@ proxy begins TX
 
 You are not choosing “Spring TX **or** DB TX.” Spring **coordinates** the lower APIs.
 
----
+***
 
 ## Topic 4 — Where to put `@Transactional`
 
@@ -127,7 +127,7 @@ Class-level `@Transactional` sets a default; method-level can override.
 
 Override with `rollbackFor` / `noRollbackFor` when needed (more in lecture 34 attributes).
 
----
+***
 
 ## Topic 5 — Proxy reminder
 
@@ -140,7 +140,7 @@ accountService.internal() calling this.transfer()  ✗ may skip proxy
 
 Call transactional methods from **another bean**, or redesign so the boundary is the outer public method.
 
----
+***
 
 ## Practice lab
 
@@ -151,7 +151,7 @@ Call transactional methods from **another bean**, or redesign so the boundary is
 5. Mark a read method `readOnly = true`.  
 6. Log SQL; confirm writes share one transactional unit.
 
----
+***
 
 ## Short map to keep
 
@@ -162,7 +162,7 @@ Business use case
 ACID = why we bother
 ```
 
----
+***
 
 ## Exercises
 
@@ -171,7 +171,7 @@ ACID = why we bother
 3. Why service layer, not controller, for TX boundaries?  
 4. What happens by default if a `RuntimeException` escapes a transactional method?
 
----
+***
 
 ## Self-check
 

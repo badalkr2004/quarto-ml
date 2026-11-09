@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 10  
 **Builds on:** [Lecture 9](../09-spring-boot-core/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -27,7 +27,7 @@ Change value? edit Java,       Change value? edit config
 recompile, rebuild             (same code can stay)
 ```
 
----
+***
 
 ## Why configuration files?
 
@@ -52,7 +52,7 @@ Better place for them:
 
 Keep **business logic** in Java. Keep **settings** outside.
 
----
+***
 
 ## Topic 1 — `application.properties`
 
@@ -100,7 +100,7 @@ Prod: payment.provider=Razorpay
 Same PaymentService code in both places.
 ```
 
----
+***
 
 ## Topic 2 — Inject one value with `@Value`
 
@@ -141,7 +141,7 @@ If key is missing → use the default. If key is missing *and* no default → st
 
 Four related payment settings → four `@Value` lines. Fine for demos. Ugly for groups of settings.
 
----
+***
 
 ## Topic 3 — Bind a group with `@ConfigurationProperties`
 
@@ -205,7 +205,7 @@ RETRY_COUNT
 | One or two values | `@Value` |
 | A related group | `@ConfigurationProperties` |
 
----
+***
 
 ## Topic 4 — Why runner interfaces?
 
@@ -234,7 +234,7 @@ pay.pay();
 Works. But you are back to manual “fetch bean, call method.”  
 Prefer: Spring creates a runner bean; Boot invokes it after startup.
 
----
+***
 
 ## Topic 5 — `CommandLineRunner`
 
@@ -264,7 +264,7 @@ What happens:
 Args are raw strings (`String... args`).  
 `java -jar app.jar hello world` → print each arg.
 
----
+***
 
 ## Topic 6 — `ApplicationRunner`
 
@@ -297,7 +297,7 @@ Example: `java -jar app.jar --provider=Razorpay --retry=3`
 
 Either is fine for “run this after startup.”
 
----
+***
 
 ## Startup flow (short map)
 
@@ -315,7 +315,7 @@ main()
 
 Configuration is loaded **before** your beans need those values.
 
----
+***
 
 ## Practice lab (type this)
 
@@ -348,7 +348,7 @@ Run the main class. You should see payment lines **without** calling `getBean` f
 Temporarily inject one field with `@Value("${payment.provider:DefaultProvider}")`.  
 Delete the property → confirm the default appears.
 
----
+***
 
 ## How to reason when something fails
 
@@ -357,7 +357,7 @@ Delete the property → confirm the default appears.
 3. **Runner never runs?** Is the class a Spring bean (`@Component`)? Under the main package?  
 4. **Still calling from `main`?** Fine for debugging; prefer runners as the habit.
 
----
+***
 
 ## Exercises
 
@@ -367,7 +367,7 @@ Delete the property → confirm the default appears.
 4. Name one difference between `CommandLineRunner` and `ApplicationRunner`.  
 5. In the startup map, when do runners execute — before or after beans are ready?
 
----
+***
 
 ## Self-check
 

@@ -9,7 +9,7 @@ toc: true
 **Video:** [CRUD project from scratch \| Full Course #11](https://www.youtube.com/watch?v=6kCCIdLLGRs)  
 **Playlist index:** 11
 
----
+***
 ## Big idea
 
 Build a small REST API with clear layers. Do not put everything in one class.
@@ -91,7 +91,7 @@ public class ProductController {
 - Why layers? So you can change storage later without rewriting HTTP code.
 - Why constructor injection? Required deps are clear and easy to test.
 
----
+***
 
 ## Self-check
 

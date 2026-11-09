@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 41  
 **Builds on:** Security, JWT, filters, and testing from lectures 35–40
 
----
+***
 
 ## Big idea in one line
 
@@ -29,7 +29,7 @@ Smart Gateway  ──policies──► Redis (rate limit / idempotency)
   └── config loaded from API Management (MySQL) via notifications
 ```
 
----
+***
 
 ## Topic 1 — Why an API gateway?
 
@@ -55,7 +55,7 @@ API gateway    → reverse proxy + API policies
 
 **Boundary rule:** gateway handles **entry** rules. Target services still enforce **business** rules (who may change *this* order).
 
----
+***
 
 ## Topic 2 — What GateKeeper is (and is not)
 
@@ -76,7 +76,7 @@ Spring Cloud Gateway / Eureka / Config Server, service mesh, circuit breakers as
 
 You build enough to **see the insides**.
 
----
+***
 
 ## Topic 3 — Data plane vs control plane
 
@@ -96,7 +96,7 @@ Data plane (Smart Gateway)
 
 If Management is temporarily down, **already loaded** routes can still serve traffic. New admin changes wait until Management returns.
 
----
+***
 
 ## Topic 4 — Latency design
 
@@ -115,7 +115,7 @@ GOOD: memory + local JWT + Redis if needed + target
       (+ Kafka fire-and-forget style analytics)
 ```
 
----
+***
 
 ## Topic 5 — Redis vs Kafka (do not mix them up)
 
@@ -130,7 +130,7 @@ GOOD: memory + local JWT + Redis if needed + target
 **Idempotency (POST):** same key → return saved success instead of repeating a write.  
 **Access events:** never log passwords, JWTs, or Authorization headers.
 
----
+***
 
 ## Topic 6 — Ownership map
 
@@ -143,7 +143,7 @@ GOOD: memory + local JWT + Redis if needed + target
 
 No service should casually write another service’s tables.
 
----
+***
 
 ## Topic 7 — Practice lab (milestone #1)
 
@@ -176,7 +176,7 @@ Reproduce the mindmap at the top from memory: client → gateway → redis/kafka
 
 **Fail closed** = if you cannot check the limit, do not silently skip the limit.
 
----
+***
 
 ## Short map to keep
 
@@ -190,7 +190,7 @@ Each service owns its data
 Business rules stay in targets
 ```
 
----
+***
 
 ## Exercises
 
@@ -200,7 +200,7 @@ Business rules stay in targets
 4. Redis vs Kafka for rate limiting — which and why?  
 5. What must never appear in access events?
 
----
+***
 
 ## Self-check
 

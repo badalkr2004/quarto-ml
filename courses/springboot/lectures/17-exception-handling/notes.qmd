@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 17  
 **Builds on:** [16 — DTOs & Validations](../16-dtos-validations/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -28,7 +28,7 @@ Service throws ResourceNotFoundException
 JSON { message, status, ... } + 404
 ```
 
----
+***
 
 ## Why central exception handling?
 
@@ -42,7 +42,7 @@ Without it:
 
 With a global handler: **one error contract** for the whole API.
 
----
+***
 
 ## Topic 1 — Custom business exceptions
 
@@ -76,7 +76,7 @@ public ProductResponse getById(Long id) {
 
 Prefer **unchecked** (`RuntimeException`) so you do not pollute every method signature with `throws`.
 
----
+***
 
 ## Topic 2 — Error response DTO
 
@@ -94,7 +94,7 @@ public record ApiError(
 
 You can add `Map<String, String> fieldErrors` for validation failures.
 
----
+***
 
 ## Topic 3 — `@RestControllerAdvice` + `@ExceptionHandler`
 
@@ -136,7 +136,7 @@ public class GlobalExceptionHandler {
 
 **`@RestControllerAdvice`** = advice for all `@RestController`s + writes the return value as the response body (like `@RestController`).
 
----
+***
 
 ## Topic 4 — Validation errors (from lecture 16)
 
@@ -164,7 +164,7 @@ public ResponseEntity<ApiError> handleValidation(
 }
 ```
 
----
+***
 
 ## Topic 5 — Catch-all (optional but useful)
 
@@ -185,7 +185,7 @@ public ResponseEntity<ApiError> handleOther(Exception ex, HttpServletRequest req
 
 **Rule:** log details server-side; return a safe message to the client (especially in prod).
 
----
+***
 
 ## Picture: request with an error
 
@@ -202,7 +202,7 @@ GET /products/999
   → 404 + { message }
 ```
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -232,7 +232,7 @@ Add `GlobalExceptionHandler` with handlers for:
 
 No try/catch needed in controller methods for these cases.
 
----
+***
 
 ## Short map to keep
 
@@ -245,7 +245,7 @@ Controller stays clean
 Validation failures = MethodArgumentNotValidException
 ```
 
----
+***
 
 ## Exercises
 
@@ -255,7 +255,7 @@ Validation failures = MethodArgumentNotValidException
 4. Why should a catch-all handler avoid returning `ex.getMessage()` blindly in production?  
 5. What HTTP status fits “resource not found”?
 
----
+***
 
 ## Self-check
 

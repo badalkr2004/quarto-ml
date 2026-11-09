@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 25  
 **Builds on:** [23–24 Advice & pointcuts](../23-aop-advice-types/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -34,7 +34,7 @@ custom annotation on method
 timing / security / audit code
 ```
 
----
+***
 
 ## Topic 1 — Define a custom annotation
 
@@ -53,7 +53,7 @@ public @interface LogExecution {
 
 Optional attributes (`value`, `level`, …) let the annotation carry config.
 
----
+***
 
 ## Topic 2 — Aspect with `@annotation` binding
 
@@ -92,7 +92,7 @@ public Object around(ProceedingJoinPoint pjp) throws Throwable { ... }
 
 Then look up the annotation via reflection if you need attributes.
 
----
+***
 
 ## Topic 3 — Use it on services
 
@@ -114,7 +114,7 @@ public class OrderService {
 **Still proxied:** the method must be called through the Spring bean/proxy.  
 Self-invocation still skips the aspect (lecture 24).
 
----
+***
 
 ## Topic 4 — Design patterns that fit custom annotations
 
@@ -127,7 +127,7 @@ Self-invocation still skips the aspect (lecture 24).
 
 Keep annotations **intention-revealing**. Business readers should understand `@Audited` without opening the aspect first.
 
----
+***
 
 ## Topic 5 — Combine annotation + execution (optional)
 
@@ -140,7 +140,7 @@ public Object audit(ProceedingJoinPoint pjp, Audited audited) throws Throwable {
 
 Useful when similar annotations might appear outside the layer you care about.
 
----
+***
 
 ## Picture: annotation-driven AOP
 
@@ -153,7 +153,7 @@ Caller → proxy
           └─ proceed() → real method
 ```
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -180,7 +180,7 @@ Call three methods from a controller — only the annotated ones should log timi
 Create `@RequiresHeader` and an `@Around` that returns 401 / throws if a request header is missing.  
 (Inject `HttpServletRequest` carefully via `RequestContextHolder` or pass data another way — keep the demo small.)
 
----
+***
 
 ## Short map to keep
 
@@ -192,7 +192,7 @@ Bind annotation param to read attributes
 Proxy rules still apply (external calls only)
 ```
 
----
+***
 
 ## Exercises
 
@@ -202,7 +202,7 @@ Proxy rules still apply (external calls only)
 4. Name one benefit of `@LogExecution` over a wide `execution(*..service.*.*(..))`.  
 5. Which starter must still be on the classpath?
 
----
+***
 
 ## Self-check
 

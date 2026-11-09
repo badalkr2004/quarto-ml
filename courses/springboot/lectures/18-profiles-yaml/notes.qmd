@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 18  
 **Builds on:** `application.properties` / `@Value` from lecture 10
 
----
+***
 
 ## Big idea in one line
 
@@ -25,7 +25,7 @@ application-prod.yml     ← production overrides
 spring.profiles.active=dev   ← which override pack is on
 ```
 
----
+***
 
 ## Why profiles?
 
@@ -36,7 +36,7 @@ spring.profiles.active=dev   ← which override pack is on
 
 Hard-coding `localhost` in Java breaks the day you deploy. Profiles keep environment details in config files.
 
----
+***
 
 ## Topic 1 — YAML vs properties (same idea)
 
@@ -65,7 +65,7 @@ You can keep `.properties` if you prefer. Profiles work with both:
 
 - `application-dev.properties` / `application-dev.yml`
 
----
+***
 
 ## Topic 2 — Profile-specific files
 
@@ -121,7 +121,7 @@ logging:
 
 **Merge rule (simple mental model):** base file loads first; active profile file(s) **override** matching keys.
 
----
+***
 
 ## Topic 3 — How to activate a profile
 
@@ -161,7 +161,7 @@ SPRING_PROFILES_ACTIVE=prod
 
 **Practical tip:** do not bake `prod` as the only default in the repo. Prefer `dev` locally; set `prod` on the server.
 
----
+***
 
 ## Topic 4 — `@Profile` on beans
 
@@ -193,7 +193,7 @@ Only the matching profile’s `@Bean`s get created.
 
 You can also put `@Profile("dev")` on a `@Component` / `@Service`.
 
----
+***
 
 ## Topic 5 — Reading values still works the same
 
@@ -213,7 +213,7 @@ Environment env;
 // env.getActiveProfiles()
 ```
 
----
+***
 
 ## Picture: startup with profiles
 
@@ -227,7 +227,7 @@ Boot starts
   └─ app runs with merged Environment
 ```
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -255,7 +255,7 @@ Change active profile to `prod`, run again → **prod** port / logging should ap
 Add a `@Component` `@Profile("dev")` that prints `"Dev bean loaded"` in `@PostConstruct`.  
 Run with `dev` → see message. Run with `prod` → bean absent.
 
----
+***
 
 ## Short map to keep
 
@@ -267,7 +267,7 @@ spring.profiles.active = which override pack
 YAML ≈ nested properties (watch indentation)
 ```
 
----
+***
 
 ## Exercises
 
@@ -277,7 +277,7 @@ YAML ≈ nested properties (watch indentation)
 4. What does `@Profile("prod")` do on a `@Configuration` class?  
 5. True/False: profile YAML replaces the whole base file (nothing from base remains).
 
----
+***
 
 ## Self-check
 

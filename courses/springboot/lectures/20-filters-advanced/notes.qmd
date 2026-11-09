@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 20  
 **Builds on:** [19 — Filters basics](../19-filters-basics/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -22,7 +22,7 @@ Request  → wrap → chain.doFilter(wrappedReq, wrappedRes)
 Response ← read from wrapper (body/headers you captured or changed)
 ```
 
----
+***
 
 ## Why wrappers?
 
@@ -38,7 +38,7 @@ Spring/servlet API gives:
 - `HttpServletResponseWrapper`  
 - helpers like `ContentCachingRequestWrapper` / `ContentCachingResponseWrapper` (Spring)
 
----
+***
 
 ## Topic 1 — Modify / add request headers
 
@@ -74,7 +74,7 @@ chain.doFilter(wrapped, response);
 
 Downstream code / controllers that read `X-Request-Id` now see your value.
 
----
+***
 
 ## Topic 2 — Response headers after the controller
 
@@ -88,7 +88,7 @@ res.setHeader("X-Elapsed-Ms", String.valueOf(took));
 
 Some headers must be set before the response is committed (before body flush). If you see “already committed”, set earlier or use a response wrapper that buffers.
 
----
+***
 
 ## Topic 3 — Caching request body (read twice)
 
@@ -118,7 +118,7 @@ public class BodyCacheFilter implements Filter {
 
 **Note:** content is available **after** the downstream read fills the cache (often after `chain.doFilter`). Fine for logging. For validating body *before* the controller, use a wrapper that buffers on first read and replays.
 
----
+***
 
 ## Topic 4 — Caching / modifying response body
 
@@ -137,7 +137,7 @@ res.copyBodyToResponse();
 
 Forget `copyBodyToResponse()` → client gets an **empty** body. Classic bug.
 
----
+***
 
 ## Picture: wrap → chain → unwrap
 
@@ -151,7 +151,7 @@ Filter.doFilter
   └─ copyBodyToResponse()  // send real bytes to client
 ```
 
----
+***
 
 ## Topic 5 — Practical caution
 
@@ -160,7 +160,7 @@ Filter.doFilter
 3. Only wrap when you need to; plain logging of URL/status does not need body wrappers.  
 4. Order matters: body-caching filters usually sit early so later filters/controllers read through the same wrapper.
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -187,7 +187,7 @@ Check Postman headers tab.
 Use `ContentCachingRequestWrapper`, POST a JSON DTO, print body after the chain.  
 Confirm the controller still receives the DTO (body not consumed away).
 
----
+***
 
 ## Short map to keep
 
@@ -198,7 +198,7 @@ Response wrapper → capture body, then copyBodyToResponse()
 Never forget copy for caching response wrappers
 ```
 
----
+***
 
 ## Exercises
 
@@ -208,7 +208,7 @@ Never forget copy for caching response wrappers
 4. Why buffer carefully for file upload endpoints?  
 5. Name the Spring class often used to cache request content.
 
----
+***
 
 ## Self-check
 

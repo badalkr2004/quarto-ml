@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 16  
 **Builds on:** REST controllers + entities from earlier CRUD lectures
 
----
+***
 
 ## Big idea in one line
 
@@ -33,7 +33,7 @@ DB / Entity
 Response DTO → JSON to client
 ```
 
----
+***
 
 ## Why DTOs? (plain problem)
 
@@ -47,7 +47,7 @@ If the controller accepts the **Entity** directly:
 
 **DTO fix:** the API shape is a separate class. The entity stays an internal detail.
 
----
+***
 
 ## Topic 1 — Request DTO vs Response DTO
 
@@ -97,7 +97,7 @@ public record UserResponse(Long id, String name, String email) {}
 
 Use whatever your project already uses. Records are short; classes are fine too.
 
----
+***
 
 ## Topic 2 — Map Entity ↔ DTO (no magic required)
 
@@ -126,7 +126,7 @@ public UserResponse create(@RequestBody CreateUserRequest request) {
 }
 ```
 
----
+***
 
 ## Topic 3 — Bean Validation (why + dependency)
 
@@ -159,7 +159,7 @@ Common annotations:
 | `@Positive` | number > 0 |
 | `@Pattern(regexp=...)` | custom format |
 
----
+***
 
 ## Topic 4 — Wire validation on the controller
 
@@ -192,7 +192,7 @@ JSON arrives
 
 **Forgot `@Valid`?** Annotations on the DTO do nothing. This is the #1 beginner bug.
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -230,7 +230,7 @@ Send invalid JSON:
 
 Send a valid body → 200/201 + response without internal-only fields.
 
----
+***
 
 ## Nested objects & lists (quick)
 
@@ -250,7 +250,7 @@ public record CreateOrderRequest(
 
 `@Valid` on the nested field tells Spring to validate inside that object too.
 
----
+***
 
 ## Short map to keep
 
@@ -261,7 +261,7 @@ DTO     = API shape (public)
 starter-validation = brings Hibernate Validator
 ```
 
----
+***
 
 ## Exercises
 
@@ -271,7 +271,7 @@ starter-validation = brings Hibernate Validator
 4. Name three Bean Validation annotations and what they check.  
 5. Where should mapping Entity ↔ DTO usually live (controller vs service)?
 
----
+***
 
 ## Self-check
 

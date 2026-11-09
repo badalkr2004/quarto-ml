@@ -9,7 +9,7 @@ toc: true
 **Video:** [Dependency Injection & IoC Explained \| Loose Coupling \| Full Course #4](https://www.youtube.com/watch?v=dT10m_5POfs)  
 **Playlist index:** 4
 
----
+***
 
 ## Goal
 
@@ -28,7 +28,7 @@ By the end you will have felt:
 Do **not** only watch. Create a simple Maven (or plain Java) project named e.g. `di-lab` and type each stage. Keep stages in git commits or separate packages (`stage1`, `stage2`, …) so you can compare.
 :::
 
----
+***
 
 ## Concepts
 
@@ -83,7 +83,7 @@ Rough relationship used in the lecture:
 | **Setter injection** | `setX(...)` after construction |
 | **Field injection** | Annotate fields — meaningful with Spring; deferred |
 
----
+***
 
 ## Practice lab — type this in your editor
 
@@ -132,7 +132,7 @@ public class Main {
 
 Run it. Then ask: *What must I edit to notify via SMS instead?*
 
----
+***
 
 ### Stage 2 — introduce the interface (still creating inside)
 
@@ -194,7 +194,7 @@ public class OrderService {
 }
 ```
 
----
+***
 
 ### Stage 3 — constructor injection (DI)
 
@@ -230,7 +230,7 @@ public class Main {
 
 Swap implementations in `main` only — **do not change** `OrderService`.
 
----
+***
 
 ### Stage 4 — setter injection
 
@@ -262,7 +262,7 @@ orderService.setNotification(new SmsService());
 orderService.placeOrder();
 ```
 
----
+***
 
 ### Stage 5 — testability win (dummy / stub)
 
@@ -279,7 +279,7 @@ public class DummyNotificationService implements NotificationService {
 
 In tests (or a second `main` path), inject `DummyNotificationService` so order logic can be verified **without** real email/SMS.
 
----
+***
 
 ## What Spring will replace next
 
@@ -291,7 +291,7 @@ Today `main` is the IoC “container”:
 
 **Lecture 5:** Spring’s IoC container does (1) and (2). Your code declares *what* depends on *what*; the container builds the graph.
 
----
+***
 
 ## Exercises
 
@@ -300,7 +300,7 @@ Today `main` is the IoC “container”:
 3. Prefer constructor or setter for a **required** dependency? Why?
 4. Draw the control-flow arrow: who creates `EmailService` in Stage 1 vs Stage 3?
 
----
+***
 
 ## Self-check
 

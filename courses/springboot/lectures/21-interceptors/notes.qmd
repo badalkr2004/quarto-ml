@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 21  
 **Builds on:** [19–20 Filters](../19-filters-basics/notes.qmd), DispatcherServlet / MVC flow
 
----
+***
 
 ## Big idea in one line
 
@@ -27,7 +27,7 @@ Filter(s)
   ← response
 ```
 
----
+***
 
 ## Filters vs Interceptors (keep this table)
 
@@ -40,7 +40,7 @@ Filter(s)
 
 Use **both** in real apps: Filters for servlet-wide concerns; Interceptors when you need Spring MVC context.
 
----
+***
 
 ## Topic 1 — `HandlerInterceptor` methods
 
@@ -86,7 +86,7 @@ preHandle → returns false → controller SKIPPED
                          → still may call afterCompletion for interceptors that already ran
 ```
 
----
+***
 
 ## Topic 2 — Register with `WebMvcConfigurer`
 
@@ -111,7 +111,7 @@ Prefer injecting a `@Component` interceptor bean instead of `new` if it needs ot
 registry.addInterceptor(loggingInterceptor).addPathPatterns("/**");
 ```
 
----
+***
 
 ## Topic 3 — Auth-style `preHandle` example
 
@@ -133,7 +133,7 @@ public boolean preHandle(HttpServletRequest request,
 
 Same idea as a Filter auth check, but you can also inspect `handler` (e.g. cast to `HandlerMethod` and read annotations on the controller method — useful later with custom annotations).
 
----
+***
 
 ## Topic 4 — Order of multiple interceptors
 
@@ -148,7 +148,7 @@ Then:      B.afterCompletion → A.afterCompletion  (reverse for completion too)
 
 Registration order matters.
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -175,7 +175,7 @@ One request should show: **Filter before → Interceptor pre → Controller → 
 
 In `preHandle`, if `handler instanceof HandlerMethod hm`, print `hm.getBeanType().getSimpleName()` and `hm.getMethod().getName()`.
 
----
+***
 
 ## Short map to keep
 
@@ -188,7 +188,7 @@ afterCompletion = always-ish cleanup
 Register via WebMvcConfigurer.addInterceptors
 ```
 
----
+***
 
 ## Exercises
 
@@ -198,7 +198,7 @@ Register via WebMvcConfigurer.addInterceptors
 4. How do you skip `/api/health` from an interceptor?  
 5. Why might `postHandle` feel unused in a `@RestController` JSON app?
 
----
+***
 
 ## Self-check
 

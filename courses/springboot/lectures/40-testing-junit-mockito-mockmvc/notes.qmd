@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 40  
 **Builds on:** Services, controllers, and Security from earlier lectures
 
----
+***
 
 ## Big idea in one line
 
@@ -23,7 +23,7 @@ Act      → call the method / endpoint
 Assert   → check the result
 ```
 
----
+***
 
 ## Topic 1 — Why test?
 
@@ -42,7 +42,7 @@ mvn test
 
 Boot projects already include `spring-boot-starter-test` (JUnit Jupiter + Mockito + MockMvc + …).
 
----
+***
 
 ## Topic 2 — JUnit 5 basics
 
@@ -71,7 +71,7 @@ Useful assertions:
 
 `@Test` comes from **JUnit Jupiter**. Maven surefire finds these methods.
 
----
+***
 
 ## Topic 3 — Mockito (fake the neighbors)
 
@@ -111,7 +111,7 @@ class OrderServiceTest {
 | `when(...).thenReturn(...)` | stub behavior |
 | `verify(...)` | assert a collaboration happened |
 
----
+***
 
 ## Topic 4 — Slice vs full Spring context
 
@@ -123,7 +123,7 @@ class OrderServiceTest {
 
 Start small. Full context tests are slower and fail for more reasons.
 
----
+***
 
 ## Topic 5 — MockMvc (controller tests)
 
@@ -162,7 +162,7 @@ perform(GET ...)
 
 If Security is on the classpath, `@WebMvcTest` may require security test helpers or excluding security for the slice—expect 401 until you configure test security.
 
----
+***
 
 ## Topic 6 — Practice lab (IDE)
 
@@ -195,7 +195,7 @@ If Security is on the classpath, `@WebMvcTest` may require security test helpers
 
 `@SpringBootTest` + `@AutoConfigureMockMvc` for a wider path when the slice is not enough.
 
----
+***
 
 ## Topic 7 — How to reason when tests fail
 
@@ -205,7 +205,7 @@ If Security is on the classpath, `@WebMvcTest` may require security test helpers
 4. **401 in MockMvc** → Security filter; fix test security config  
 5. **Context failed to load** → missing bean in slice / wrong annotation  
 
----
+***
 
 ## Short map to keep
 
@@ -218,7 +218,7 @@ SpringBootTest → heavier context
 AAA       → Arrange, Act, Assert
 ```
 
----
+***
 
 ## Exercises
 
@@ -228,7 +228,7 @@ AAA       → Arrange, Act, Assert
 4. What does `MockMvc.perform` avoid starting?  
 5. When would you choose `@SpringBootTest` over `@WebMvcTest`?
 
----
+***
 
 ## Self-check
 

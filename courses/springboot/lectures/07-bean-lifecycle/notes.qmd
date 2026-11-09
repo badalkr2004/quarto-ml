@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 7  
 **Builds on:** [Lecture 5](../05-spring-ioc-container/notes.qmd) · [Lecture 6](../06-circular-dependency-bean-scope/notes.qmd)
 
----
+***
 
 ## Why this lecture matters (not syntax tourism)
 
@@ -23,7 +23,7 @@ If you only memorize annotations, you will still get lost when:
 
 **Target outcome:** you can draw the lifecycle from memory, predict *when* each line of your code runs, and choose init/destroy hooks the way you would when teaching or reviewing a PR.
 
----
+***
 
 ## Master mindmap — singleton bean (default path)
 
@@ -98,7 +98,7 @@ prototype
   ⇒ steps 9–10 DO NOT run for that instance
 ```
 
----
+***
 
 ## Topic 1 — Container start & configuration (complete)
 
@@ -133,7 +133,7 @@ public class AppConfig {
 
 **Do not leave this half-baked:** until the context exists and config is read, *no* `@PostConstruct` on your services can run.
 
----
+***
 
 ## Topic 2 — Bean definition phase (complete)
 
@@ -173,7 +173,7 @@ Only THEN instantiate the eager singletons (in dependency order)
 
 Not random. If `OrderService`’s constructor needs `PaymentService`, Spring creates **Payment first**, then Order — even if scan discovered Order first.
 
----
+***
 
 ## Topic 3 — Instantiation vs dependency injection (complete)
 
@@ -222,7 +222,7 @@ public class BrokenExample {
 
 Keep constructors **light**. Heavy work (load files, warm caches, open connections) → init callbacks.
 
----
+***
 
 ## Topic 4 — Aware interfaces (complete, including when *not* to use)
 
@@ -266,7 +266,7 @@ Calling `setBeanName` yourself from `main` does **not** rename the bean in the c
 
 Prefer constructor injection of the collaborators you need over grabbing the whole `ApplicationContext` (service-locator smell). Use Aware APIs rarely and consciously.
 
----
+***
 
 ## Topic 5 — Initialization callbacks (complete)
 
@@ -319,7 +319,7 @@ Both can “work” for this tiny map. The **reasons `@PostConstruct` exists** a
 
 In a bare `spring-context` project you may need the Jakarta annotations API on the classpath for `@PostConstruct` / `@PreDestroy`. Spring Boot starters usually already bring this transitively.
 
----
+***
 
 ## Topic 6 — Ready / use phase (complete)
 
@@ -334,7 +334,7 @@ This is the phase of normal application traffic: controllers call services, serv
 
 **Mental model:** steps 1–7 are “Spring assembling the machine.” Step 8 is “you driving it.”
 
----
+***
 
 ## Topic 7 — Destruction callbacks (complete)
 
@@ -377,7 +377,7 @@ Boot apps register a shutdown hook when run as a normal process; for labs, **cal
 
 **Robust-app reasoning:** acquire in `@PostConstruct` (or constructor if trivial) ↔ release in `@PreDestroy`. Mirrors try-with-resources at bean scale.
 
----
+***
 
 ## Topic 8 — `@Lazy` singleton (complete variant)
 
@@ -410,7 +410,7 @@ public class CartService { /* same as above */ }
 - Hides misconfiguration until first request (fails late)
 - “Make everything lazy for performance” is not a strategy
 
----
+***
 
 ## Topic 9 — Prototype scope (complete variant)
 
@@ -446,7 +446,7 @@ Why? If Spring kept every prototype forever to call `@PreDestroy` later, it woul
 
 Prove it in the lab: add `@PreDestroy` logging, use prototype scope, `getBean` twice, `context.close()` — destroy log should **not** appear for those instances.
 
----
+***
 
 ## End-to-end practice lab (type this)
 
@@ -512,7 +512,7 @@ Destruction callback (@PreDestroy)
 | B | Add `@Lazy` | No create logs until `getBean` |
 | C | `@Scope("prototype")` + `@PreDestroy` | Init runs per `getBean`; destroy does **not** run on `close` |
 
----
+***
 
 ## Reasoning toolkit (teach / review mode)
 
@@ -534,7 +534,7 @@ When you see a Spring class, ask in order:
 - [ ] Prototypes: document who closes what
 - [ ] `@Lazy` used deliberately, not as default cargo-cult
 
----
+***
 
 ## Exercises
 
@@ -544,7 +544,7 @@ When you see a Spring class, ask in order:
 4. Repeat exercise 3 as **prototype**. Show that `@PreDestroy` does not run; fix cleanup in `Main` after use.
 5. “Constructor vs `@PostConstruct`” — teach it in ≤5 sentences with one field-injection example.
 
----
+***
 
 ## Self-check
 

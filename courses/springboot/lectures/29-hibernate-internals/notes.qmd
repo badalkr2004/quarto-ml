@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [28 — Hibernate fundamentals](../28-hibernate-fundamentals/notes.qmd)  
 **Next:** [30 — JPA relationships](../30-jpa-relationships/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -32,7 +32,7 @@ It holds a **persistence context**: a short-lived workspace of managed entities 
  commit → DB transaction ends
 ```
 
----
+***
 
 ## Topic 1 — Spec vs provider (again, sharper)
 
@@ -48,7 +48,7 @@ JPA annotations + EntityManager API
 
 You code to JPA. Hibernate tracks state, builds SQL, caches entities in the persistence context.
 
----
+***
 
 ## Topic 2 — Persistence context
 
@@ -68,7 +68,7 @@ Student b = em.find(Student.class, 1L);
 
 Second `find` often hits **L1 cache** → no second SELECT for same id.
 
----
+***
 
 ## Topic 3 — Entity lifecycle states
 
@@ -92,7 +92,7 @@ Second `find` often hits **L1 cache** → no second SELECT for same id.
 
 **Important:** managed ≠ “SQL already ran.” Inserts/updates often wait until **flush**.
 
----
+***
 
 ## Topic 4 — Dirty checking & flush
 
@@ -124,7 +124,7 @@ em.flush();  // SQL now, transaction still open
 
 Batch tip: after many inserts, `flush()` + `clear()` keeps memory small.
 
----
+***
 
 ## Topic 5 — Why `@Transactional` on the service
 
@@ -149,7 +149,7 @@ Self-invocation note (same as AOP): calling `this.method()` inside the same clas
 
 Put write methods in `@Transactional` service methods.
 
----
+***
 
 ## Topic 6 — First-level cache limits
 
@@ -167,7 +167,7 @@ Request A TX          Request B TX
  (own L1)             (own L1)
 ```
 
----
+***
 
 ## Topic 7 — Handy EntityManager methods
 
@@ -183,7 +183,7 @@ Request A TX          Request B TX
 | `refresh` | Reload from DB (overwrite memory) |
 | `contains` | Is this instance managed here? |
 
----
+***
 
 ## Practice lab
 
@@ -193,7 +193,7 @@ Request A TX          Request B TX
 4. After commit, in a **new** transaction, `find` again — new managed instance.  
 5. Try modifying a detached entity outside a context; notice no automatic UPDATE.
 
----
+***
 
 ## Short map to keep
 
@@ -204,7 +204,7 @@ Request A TX          Request B TX
    setters on managed → dirty → flush SQL → commit
 ```
 
----
+***
 
 ## Exercises
 
@@ -213,7 +213,7 @@ Request A TX          Request B TX
 3. Difference between flush and commit?  
 4. Why is L1 cache not “global for the whole app”?
 
----
+***
 
 ## Self-check
 

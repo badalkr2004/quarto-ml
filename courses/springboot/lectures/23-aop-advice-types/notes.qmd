@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 23  
 **Builds on:** [22 — AOP basics](../22-aop-basics/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -25,7 +25,7 @@ Pick the annotation that matches the moment you need — or use **`@Around`** wh
    └──────── method body ──────┘
 ```
 
----
+***
 
 ## Topic 1 — Advice cheat sheet
 
@@ -40,7 +40,7 @@ Pick the annotation that matches the moment you need — or use **`@Around`** wh
 `@After` runs for both success and failure (like `finally` relative to the join point).  
 `@AfterReturning` only on success; `@AfterThrowing` only on failure.
 
----
+***
 
 ## Topic 2 — `@Before`
 
@@ -54,7 +54,7 @@ public void before(JoinPoint jp) {
 
 `JoinPoint` gives method signature and arguments.
 
----
+***
 
 ## Topic 3 — `@AfterReturning` / `@AfterThrowing` / `@After`
 
@@ -81,7 +81,7 @@ public void afterFinally(JoinPoint jp) {
 
 Names in `returning = "result"` / `throwing = "ex"` must match the method parameter names.
 
----
+***
 
 ## Topic 4 — `@Around` (most powerful)
 
@@ -115,7 +115,7 @@ public Object around(ProceedingJoinPoint pjp) throws Throwable {
   └─ catch / finally as you like
 ```
 
----
+***
 
 ## Topic 5 — Order when several advice apply
 
@@ -135,7 +135,7 @@ Rough intuition for a single aspect stack:
 
 (Exact nesting can get subtle with many aspects — start simple.)
 
----
+***
 
 ## Practice lab (IDE steps)
 
@@ -159,7 +159,7 @@ Print return value on `ok`; print exception message on `fail`.
 Remove the noisy before/after logs if you want; wrap with `@Around` + `proceed()` + duration log.  
 Confirm forgetting `proceed()` breaks the API (then restore it).
 
----
+***
 
 ## Short map to keep
 
@@ -171,7 +171,7 @@ Confirm forgetting `proceed()` breaks the API (then restore it).
 @Around          = full remote control via proceed()
 ```
 
----
+***
 
 ## Exercises
 
@@ -181,7 +181,7 @@ Confirm forgetting `proceed()` breaks the API (then restore it).
 4. Why must `@Around` methods return `Object`?  
 5. How do you bind the thrown exception into an `@AfterThrowing` method?
 
----
+***
 
 ## Self-check
 

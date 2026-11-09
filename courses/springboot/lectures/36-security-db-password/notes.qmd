@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 36  
 **Builds on:** [Lecture 35](../35-spring-security-basics/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -30,7 +30,7 @@ Your table: users (id, username, password_hash, roles, …)
      PasswordEncoder matches raw password vs hash
 ```
 
----
+***
 
 ## Topic 1 — Why not store plain passwords?
 
@@ -46,7 +46,7 @@ Even “fast hashes” are weak against modern cracking (GPUs + rainbow tables o
 
 **BCrypt** does slow hashing + salting for you.
 
----
+***
 
 ## Topic 2 — `PasswordEncoder`
 
@@ -74,7 +74,7 @@ Login:
   typed "secret123" + DB hash ──matches?──► true / false
 ```
 
----
+***
 
 ## Topic 3 — `UserDetails` (Security’s user shape)
 
@@ -94,7 +94,7 @@ Entity User  ──wrap──►  CustomUserDetails implements UserDetails
 
 Plain words: **map your world to Security’s world.**
 
----
+***
 
 ## Topic 4 — `UserDetailsService`
 
@@ -131,7 +131,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 Security will call this during form/basic/login flows (details in lecture 37).
 
----
+***
 
 ## Topic 5 — Practice lab (IDE)
 
@@ -200,7 +200,7 @@ public String register(@RequestBody RegisterRequest req) {
 3. Call a secured endpoint with Basic Auth using the same credentials  
 4. Wrong password → 401
 
----
+***
 
 ## Topic 6 — Common mistakes
 
@@ -211,7 +211,7 @@ public String register(@RequestBody RegisterRequest req) {
 | Role without `ROLE_` prefix when using `hasRole` | Be consistent: `hasRole("USER")` expects `ROLE_USER` |
 | Forgetting unique username | Add DB unique constraint |
 
----
+***
 
 ## Short map to keep
 
@@ -222,7 +222,7 @@ UserDetailsService → bridge DB → Security
 BCrypt → slow hash + salt
 ```
 
----
+***
 
 ## Exercises
 
@@ -232,7 +232,7 @@ BCrypt → slow hash + salt
 4. What single method must `UserDetailsService` implement?  
 5. After register, what should you see in the password column?
 
----
+***
 
 ## Self-check
 

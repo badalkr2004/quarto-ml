@@ -11,7 +11,7 @@ toc: true
 **Builds on:** [30 — JPA relationships](../30-jpa-relationships/notes.qmd)  
 **Next:** [32 — Spring Data JPA](../32-spring-data-jpa/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -27,7 +27,7 @@ Lazy     ≠  "never load"
 EAGER    ≠  guaranteed single JOIN SQL
 ```
 
----
+***
 
 ## Topic 1 — Cascading
 
@@ -66,7 +66,7 @@ public void addItem(OrderItem item) {
 }
 ```
 
----
+***
 
 ## Topic 2 — Lazy vs Eager
 
@@ -99,7 +99,7 @@ student.getDepartment().getName()
   SELECT department...   ← triggered now
 ```
 
----
+***
 
 ## Topic 3 — N+1 problem
 
@@ -134,7 +134,7 @@ SELECT * FROM student WHERE department_id=1;   -- N times
 
 Switching mapping to `EAGER` is a blunt fix: loads association even when unused, and may still use extra selects.
 
----
+***
 
 ## Topic 4 — Detect with SQL logging
 
@@ -146,7 +146,7 @@ logging.level.org.hibernate.SQL=DEBUG
 
 Run the loop. Count statements. If you see repeats inside a for-loop, you found N+1.
 
----
+***
 
 ## Topic 5 — Fix with EntityGraph (query-level plan)
 
@@ -177,7 +177,7 @@ List<Student> findAll();
 
 Other tools (same idea): JPQL `join fetch`, batch fetching. Prefer **lazy default + explicit plan**.
 
----
+***
 
 ## Practice lab
 
@@ -188,7 +188,7 @@ Other tools (same idea): JPQL `join fetch`, batch fetching. Prefer **lazy defaul
 5. Add `cascade = PERSIST` on `Order.items`; persist order with two new items in one call.  
 6. Confirm cascade ≠ ownership: only setting inverse collection without owning FK still fails.
 
----
+***
 
 ## Short map to keep
 
@@ -199,7 +199,7 @@ N+1:      1 + N hidden queries in a loop
 Fix:      EntityGraph / join fetch per use case
 ```
 
----
+***
 
 ## Exercises
 
@@ -208,7 +208,7 @@ Fix:      EntityGraph / join fetch per use case
 3. Describe N+1 in one sentence.  
 4. Why prefer EntityGraph over making everything EAGER?
 
----
+***
 
 ## Self-check
 

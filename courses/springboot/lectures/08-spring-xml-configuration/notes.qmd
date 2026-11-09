@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 8  
 **Builds on:** [Lecture 5](../05-spring-ioc-container/notes.qmd) · [Lecture 6](../06-circular-dependency-bean-scope/notes.qmd) · [Lecture 7](../07-bean-lifecycle/notes.qmd)
 
----
+***
 
 ## Why learn XML if Boot uses annotations?
 
@@ -38,7 +38,7 @@ Finish this motivation fully — it is the point of the lecture:
                     create · inject · lifecycle
 ```
 
----
+***
 
 ## Master mindmap — XML vs annotation (same engine)
 
@@ -58,7 +58,7 @@ AppConfig.class + @ComponentScan         beans.xml on the classpath
 
 If you can redraw this table from memory, you understand the lecture.
 
----
+***
 
 ## Topic 1 — Project setup for XML labs (complete)
 
@@ -102,7 +102,7 @@ public class Main {
 
 Contrast with what you used before: `new AnnotationConfigApplicationContext(AppConfig.class)`.
 
----
+***
 
 ## Topic 2 — Anatomy of `beans.xml` (complete)
 
@@ -168,7 +168,7 @@ public class OrderService {
 
 **Practice A:** Create the two classes + `beans.xml` + `Main` above. Run until you see both print lines. This is your baseline for the rest of the lecture.
 
----
+***
 
 ## Topic 3 — `id`, `name`, and aliases (complete)
 
@@ -201,7 +201,7 @@ Different modules historically used different names for the same collaborator. A
 
 **Reasoning check:** Changing `name` does not create a second object. Scope still decides instance count; names are lookup keys into the same definition.
 
----
+***
 
 ## Topic 4 — Constructor injection in XML (complete)
 
@@ -259,7 +259,7 @@ or by parameter name (needs `-parameters` compiler flag in some setups):
 
 Mixing them up is a classic bug: `value="paymentService"` injects the **string** `"paymentService"`, not the bean.
 
----
+***
 
 ## Topic 5 — Setter injection in XML (complete)
 
@@ -297,7 +297,7 @@ Prefer **constructor injection** for required deps (same judgment as annotation 
 
 **Lifecycle reminder (lecture 7):** with setter/field-style wiring, deps are **not** available inside the constructor body — only after property population.
 
----
+***
 
 ## Topic 6 — Multiple candidates & explicit wiring (complete)
 
@@ -342,7 +342,7 @@ public class CardPaymentService implements PaymentService {
 
 **Practice B:** Define both payment beans; wire Order → UPI; run; switch `ref` to card; run again. `OrderService` Java code stays unchanged — only XML changes. That is loose coupling made visible.
 
----
+***
 
 ## Topic 7 — XML autowiring modes (complete)
 
@@ -363,7 +363,7 @@ Instead of writing every `ref`, you can ask Spring to guess:
 
 **Teaching judgment:** Autowiring reduces XML noise but hides the wiring graph. Explicit `ref` is clearer for learning and for tricky graphs. Modern annotation config has the same tradeoff (`@Autowired` by type vs `@Qualifier`).
 
----
+***
 
 ## Topic 8 — Scopes in XML (complete)
 
@@ -391,7 +391,7 @@ System.out.println(a == b); // false for prototype
 
 Optional: `lazy-init="true"` on a singleton ↔ `@Lazy`.
 
----
+***
 
 ## Topic 9 — Lifecycle callbacks in XML (complete)
 
@@ -426,7 +426,7 @@ public class CartService {
 
 **Practice C:** Add init/destroy logging; call `close()`; confirm both fire for a singleton. Repeat with `scope="prototype"` and confirm destroy does **not** fire for retrieved instances.
 
----
+***
 
 ## Topic 10 — Collection injection (complete)
 
@@ -471,7 +471,7 @@ public class DirectoryService {
 
 You can also `<ref bean="someBean"/>` inside list/map entries when elements are collaborators, not literals.
 
----
+***
 
 ## Topic 11 — Split config with `<import>` (complete)
 
@@ -495,7 +495,7 @@ resources/
 
 Still one logical container when you load the root file. Same idea as `@Import` on `@Configuration` classes.
 
----
+***
 
 ## Topic 12 — Mixing XML and annotations (complete)
 
@@ -531,7 +531,7 @@ Common hybrid:
 
 **Boot connection:** Spring Boot’s auto-config is “configuration metadata” too — mostly Java `@Configuration` classes on the classpath. XML is the historical, readable cousin of that idea.
 
----
+***
 
 ## End-to-end practice lab (do in order)
 
@@ -548,7 +548,7 @@ Create package `com.example.xmlLab` and `src/main/resources/beans.xml`.
 
 After the lab you should be able to open a foreign `applicationContext.xml` and answer: *What beans exist? How are they wired? What scope? What runs on startup/shutdown?*
 
----
+***
 
 ## Reasoning toolkit (teach / review)
 
@@ -571,7 +571,7 @@ When reading XML config, walk this checklist:
 - Never assume prototype destroy-method runs  
 - Treat XML as *documentation of the object graph* — that skill transfers to Boot auto-config debugging
 
----
+***
 
 ## Exercises
 
@@ -581,7 +581,7 @@ When reading XML config, walk this checklist:
 4. Explain in ≤6 sentences why `value="paymentService"` is wrong when you meant the bean.  
 5. Draw the mindmap (annotation column vs XML column) from memory.
 
----
+***
 
 ## Self-check
 

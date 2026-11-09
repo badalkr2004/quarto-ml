@@ -9,7 +9,7 @@ toc: true
 **Video:** [Master Apache Maven \| POM, Dependencies & Lifecycle \| Full Course #3](https://www.youtube.com/watch?v=N2EXGMJVwUU)  
 **Playlist index:** 3
 
----
+***
 
 ## Goal
 
@@ -21,7 +21,7 @@ After this lecture you can:
 
 Maven is how almost every Spring Boot project is built. Tracking Boot code without Maven literacy is painful.
 
----
+***
 
 ## Concepts
 
@@ -99,7 +99,7 @@ validate → compile → test → package → verify → install → deploy
 
 Running a phase runs all previous phases in that lifecycle too (`package` implies compile + test, unless you skip tests).
 
----
+***
 
 ## Practice — hands-on in your editor / terminal
 
@@ -170,13 +170,13 @@ Skim it: notice how much configuration came from the parent, not your short `pom
 
 Then **remove** the dependency if you do not need it — the point is learning the workflow.
 
----
+***
 
 ## How this connects to Spring Boot
 
 When Initializr added **Spring Web**, it added a dependency like `spring-boot-starter-web` to the POM. That starter pulls Tomcat, Spring MVC, Jackson, etc. **Maven resolved that graph**; Boot did not magically invent JARs on disk.
 
----
+***
 
 ## Exercises
 
@@ -185,7 +185,7 @@ When Initializr added **Spring Web**, it added a dependency like `spring-boot-st
 3. Where does Maven store downloaded JARs on your machine?
 4. Why should you usually not commit the entire `target/` folder to git?
 
----
+***
 
 ## Self-check
 

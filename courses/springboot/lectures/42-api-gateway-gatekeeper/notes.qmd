@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 42  
 **Builds on:** [Lecture 41](../41-production-project-microservices/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -26,7 +26,7 @@ Monorepo
 └── order-service              (demo target)
 ```
 
----
+***
 
 ## Topic 1 — Monorepo + Initializr workflow
 
@@ -48,7 +48,7 @@ Monorepo
 
 **Why monorepo:** one place to navigate shared ideas; still separate deployable Boot apps (not one giant WAR of everything).
 
----
+***
 
 ## Topic 2 — Multi-tenant thinking (roles)
 
@@ -68,7 +68,7 @@ Plain words:
 
 Exact role names follow the lecture’s code—learn the **idea**: platform vs tenant vs caller.
 
----
+***
 
 ## Topic 3 — Dynamic routing (config, not if-else)
 
@@ -104,7 +104,7 @@ Admin updates route in Management
   → next requests use new rules
 ```
 
----
+***
 
 ## Topic 4 — Live request pipeline (Gateway)
 
@@ -125,7 +125,7 @@ Think in ordered stages (filters / interceptors / services—same story):
 
 If a stage fails → consistent gateway error (do not leak stack traces to clients).
 
----
+***
 
 ## Topic 5 — API Management responsibilities (hands-on view)
 
@@ -141,7 +141,7 @@ Management is not on the hot path for every forward, but it is critical for:
 
 Other services must **not** UPDATE Management tables directly.
 
----
+***
 
 ## Topic 6 — Analytics & observability path
 
@@ -167,7 +167,7 @@ Queries you want later:
 **Dedup:** consumers can see duplicates after retries → use unique `eventId`.  
 `correlationId` ties work for **one client request**; it is not the dedup key.
 
----
+***
 
 ## Topic 7 — Demo targets (Catalog / Order)
 
@@ -180,7 +180,7 @@ Keep them small on purpose:
 
 They prove the **pipe**, not a full e-commerce domain.
 
----
+***
 
 ## Topic 8 — Practice lab (IDE checklist)
 
@@ -224,7 +224,7 @@ They prove the **pipe**, not a full e-commerce domain.
 4. Burst traffic → 429 / rate-limit style response  
 5. Check Analytics for the access trail  
 
----
+***
 
 ## Topic 9 — Boundaries to defend while coding
 
@@ -236,7 +236,7 @@ They prove the **pipe**, not a full e-commerce domain.
 | Skip rate limit when Redis is down | Fail closed for that policy |
 | Log Authorization header in events | Never |
 
----
+***
 
 ## Short map to keep
 
@@ -249,7 +249,7 @@ Tenants/roles separate platform power from caller power
 Dynamic routes beat hard-coded if/else
 ```
 
----
+***
 
 ## Exercises
 
@@ -259,7 +259,7 @@ Dynamic routes beat hard-coded if/else
 4. Who should write MySQL route rows?  
 5. Why publish access events instead of inserting MongoDB from the Gateway?
 
----
+***
 
 ## Self-check
 

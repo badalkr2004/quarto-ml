@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 15  
 **Builds on:** [Lecture 14](../14-java-web-servlets-tomcat/notes.qmd) · [Lectures 11–13](../11-crud-project-architecture/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -23,7 +23,7 @@ Client → Tomcat → DispatcherServlet → Controller method → Response
 
 Boot makes this easy. This lecture shows what Boot was hiding.
 
----
+***
 
 ## Topic 1 — Spring MVC vs Spring Boot
 
@@ -44,7 +44,7 @@ Without Boot you would manually:
 
 With Boot + `spring-boot-starter-web`, most of that appears automatically.
 
----
+***
 
 ## Topic 2 — Why `DispatcherServlet`?
 
@@ -69,7 +69,7 @@ Traditional:  URL → YourServlet
 Spring MVC:   URL → DispatcherServlet → @Controller method
 ```
 
----
+***
 
 ## Topic 3 — High-level request flow
 
@@ -114,7 +114,7 @@ DispatcherServlet **coordinates**. Other components do specialized jobs.
 | HttpMessageConverter | JSON ↔ Java (often Jackson) |
 | ViewResolver | Logical view name → real page (JSP) |
 
----
+***
 
 ## Topic 4 — HandlerMapping
 
@@ -136,7 +136,7 @@ DELETE /students/{id}  → StudentController.deleteStudent
 At runtime it looks up that table.  
 Same path + different HTTP method can mean different handlers (`GET` list vs `POST` create).
 
----
+***
 
 ## Topic 5 — HandlerAdapter
 
@@ -149,7 +149,7 @@ DispatcherServlet
    asks Adapter  → "please call getStudent properly"
 ```
 
----
+***
 
 ## Topic 6 — How data reaches method parameters
 
@@ -172,7 +172,7 @@ Student return value → converter → JSON response
 
 No-arg constructor on the model helps Jackson construct objects.
 
----
+***
 
 ## Topic 7 — Manual Spring MVC lab (no Boot)
 
@@ -259,7 +259,7 @@ Controllers stay almost the same. Boot registers DispatcherServlet for you.
 | Jackson | You add jar | Via starter |
 | `@EnableWebMvc` / scan | You configure | Via `@SpringBootApplication` |
 
----
+***
 
 ## Topic 8 — `@Controller` vs `@RestController`
 
@@ -280,7 +280,7 @@ public Student get() { return student; }  // → JSON
 public String home() { return "home"; }   // → view named "home"
 ```
 
----
+***
 
 ## Topic 9 — JSP flow & ViewResolver
 
@@ -340,7 +340,7 @@ GET /home
   → HTML to browser
 ```
 
----
+***
 
 ## Practice lab (pick a path)
 
@@ -363,7 +363,7 @@ GET /home
 3. `home.jsp` under `WEB-INF/views`  
 4. Open `/home` in a browser  
 
----
+***
 
 ## How to reason when something fails
 
@@ -373,7 +373,7 @@ GET /home
 4. **JSP 404?** ViewResolver prefix/suffix wrong, or file not under `WEB-INF/views`.  
 5. **Returns literal `"home"` as text?** You used `@RestController` instead of `@Controller` for a view.
 
----
+***
 
 ## Short map to keep
 
@@ -388,7 +388,7 @@ REST = @RestController + JSON
 Pages = @Controller + ViewResolver + JSP
 ```
 
----
+***
 
 ## Exercises
 
@@ -398,7 +398,7 @@ Pages = @Controller + ViewResolver + JSP
 4. List three pieces Boot auto-wires that the manual `App` class did by hand.  
 5. What does returning `"home"` mean for `@Controller` vs `@RestController`?
 
----
+***
 
 ## Self-check
 

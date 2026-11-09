@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 9  
 **Builds on:** Lectures [05](../05-spring-ioc-container/notes.qmd)–[08](../08-spring-xml-configuration/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -28,7 +28,7 @@ Spring Boot
   + auto-configuration (Boot adds useful beans when it makes sense)
 ```
 
----
+***
 
 ## Why Boot after Core?
 
@@ -43,7 +43,7 @@ That is fine for learning. In real apps it gets boring and easy to get wrong.
 
 **Boot’s job:** keep the useful Spring Core behavior, remove the repeated setup.
 
----
+***
 
 ## Picture: Core startup vs Boot startup
 
@@ -62,7 +62,7 @@ main                                     main
 
 Same engine. Shorter ignition key.
 
----
+***
 
 ## Topic 1 — Make a Boot project (hands-on)
 
@@ -82,7 +82,7 @@ If you build by hand, your `pom.xml` needs at least:
 
 You already saw Initializr do this in lecture 02. Today we explain *why* those lines exist.
 
----
+***
 
 ## Topic 2 — `spring-boot-starter-parent` (simple meaning)
 
@@ -108,7 +108,7 @@ If Web is version A and JDBC is version B, things break. Checking that by hand i
 
 **Plain words:** the parent is a “version menu” Boot maintains so you do not fight dependency hell.
 
----
+***
 
 ## Topic 3 — `spring-boot-starter` (simple meaning)
 
@@ -125,7 +125,7 @@ That is normal. Boot only pulls Tomcat when a **web** starter puts those classes
 
 **Remember:** starters change what is *available*. Auto-config decides what Boot *creates* from that.
 
----
+***
 
 ## Topic 4 — `SpringApplication.run(...)` (what main really does)
 
@@ -159,7 +159,7 @@ new AnnotationConfigApplicationContext(AppConfig.class);
 
 Boot wraps that idea inside `SpringApplication.run`.
 
----
+***
 
 ## Topic 5 — Break open `@SpringBootApplication`
 
@@ -218,7 +218,7 @@ If beans “mysteriously” are missing, check the package first.
 - Those Boot setup classes are often marked as auto-configuration
 - You did not write them; Boot ships them
 
----
+***
 
 ## Topic 6 — Auto-configuration (the part that feels like magic)
 
@@ -259,7 +259,7 @@ You define nothing          → Boot may create a default (when DB starter is pr
 
 Same container. Different authors.
 
----
+***
 
 ## Topic 7 — Why no Tomcat without Web?
 
@@ -277,7 +277,7 @@ Add Web starter → Tomcat-related auto-config can turn on → you see a port ag
 
 **Takeaway:** Boot is not “always a web framework.” It becomes a web app when you pull web dependencies.
 
----
+***
 
 ## Practice lab (type this)
 
@@ -352,7 +352,7 @@ Boot’s number is usually **much larger**. Those extras are auto-configured inf
 Add `spring-boot-starter-web`, run again (you can remove `context.close()` for a long-running server).  
 You should see Tomcat start. Remove Web starter → Tomcat gone again.
 
----
+***
 
 ## How to reason when something fails
 
@@ -365,7 +365,7 @@ Ask in this order:
 
 This is how you debug Boot without calling it “magic.”
 
----
+***
 
 ## Short map to keep
 
@@ -379,7 +379,7 @@ starters       → which libraries exist
 SpringApplication.run → start container + apply all of the above
 ```
 
----
+***
 
 ## Exercises
 
@@ -389,7 +389,7 @@ SpringApplication.run → start container + apply all of the above
 4. You have Order/Payment components but Boot says no such bean. What do you check first?  
 5. Why does adding Web starter change runtime behavior so much?
 
----
+***
 
 ## Self-check
 

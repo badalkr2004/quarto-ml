@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 35  
 **Builds on:** Web apps, filters, and REST controllers from earlier lectures
 
----
+***
 
 ## Big idea in one line
 
@@ -30,7 +30,7 @@ Client (browser / Postman / mobile)
    DispatcherServlet → Controllers
 ```
 
----
+***
 
 ## Why security is a server job
 
@@ -43,7 +43,7 @@ Front-end tricks are **not** security:
 
 **Rule:** every protected action must be enforced on the **server**.
 
----
+***
 
 ## Topic 1 — Authentication vs authorization
 
@@ -73,7 +73,7 @@ Authorization      →  roles / authorities checked for this URL or method
 
 MFA = use more than one factor.
 
----
+***
 
 ## Topic 2 — Core objects you must know
 
@@ -116,7 +116,7 @@ String name = auth.getName();
 
 Any layer can ask “who is calling?” without passing the user through every method by hand.
 
----
+***
 
 ## Topic 3 — Where Security runs (filters)
 
@@ -136,7 +136,7 @@ If authorization fails → 403 Forbidden.
 
 Boot + `spring-boot-starter-security` auto-configures a default filter chain and a default user (until you customize it).
 
----
+***
 
 ## Topic 4 — First contact in the IDE
 
@@ -181,7 +181,7 @@ public class HelloController {
 
 That proves: credentials verified → `Authentication` stored → controller can read it.
 
----
+***
 
 ## Topic 5 — Minimal Security config (preview)
 
@@ -211,7 +211,7 @@ Plain words:
 - everything else → must be authenticated
 - `httpBasic` → username/password in the Authorization header
 
----
+***
 
 ## Short map to keep
 
@@ -225,7 +225,7 @@ SecurityContextHolder → gives you the context (per thread)
 Filter chain → Security runs before controllers
 ```
 
----
+***
 
 ## Exercises
 
@@ -235,7 +235,7 @@ Filter chain → Security runs before controllers
 4. Where in the request path does Spring Security sit?  
 5. What happens if authentication fails before the controller runs?
 
----
+***
 
 ## Self-check
 

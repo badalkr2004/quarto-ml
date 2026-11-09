@@ -10,7 +10,7 @@ toc: true
 **Playlist index:** 38  
 **Builds on:** [Lecture 37](../37-security-auth-internals/notes.qmd)
 
----
+***
 
 ## Big idea in one line
 
@@ -26,7 +26,7 @@ next request: cookie             next request: Authorization: Bearer <jwt>
 server loads session context     server verifies signature → builds Authentication
 ```
 
----
+***
 
 ## Topic 1 — Why sessions feel “sticky”
 
@@ -38,7 +38,7 @@ After form/basic login with sessions:
 
 That works. APIs and mobile clients often prefer **tokens** instead.
 
----
+***
 
 ## Topic 2 — What a JWT is
 
@@ -68,7 +68,7 @@ Related ideas (names only):
 - **JWS** — signed token (common API JWT)
 - **JWE** — encrypted token (different goal)
 
----
+***
 
 ## Topic 3 — Login + Bearer usage
 
@@ -91,7 +91,7 @@ http.sessionManagement(sm ->
 
 Plain words: do **not** create an HTTP session for security. Each request must carry proof.
 
----
+***
 
 ## Topic 4 — Custom JWT filter (idea)
 
@@ -112,7 +112,7 @@ If no token and URL is public → continue.
 If token invalid → 401.  
 If valid → authorization rules use the authorities from the token/DB policy you chose.
 
----
+***
 
 ## Topic 5 — Practice lab (IDE)
 
@@ -162,7 +162,7 @@ Only issue a token **after** authentication succeeds.
 4. Tamper one character of the token → should fail signature check  
 5. Wait until `exp` passes → should fail as expired  
 
----
+***
 
 ## Topic 6 — Design trade-offs (honest)
 
@@ -173,7 +173,7 @@ Only issue a token **after** authentication succeeds.
 | Fat tokens | Huge payloads waste bandwidth; keep claims small |
 | Revocation | Not free in pure stateless design |
 
----
+***
 
 ## Short map to keep
 
@@ -185,7 +185,7 @@ Each request: Bearer token → verify → SecurityContext
 SessionCreationPolicy.STATELESS for token APIs
 ```
 
----
+***
 
 ## Exercises
 
@@ -195,7 +195,7 @@ SessionCreationPolicy.STATELESS for token APIs
 4. Where does the client send the JWT on later requests?  
 5. Why avoid putting the password inside JWT claims?
 
----
+***
 
 ## Self-check
 
