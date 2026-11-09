@@ -1,0 +1,103 @@
+---
+title: "Lecture 34 — Regularized ERM and MAP Estimate"
+subtitle: "Weight decay meets Gaussian priors; early stopping as $\ell_2$"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 34 — Regularized ERM and MAP Estimate](https://www.youtube.com/watch?v=rypIu-ZSYBo)
+
+## Learning goals
+
+- Connect **regularized ERM** to **MAP** under a prior on $\theta$.
+- See $\ell_2$ penalty $\leftrightarrow$ Gaussian prior; $\ell_1$ $\leftrightarrow$ Laplace-type prior (geometry).
+- Recognize **early stopping** as an $\ell_2$-like regularizer.
+
+## Before this clicks
+
+MAP maximizes $p(\theta\mid\mathcal{D})\propto p(\mathcal{D}\mid\theta)\,p(\theta)$. Taking $-\log$ turns products into sums: negative log-likelihood (data fit) plus $-\log$ prior (penalty). That is regularized ERM in probabilistic clothing.
+
+---
+
+## Main ideas
+
+### 1. Why penalties raise bias (homework)
+
+Constraining / penalizing $\theta$ shrinks the effective hypothesis class. The ERM solution in the smaller class generally sits **farther** from the unconstrained risk minimizer $\Rightarrow$ higher bias (exercise: show formally for a chosen loss).
+
+### 2. Gaussian likelihood + Gaussian prior $\Rightarrow$ ridge
+
+Supervised sketch used in class: $y_i\mid x_i,\theta \sim\mathcal{N}(h_\theta(x_i),1)$ (up to scaling), and
+
+$$
+\theta\sim\mathcal{N}(0,\tau^{2}I).
+$$
+
+Then
+
+$$
+-\log p(\theta\mid\mathcal{D})
+=\underbrace{\sum_i \tfrac12(y_i-h_\theta(x_i))^2}_{\text{ERM / NLL}}
++\underbrace{\tfrac{1}{2\tau^{2}}\|\theta\|_2^{2}}_{\text{penalty}}
++\text{const}.
+$$
+
+So **ridge-regularized squared ERM** is exactly **MAP** with a Gaussian prior. Prior variance $\leftrightarrow$ $1/\lambda$.
+
+### 3. Geometry: $\ell_2$ ball vs $\ell_1$ diamond
+
+Level sets of $\|\theta\|_2$ are spheres; of $\|\theta\|_1$ are diamonds (polytope). Intersecting loss contours with these shapes explains ridge’s smooth shrinkage vs lasso’s axis hits (sparsity).
+
+### 4. Early stopping $\approx$ $\ell_2$
+
+Train with iterative GD from a small initialization. Validation error often U-shapes vs iteration. **Ship the checkpoint with best validation** (practical early stopping), even if you continue training for monitoring.
+
+Mathematically, stopping at iteration $t_0$ can be shown equivalent to $\ell_2$ regularization with $\lambda$ tied to $t_0$: stopping early $\approx$ not walking all the way to a high-variance interpolator.
+
+### 5. Three regularization routes (recap)
+
+1. Parameter norms.
+2. Optimization (early stopping; SGD noise — next lecture).
+3. Architecture (CNN / Transformer structure later).
+
+---
+
+## Worked mini-example
+
+Scalar $\theta$, data NLL $(\theta-3)^2$, prior $\theta\sim\mathcal{N}(0,1)$. MAP minimizes $(\theta-3)^2+\theta^{2}$:
+
+$$
+\hat{\theta}_{\mathrm{MAP}}=\frac{3}{2}=1.5
+$$
+
+(shrunk from the MLE $3$ toward $0$).
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| MAP requires sampling | Point estimate: optimize the posterior mode. |
+| Early stopping means “use fewer epochs blindly” | Use **validation** to pick the checkpoint. |
+| Only Gaussian priors matter | Different priors $\Leftrightarrow$ different penalties. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* — MAP / weight decay equivalence
+- Goodfellow et al. — early stopping
+
+## Self-check questions
+
+1. Write the MAP objective as NLL + penalty.
+2. Which prior turns MAP into ridge for squared loss?
+3. Why does a prior increase bias relative to MLE/ERM?
+4. What practical signal tells you when to early-stop?
+5. Name the three regularization families emphasized in class.
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Lecture 34 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\hat{\theta}_{\mathrm{MAP}}=\arg\min_\theta\big[-\log p(\mathcal{D}\mid\theta)-\log p(\theta)\big]$.
+2. Zero-mean Gaussian (isotropic) prior on $\theta$.
+3. It restricts / shrinks parameters away from the pure data-fit solution.
+4. Validation / held-out risk (pick the best checkpoint).
+5. Parameter penalties; optimization procedures (early stopping); architectural restrictions.
