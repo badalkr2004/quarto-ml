@@ -1,0 +1,10 @@
+---
+title: "Lecture 46 — Self-check answers"
+sidebar: mfml
+---
+
+1. Backpropagation through time: unfold the RNN over $T$ steps and apply backprop, accumulating gradients into shared weights.
+2. $h_T$ depends on $h_t$ through the chain of transitions $h_t\to h_{t+1}\to\cdots\to h_T$; chain rule multiplies those Jacobians.
+3. When early inputs should affect the loss but $\partial L/\partial h_t\approx 0$, so long-range credit assignment fails.
+4. Gradient clipping (rescale gradients when their norm exceeds a threshold).
+5. Clipping mainly stops explosions; gates create additive/carry paths so gradients need not multiply many saturating Jacobians of $W_{hh}$ at every step.

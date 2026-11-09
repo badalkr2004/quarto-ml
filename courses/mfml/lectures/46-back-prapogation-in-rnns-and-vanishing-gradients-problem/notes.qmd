@@ -1,0 +1,100 @@
+---
+title: "Lecture 46 — Backpropagation in RNNs and Vanishing Gradients"
+subtitle: "BPTT unfolds the net in time; repeated multiplication by $W_{hh}$ can wipe out or explode gradients"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 46 — Back Propagation in RNNs and Vanishing Gradients Problem](https://www.youtube.com/watch?v=TVkaROL2FLw)
+
+## Learning goals
+
+- Describe **backpropagation through time (BPTT)**: unfold the RNN, then backprop with tied weights.
+- See why $\partial L/\partial h_t$ involves products of Jacobians across many steps.
+- State the **vanishing** (and exploding) **gradient** problem for long sequences.
+- Name practical mitigations at a high level (clipping, better init, gated cells next).
+
+## Before this clicks
+
+Lecture 45: $h_t=\sigma(W_{hh}h_{t-1}+W_{xh}x_t+b_h)$. Training still minimizes empirical risk, so we need $\nabla_\theta L$. Because the same $W_{hh}$ appears at every step, the loss at time $T$ depends on $W_{hh}$ through a long chain $h_1\to h_2\to\cdots\to h_T$. That chain is where gradients fade or blow up.
+
+---
+
+## Main ideas
+
+### 1. Unfold and backprop
+
+For a sequence loss $L=\sum_{t=1}^{T} L_t(y_t,\hat{y}_t)$ (or a single loss on $h_T$):
+
+1. Forward: compute $h_1,\ldots,h_T$ and losses.
+2. Backward: start from $\partial L/\partial h_T$ (and any $\partial L_t/\partial h_t$), recurse to earlier $t$.
+3. Accumulate contributions to $\nabla W_{hh}$, $\nabla W_{xh}$, etc. from **every** time the weight was used.
+
+That algorithm is **BPTT**. Truncated BPTT backprops only through a recent window for speed/memory.
+
+### 2. Where the product appears
+
+Schematically,
+
+$$
+\frac{\partial h_T}{\partial h_t}=\frac{\partial h_T}{\partial h_{T-1}}\cdots\frac{\partial h_{t+1}}{\partial h_t}.
+$$
+
+Each factor $\partial h_{s+1}/\partial h_s$ involves the Jacobian of $\sigma$ and $W_{hh}$. Repeated multiplication by matrices whose singular values are $<1$ drives the product $\to 0$ (**vanishing**); values $>1$ drive it $\to\infty$ (**exploding**).
+
+### 3. Consequences for learning
+
+If early timesteps’ influence on $L$ has near-zero gradient, ERM cannot credit/blame early inputs — long-range dependencies are hard to learn. Exploding gradients make updates unstable (NaNs, huge steps).
+
+### 4. Partial remedies (preview)
+
+| Issue | Common patch |
+|-------|----------------|
+| Exploding | Gradient clipping |
+| Vanishing (mild) | Careful init, ReLU-like gates, skip connections |
+| Vanishing (structural) | **LSTMs / GRUs** with additive state paths (Lecture 47) |
+
+Architecture change (gates) attacks the product-of-many-Jacobians problem more directly than tuning $\eta$ alone.
+
+---
+
+## Worked mini-example
+
+Scalar state $h_t=\tanh(w h_{t-1}+x_t)$, loss $L=(h_T-y)^2$, $T=100$. Then
+
+$$
+\frac{\partial h_T}{\partial h_1}=\prod_{s=1}^{T-1}\big(w\,(1-\tanh^2(\cdot_s))\big).
+$$
+
+If $|w|\cdot|1-\tanh^2|<1$ on average, the product is tiny: changing $h_1$ barely affects $L$, so early $x_1$ is almost invisible to learning.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Vanishing = loss goes to zero | Vanishing refers to **gradients**, not training loss. |
+| BPTT is a new loss | Same empirical risk; new way to route gradients through time. |
+| Only RNNs vanish | Very deep feedforward nets can too; recurrence makes depth $=T$. |
+| Clipping fixes vanishing | Clipping mainly tames **explosions**; gates help vanishing. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (BPTT, vanishing gradients)
+- Pascanu et al. — difficulty of training RNNs (vanishing/exploding analysis)
+
+## Self-check questions
+
+1. What does BPTT stand for, and what does it do?
+2. Why do gradients involve a product of many Jacobians?
+3. When do vanishing gradients hurt sequence learning?
+4. Name one fix for exploding gradients.
+5. Why might gated architectures (LSTM/GRU) help more than clipping alone?
+
+*(Short answers are in `self-check-answers.qmd`.)*
