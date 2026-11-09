@@ -1,0 +1,96 @@
+---
+title: "Lecture 45 — Recurrent Neural Networks (RNNs)"
+subtitle: "Share one transition over time so the hidden state carries a summary of the past"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 45 — Recurrent Neural Networks (RNNs)](https://www.youtube.com/watch?v=E2LLi7AB9lQ)
+
+## Learning goals
+
+- Motivate RNNs for **sequences** $x_1,\ldots,x_T$ of variable length.
+- Write the classic recurrence: hidden state $h_t$ updated from $h_{t-1}$ and $x_t$ with **shared** weights.
+- Contrast RNNs with MLPs (fixed-size, no shared time dynamics) and CNNs (local space, not ordered time memory).
+- Preview that training uses backpropagation through time (next lecture).
+
+## Before this clicks
+
+CNNs share filters across space. Sequences need sharing across **time**: the rule that updates “memory” at step $t$ should be the same as at step $t+1$. A recurrent net keeps a state vector $h_t$ that is intended to summarize $x_1,\ldots,x_t$, then maps $h_t$ to outputs (next-token probs, sentiment, etc.). Same ERM + backprop philosophy; new computational graph that **unfolds** over $T$ steps.
+
+---
+
+## Main ideas
+
+### 1. Sequence data
+
+Examples: words in a sentence, frames of audio, sensor streams. Length $T$ varies. Dependencies can be long-range (“not … never”). We want $f_\theta(x_{1:T})$ that respects order and reuses computation.
+
+### 2. Elman-style RNN cell
+
+Shared parameters $W_{hh},W_{xh},b_h$ (and output maps as needed):
+
+$$
+h_t=\sigma\!\big(W_{hh}h_{t-1}+W_{xh}x_t+b_h\big),
+$$
+
+with $h_0$ given (often $0$). Output example:
+
+$$
+\hat{y}_t=\mathrm{softmax}(W_{yh}h_t+b_y).
+$$
+
+**Parameter sharing in time:** the same $W_{hh},W_{xh}$ apply for every $t$. That is the temporal analogue of CNN weight sharing.
+
+### 3. Unfolding
+
+Draw the cell $T$ times with copies of the same weights. The graph is a deep feedforward net of depth $T$ with tied parameters. Depth-in-time is why gradients can vanish or explode when $T$ is large (Lecture 46).
+
+### 4. What $h_t$ represents
+
+Ideally $h_t$ is a learned finite-dimensional summary of the past. Capacity is limited by $\dim(h)$; the cell must learn what to keep. Plain RNNs struggle with very long dependencies — motivation for LSTMs/GRUs (Lecture 47).
+
+### 5. Tasks
+
+| Pattern | Use |
+|---------|-----|
+| Many-to-many | Tag each token; $y_t$ each step |
+| Many-to-one | Classify whole sequence from $h_T$ |
+| One-to-many / seq2seq | Generate conditioned on an input (encoders/decoders) |
+
+---
+
+## Worked mini-example
+
+Sentiment of a length-$T$ review. Embed each word as $x_t\in\mathbb{R}^{d}$, run the recurrence to $h_T$, then a logistic head $p=\sigma(w^\top h_T+b)$. Loss is binary cross-entropy on the label. All $W_{hh},W_{xh},w$ are trained jointly; weight sharing means a 50-word and a 20-word review use the same transition rule.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| New weights every timestep | Weights are **shared**; only activations $h_t$ change with $t$. |
+| RNN $=$ Markov of order 1 on $x$ | State $h_t$ can encode longer history; the transition is Markov in $(h_t,x_t)$, not necessarily in raw $x$. |
+| Same as a 1-D CNN | CNNs have fixed local windows; RNNs carry a state that can (in principle) remember arbitrarily far. |
+| Always better than Transformers | Modern NLP often prefers attention; RNNs remain the pedagogical and inductive-bias baseline in this course arc. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (sequence modeling / RNNs)
+- Bishop — *PRML* (context)
+
+## Self-check questions
+
+1. Write the update for $h_t$ in a simple RNN.
+2. What is shared across time steps?
+3. Why unfold an RNN into a feedforward graph?
+4. Give one many-to-one and one many-to-many task.
+5. Why might long $T$ be hard for a plain RNN?
+
+*(Short answers are in `self-check-answers.qmd`.)*

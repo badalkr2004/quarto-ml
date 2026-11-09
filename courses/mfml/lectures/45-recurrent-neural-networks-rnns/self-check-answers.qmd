@@ -1,0 +1,10 @@
+---
+title: "Lecture 45 — Self-check answers"
+sidebar: mfml
+---
+
+1. $h_t=\sigma(W_{hh}h_{t-1}+W_{xh}x_t+b_h)$ (equivalent forms OK).
+2. The transition/output weights (e.g. $W_{hh},W_{xh},W_{yh}$), not the hidden vectors themselves.
+3. To apply standard backprop on a finite graph of length $T$ (BPTT).
+4. Many-to-one: classify a whole review; many-to-many: POS-tag each word.
+5. Gradients must flow across many multiplications by $W_{hh}$ — they can vanish or explode (next lecture).
