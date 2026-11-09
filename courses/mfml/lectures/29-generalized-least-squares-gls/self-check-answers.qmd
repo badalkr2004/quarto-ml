@@ -1,0 +1,10 @@
+---
+title: "Lecture 29 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\min_{\tilde\theta}\frac1n\sum_i(\tilde\theta^\top\phi(x_i)-y_i)^2$.  
+2. Take $\phi(x)=(1,x,\ldots,x^m)$ (or multivariate monomials) and run OLS on those features.  
+3. Linear in $\phi(x)$, not in $x$, unless $\phi$ is an affine map.  
+4. Feature engineering / fixed kernels / basis expansions (Fourier, wavelets, SIFT, …).  
+5. They learn a flexible $\phi_\psi$ from data instead of freezing a hand-designed map.

@@ -1,0 +1,109 @@
+---
+title: "Lecture 29 — Generalized Least Squares (GLS)"
+subtitle: "Feature transforms, polynomial regression, and generalized linear models"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 29 — Generalized Least Squares (GLS)](https://www.youtube.com/watch?v=UfiHgztGgu8)
+
+---
+
+## Learning goals
+
+- Lift raw $x$ by a fixed transform $\phi$ and run **linear** ERM in $\phi$-space.
+- Recognize polynomial / Fourier-style regression as generalized linear models.
+- Link choice of $\phi$ to implicit class-conditional assumptions (Bayes view).
+- Preview: neural nets **learn** $\phi$ instead of hand-designing it.
+
+---
+
+## Before this clicks
+
+Naive linear model: $h_\theta(x)=\theta^\top x$. Real relationships may be quadratic, sinusoidal, etc. Idea: map $x\mapsto\phi(x)\in\mathbb{R}^p$ with a **user-chosen** transform, then learn a linear model in the new coordinates.
+
+(Playlist title says “GLS”; the lecture content is **generalized linear models / least squares after feature transforms** — classical “generalized least squares” with a noise covariance is a different topic.)
+
+---
+
+## Main ideas
+
+### 1. Fixed feature map
+
+$$
+\tilde x = \phi(x),\qquad \phi:\mathbb{R}^d\to\mathbb{R}^p.
+$$
+
+Coordinates of $\phi$ may mix several input dimensions (design choice). Transform the whole training set, then solve OLS:
+
+$$
+\tilde\theta^\star = \arg\min_{\tilde\theta}\frac1n\sum_{i=1}^{n}\bigl(\tilde\theta^\top\phi(x_i)-y_i\bigr)^2,
+$$
+
+with the usual normal-equation solution in the $\phi$-features.
+
+Still “linear regression” in $\tilde x$-space; generally **nonlinear** in original $x$.
+
+### 2. Polynomial example
+
+$x\in\mathbb{R}$, $\phi(x)=(1,x,x^2)^\top$. Then
+
+$$
+\tilde\theta^\top\phi(x) = a_0 + a_1 x + a_2 x^2
+$$
+
+— **polynomial regression** = OLS after a polynomial feature map.
+
+Fourier / sine–cosine expansions are the same pattern with trigonometric $\phi$ (think Fourier series as ERM with those bases).
+
+### 3. Design choices
+
+- What $\phi$ to use (polynomial, wavelet, hand-crafted image/speech features, …).  
+- Output dimension $p$ (how many features).  
+Historically: entire careers spent on **feature engineering**. Deep nets later learn $\phi$ jointly with the classifier.
+
+### 4. Probabilistic / Bayes link (homework flavor from class)
+
+- Equal-covariance Gaussian class-conditionals $\Rightarrow$ Bayes rule linear in $x$.  
+- Unequal covariances $\Rightarrow$ quadratic decision boundary $\Leftrightarrow$ quadratic features in an ERM story.  
+Choosing $\phi$ reshapes the implicit distributional assumption behind the linear ERM in feature space.
+
+### 5. Toward neural nets
+
+If mixtures / complex densities need rich features, do not freeze $\phi$: let a network represent $\phi_\psi$ and train end-to-end. That is the “ignorance modeling” path previewed since Lecture 1.
+
+---
+
+## Worked mini-example
+
+Data roughly on a parabola. Linear OLS in raw $x$ underfits. With $\phi(x)=(1,x,x^2)$, OLS in 3-D feature space recovers a quadratic curve while still using the linear closed form in $\tilde\theta$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Linear in features $\Rightarrow$ linear in $x$ | Only if $\phi$ itself is linear. |
+| $p$ must equal $d$ | $p$ is free; often $p>d$. |
+| Same as classical GLS (colored noise) | Here “generalized” means **feature-lifted** least squares / GLM-style maps. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §3.1 — basis functions / linear models
+- Hastie et al., ESL — basis expansions & polynomials
+
+## Self-check questions
+
+1. Write the ERM problem after applying $\phi$.
+2. How does polynomial regression fit this framework?
+3. Is $\tilde\theta^\top\phi(x)$ linear in $x$? When?
+4. Name one historical name for choosing $\phi$ by hand.
+5. How do neural nets change the $\phi$ story?
+
+*(Short answers are in `self-check-answers.qmd`.)*
