@@ -1,0 +1,232 @@
+---
+title: "Lecture 19 — Filters basics"
+subtitle: "FilterChain, logging, auth-style checks before the controller"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot Filters \| FilterChain, Logging, Auth & Request Flow \| Spring Boot Full Course #19](https://www.youtube.com/watch?v=ma-macdL9DI)  
+**Playlist index:** 19  
+**Builds on:** Spring MVC request flow (DispatcherServlet)
+
+---
+
+## Big idea in one line
+
+A **Filter** is servlet-level middleware: it can run **before** and **after** your Spring MVC stack, for logging, simple auth checks, timing, CORS headers, and blocking bad requests — without stuffing that into every controller.
+
+```text
+Request
+  → Filter 1
+    → Filter 2
+      → DispatcherServlet
+        → Controller
+      ← response
+    ← Filter 2 (after)
+  ← Filter 1 (after)
+Response
+```
+
+---
+
+## Why Filters? (cross-cutting for HTTP)
+
+Cross-cutting = the same concern on many endpoints:
+
+- log method + URL + status  
+- measure time taken  
+- require an `Authorization` header  
+- reject requests early  
+
+If you copy that into 20 controllers, you will miss endpoints. Filters sit **outside** controllers once.
+
+---
+
+## Topic 1 — Where Filters sit in the flow
+
+```text
+Client
+  │
+  ▼
+Servlet container (Tomcat)
+  │
+  ├─ Filters  ◄── YOU ARE HERE (javax/jakarta.servlet.Filter)
+  │
+  ▼
+DispatcherServlet (Spring MVC front controller)
+  │
+  ▼
+HandlerMapping → Controller → View/JSON
+```
+
+**Key:** Filters see the raw `HttpServletRequest` / `HttpServletResponse`.  
+They run even for paths that later 404 inside MVC (depending on mapping), and they are older servlet API — not Spring MVC-specific.
+
+---
+
+## Topic 2 — `Filter` + `FilterChain`
+
+```java
+@Component
+@Order(1)
+public class LoggingFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request,
+                         ServletResponse response,
+                         FilterChain chain) throws IOException, ServletException {
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        long start = System.currentTimeMillis();
+
+        System.out.println("→ " + req.getMethod() + " " + req.getRequestURI());
+
+        chain.doFilter(request, response); // continue the chain
+
+        long took = System.currentTimeMillis() - start;
+        HttpServletResponse res = (HttpServletResponse) response;
+        System.out.println("← status=" + res.getStatus() + " took=" + took + "ms");
+    }
+}
+```
+
+### What `chain.doFilter` means
+
+| You call `chain.doFilter(...)` | You skip it |
+|--------------------------------|-------------|
+| Request continues to next filter / servlet | You **stop** the chain (must write your own response) |
+
+Auth-style block:
+
+```java
+String auth = req.getHeader("Authorization");
+if (auth == null || auth.isBlank()) {
+    res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    res.setContentType("application/json");
+    res.getWriter().write("{\"message\":\"Missing Authorization\"}");
+    return; // do NOT call chain.doFilter
+}
+chain.doFilter(request, response);
+```
+
+---
+
+## Topic 3 — Registering Filters in Boot
+
+### Option A — `@Component` on a `Filter`
+
+Boot picks it up and adds it to the chain. Use `@Order(n)` for sequence (lower runs earlier).
+
+### Option B — `FilterRegistrationBean`
+
+More control (URL patterns, name, order):
+
+```java
+@Bean
+FilterRegistrationBean<LoggingFilter> loggingFilter() {
+    FilterRegistrationBean<LoggingFilter> bean = new FilterRegistrationBean<>();
+    bean.setFilter(new LoggingFilter());
+    bean.addUrlPatterns("/api/*");
+    bean.setOrder(1);
+    return bean;
+}
+```
+
+Use URL patterns when the filter should **not** run on every static path.
+
+---
+
+## Topic 4 — Multiple Filters + order
+
+```text
+@Order(1)  LoggingFilter      // first in, last out
+@Order(2)  AuthFilter
+@Order(3)  ...
+           DispatcherServlet
+```
+
+Like nested function calls: the first filter’s code **after** `doFilter` runs last on the way out.
+
+---
+
+## Topic 5 — What to log / check (practical)
+
+Safe, useful request facts:
+
+- HTTP method  
+- request URI / query string  
+- client IP (`req.getRemoteAddr()` — proxies need extra headers later)  
+- selected headers (never log raw passwords or full tokens in prod logs)  
+- response status + duration  
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Add `LoggingFilter`
+
+1. `@Component` class implementing `Filter`.  
+2. Log method + URI **before** `chain.doFilter`.  
+3. Log status + time **after**.  
+4. Hit any controller endpoint → see logs wrap the call.
+
+### Step 2 — Add `AuthFilter` with `@Order`
+
+1. Higher order number than logging (runs after logging on the way in).  
+2. If header `X-API-KEY` != `secret`, return 401 JSON and **return** without `chain.doFilter`.  
+3. Postman without header → 401, controller never runs.  
+4. With header → controller runs.
+
+### Step 3 — Limit URL pattern (optional)
+
+Register with `FilterRegistrationBean` for `/api/*` only.  
+Call `/hello` outside `/api` → auth filter should not block it.
+
+### Step 4 — Confirm order
+
+Swap `@Order` values and watch which log line appears first.
+
+---
+
+## When Filters are a good fit
+
+| Use a Filter | Prefer something else |
+|--------------|------------------------|
+| Logging every HTTP call | Method-level logging inside services → AOP later |
+| Early reject before MVC | Business validation of body → `@Valid` |
+| Servlet-level headers | Spring MVC model tweaks → Interceptor (next lecture) |
+
+---
+
+## Short map to keep
+
+```text
+Filter = servlet middleware
+doFilter = your code around chain.doFilter
+call chain   → continue
+skip chain   → you own the response
+@Order / FilterRegistrationBean = ordering + URL patterns
+Runs BEFORE DispatcherServlet
+```
+
+---
+
+## Exercises
+
+1. What happens if a filter never calls `chain.doFilter` and never writes a response?  
+2. Do Filters run before or after `DispatcherServlet`?  
+3. How do you run filter A before filter B?  
+4. Why is stuffing auth checks into every controller worse than a filter?  
+5. Name two request details worth logging.
+
+---
+
+## Self-check
+
+1. Which interface do you implement for a servlet filter?  
+2. True/False: Filters are Spring MVC Interceptors under another name.  
+3. What does `@Order(1)` vs `@Order(10)` mean for incoming requests?  
+4. Where should you put the “after” timing log — before or after `chain.doFilter`?
+
+Answers: [self-check-answers](self-check-answers.qmd)

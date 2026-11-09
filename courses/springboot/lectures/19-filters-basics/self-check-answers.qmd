@@ -1,0 +1,20 @@
+---
+title: "Lecture 19 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. The client can hang / get an empty incomplete response — always continue the chain **or** write status + body yourself.
+2. **Before** (and their after-code runs on the way back).
+3. Give A a lower `@Order` (or lower `FilterRegistrationBean` order) so it wraps B.
+4. Easy to forget endpoints; duplicated code; inconsistent status/messages.
+5. Method + URI, status code, duration (and carefully chosen headers).
+
+## Self-check
+
+1. `jakarta.servlet.Filter` (or `javax.servlet.Filter` on older stacks).
+2. **False.** Filters are servlet API; Interceptors are Spring MVC (next lecture).
+3. `@Order(1)` runs earlier on the way in than `@Order(10)`.
+4. **After** `chain.doFilter`, so you measure the full downstream work.
