@@ -1,0 +1,99 @@
+---
+title: "Lecture 37 — SVM Formulation"
+subtitle: "Hard-margin primal, hinge loss view, and the road to the dual"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 37 — SVM Formulation](https://www.youtube.com/watch?v=aO3FTnrf2bQ)
+
+## Learning goals
+
+- Write the **hard-margin SVM** primal.
+- Rephrase SVM as ERM with **hinge loss** + $\ell_2$ regularizer.
+- Outline why we pass to a **dual** problem over Lagrange multipliers.
+
+## Before this clicks
+
+Constrained optimization: minimize $f(w)$ subject to inequalities $g_i(w)\ge 0$. Form a Lagrangian with multipliers $\mu_i\ge 0$, then use primal/dual / KKT. Labels $y_i\in\{-1,+1\}$.
+
+---
+
+## Main ideas
+
+### 1. Hard-margin primal
+
+$$
+\begin{aligned}
+\min_{w,b}\quad &\tfrac12\|w\|_2^{2}\\
+\text{s.t.}\quad & y_i\big(w^\top x_i+b\big)\ge 1\quad\text{for all }i.
+\end{aligned}
+$$
+
+English constraint: **no training point misclassified** (and all lie outside/on the margin slab under the $\pm 1$ scaling).
+
+Note the swap vs vanilla ERM storytelling: objective focuses on parameters $\|w\|$; constraints mention **data**. The Lagrangian will mix them again.
+
+### 2. Hinge loss + $\ell_2$ reading
+
+SVM is ERM with linear hypotheses, **hinge** loss
+
+$$
+L\big(h(x),y\big)=\max\big(0,\,1-y\,h(x)\big),
+$$
+
+plus an $\ell_2$ penalty / constraint on $w$. Points with $y\,h(x)\ge 1$ pay zero hinge; violators pay linearly. Hard-margin assumes a separator with zero hinge everywhere exists.
+
+### 3. Path to the dual
+
+1. Form the Lagrangian of the primal (multipliers $\mu_i\ge 0$).
+2. Minimize over $(w,b)$ to get the **dual function** $Q(\mu)$.
+3. Maximize $Q(\mu)$ over $\mu$ (dual problem) with a standard QP solver.
+4. Recover $w^\star$ (and $b^\star$) from $\mu^\star$.
+
+Duality swaps roles: optimize multipliers, then reconstruct the primal weights. Next lecture builds $Q(\mu)$ explicitly.
+
+---
+
+## Worked mini-example
+
+Hinge at a point with score $s=w^\top x+b$:
+
+| $y s$ | hinge |
+|------:|------:|
+| $2$ | $0$ |
+| $1$ | $0$ |
+| $0.2$ | $0.8$ |
+| $-1$ | $2$ |
+
+Only points inside/wrong side of the margin contribute loss.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Hard-margin always exists | Only if data are linearly separable. |
+| Hinge = 0–1 loss | Hinge is a **convex upper bound** surrogate of 0–1. |
+| Dual is optional trivia | Practice solves the **dual QP**; primal $w$ is reconstructed. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Boyd & Vandenberghe — convex optimization / duality
+- Bishop *PRML* — SVM primal
+
+## Self-check questions
+
+1. Write the hard-margin SVM primal.
+2. What does $y_i(w^\top x_i+b)\ge 1$ enforce?
+3. Give the hinge loss formula.
+4. Outline the four steps from primal to usable $(w,b)$.
+5. When is hard-margin infeasible?
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Lecture 37 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\min_{w,b}\tfrac12\|w\|^2$ s.t. $y_i(w^\top x_i+b)\ge 1$ for all $i$.
+2. Correct classification with canonical margin scaling (points outside/on the slab).
+3. $\max(0,1-y h(x))$.
+4. Lagrangian $\to$ dual function by minimizing over $(w,b)$ $\to$ maximize over $\mu$ $\to$ reconstruct $w,b$.
+5. When data are not linearly separable (constraints cannot all hold).
