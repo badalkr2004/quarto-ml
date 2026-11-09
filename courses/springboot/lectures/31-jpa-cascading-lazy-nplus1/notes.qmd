@@ -1,0 +1,220 @@
+---
+title: "Lecture 31 — Cascading, lazy loading & N+1"
+subtitle: "Cascade types, fetch plans, EntityGraph"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [JPA Cascading, Lazy Loading & N+1 Problem \| EntityGraph \| Full Course #31](https://www.youtube.com/watch?v=mB4NMgaZE8U)  
+**Playlist index:** 31  
+**Builds on:** [30 — JPA relationships](../30-jpa-relationships/notes.qmd)  
+**Next:** [32 — Spring Data JPA](../32-spring-data-jpa/notes.qmd)
+
+---
+
+## Big idea in one line
+
+Three separate knobs:
+
+1. **Cascade** — if I persist/delete parent, should children follow?  
+2. **Fetch type** — load related data now or later?  
+3. **Fetch plan per query** — for *this* use case, what graph do I need? (EntityGraph / join fetch)
+
+```text
+Cascade  ≠  ownership (mappedBy / JoinColumn)
+Lazy     ≠  "never load"
+EAGER    ≠  guaranteed single JOIN SQL
+```
+
+---
+
+## Topic 1 — Cascading
+
+Cascade = propagate a persistence operation along a relationship.
+
+```java
+@OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+private List<OrderItem> items = new ArrayList<>();
+```
+
+```java
+order.addItem(item1);
+order.addItem(item2);
+em.persist(order); // also persists item1, item2 if PERSIST cascade
+```
+
+### Cascade types
+
+| Type | Propagates |
+|------|------------|
+| `PERSIST` | persist |
+| `MERGE` | merge |
+| `REMOVE` | remove |
+| `REFRESH` | refresh |
+| `DETACH` | detach |
+| `ALL` | all of the above |
+
+**Not on by default.** Add only when lifecycles truly belong together (order + order lines). Avoid `REMOVE` on shared many-to-many (deleting a student must not delete a shared course).
+
+Helper still required for owning side:
+
+```java
+public void addItem(OrderItem item) {
+    items.add(item);
+    item.setOrder(this);
+}
+```
+
+---
+
+## Topic 2 — Lazy vs Eager
+
+| Fetch | Meaning |
+|-------|---------|
+| `LAZY` | Load association when first needed (hint) |
+| `EAGER` | Association must be available when entity is loaded |
+
+### JPA defaults
+
+| Relationship | Default |
+|--------------|---------|
+| `@ManyToOne` / `@OneToOne` | **EAGER** |
+| `@OneToMany` / `@ManyToMany` | **LAZY** |
+
+Practical habit: make to-one **LAZY** too, then fetch explicitly per use case.
+
+```java
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "department_id")
+private Department department;
+```
+
+```text
+find(Student)
+  SELECT student columns...
+  department = proxy (not loaded)
+
+student.getDepartment().getName()
+  SELECT department...   ← triggered now
+```
+
+---
+
+## Topic 3 — N+1 problem
+
+Pattern:
+
+1. **1** query loads N parents  
+2. Loop touches a lazy association → up to **N** more queries  
+
+```java
+List<Student> students = // findAll students
+for (Student s : students) {
+    System.out.println(s.getDepartment().getName()); // may query each time
+}
+```
+
+```text
+SELECT * FROM student;                 -- 1
+SELECT * FROM department WHERE id=?;   -- +1 per distinct miss
+...
+```
+
+L1 cache can reduce duplicates (100 students, 3 departments → maybe 1+3), but the design smell remains: relationship access hides SQL.
+
+Same idea for collections:
+
+```text
+SELECT * FROM department;                      -- 1
+SELECT * FROM student WHERE department_id=1;   -- N times
+```
+
+**Lazy is not the enemy.** Missing a fetch plan for a known use case is.
+
+Switching mapping to `EAGER` is a blunt fix: loads association even when unused, and may still use extra selects.
+
+---
+
+## Topic 4 — Detect with SQL logging
+
+```properties
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.hibernate.SQL=DEBUG
+```
+
+Run the loop. Count statements. If you see repeats inside a for-loop, you found N+1.
+
+---
+
+## Topic 5 — Fix with EntityGraph (query-level plan)
+
+Keep mapping lazy. Tell **this** repository method what to fetch.
+
+```java
+public interface StudentRepository extends JpaRepository<Student, Long> {
+
+    @EntityGraph(attributePaths = "department")
+    List<Student> findAll();
+}
+```
+
+```text
+Default mapping: department LAZY
+This method:     Student + Department in one fetch plan
+```
+
+Multiple / nested:
+
+```java
+@EntityGraph(attributePaths = {"department", "profile"})
+List<Student> findAll();
+
+@EntityGraph(attributePaths = {"department.manager"})
+List<Student> findAll();
+```
+
+Other tools (same idea): JPQL `join fetch`, batch fetching. Prefer **lazy default + explicit plan**.
+
+---
+
+## Practice lab
+
+1. `@ManyToOne(fetch = LAZY)` on `Student.department`.  
+2. `findAll` students; loop print department names; count SQL.  
+3. Add `@EntityGraph(attributePaths = "department")` on a query method.  
+4. Repeat loop; SQL count should drop.  
+5. Add `cascade = PERSIST` on `Order.items`; persist order with two new items in one call.  
+6. Confirm cascade ≠ ownership: only setting inverse collection without owning FK still fails.
+
+---
+
+## Short map to keep
+
+```text
+Cascade:  parent op → child ops (lifecycle)
+Lazy:     load later when touched
+N+1:      1 + N hidden queries in a loop
+Fix:      EntityGraph / join fetch per use case
+```
+
+---
+
+## Exercises
+
+1. When is `CascadeType.REMOVE` dangerous?  
+2. Default fetch for `@OneToMany`?  
+3. Describe N+1 in one sentence.  
+4. Why prefer EntityGraph over making everything EAGER?
+
+---
+
+## Self-check
+
+1. Does cascade decide who owns the FK?  
+2. True/False: LAZY means the association is never loaded.  
+3. What annotation defines a per-method fetch plan in Spring Data?  
+4. Name one way to spot N+1 while learning.
+
+Answers: [self-check-answers](self-check-answers.qmd)

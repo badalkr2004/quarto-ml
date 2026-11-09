@@ -1,0 +1,19 @@
+---
+title: "Lecture 31 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. On shared associations (classic many-to-many): deleting one parent must not delete shared children.
+2. `LAZY`.
+3. One query loads parents; looping associations fires about one extra query per parent (or per miss).
+4. EntityGraph is per use case; global EAGER loads data even when unused and can still surprise you with SQL shape.
+
+## Self-check
+
+1. **No.** Ownership is `mappedBy` / `@JoinColumn`. Cascade only propagates operations.
+2. **False.** It loads when first needed (and the provider supports it).
+3. `@EntityGraph`.
+4. Turn on SQL logging and watch repeated SELECTs inside a loop.
