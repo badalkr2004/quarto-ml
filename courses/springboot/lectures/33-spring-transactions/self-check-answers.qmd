@@ -4,4 +4,16 @@ sidebar: springboot
 toc: true
 ---
 
-1. All-or-nothing.\n2. Runtime exception triggers rollback by default.\n3. Put on service layer.
+## Exercises (sample)
+
+1. A unit of work that must fully succeed or fully disappear.
+2. All-or-nothing; keep valid rules; control concurrent visibility; keep committed data after failures.
+3. A service method is the business use case and can coordinate multiple repositories cleanly.
+4. Spring rolls the transaction back (default for runtime exceptions).
+
+## Self-check
+
+1. **False.** Spring coordinates the real database transaction.
+2. **No.** Proxy-based TX normally needs public methods called through the proxy.
+3. Debit and credit both happen, or neither does.
+4. Starting / controlling a transaction boundary manually (begin work without auto-commit each statement).

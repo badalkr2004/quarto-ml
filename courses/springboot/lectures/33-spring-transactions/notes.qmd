@@ -6,32 +6,178 @@ sidebar: springboot
 toc: true
 ---
 
-**Video:** [Spring transactions \| Full Course #33](https://www.youtube.com/watch?v=mpxdC8fKy1Y)  
-**Playlist index:** 33
+**Video:** [Spring Transactions \| ACID, @Transactional, Commit & Rollback \| Full Course #33](https://www.youtube.com/watch?v=mpxdC8fKy1Y)  
+**Playlist index:** 33  
+**Builds on:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd), [32 — Spring Data JPA](../32-spring-data-jpa/notes.qmd)  
+**Next:** [34 — Propagation & isolation](../34-transaction-propagation-isolation/notes.qmd)
 
 ---
-## Big idea
 
-`@Transactional` on a service method: all DB work commits together or rolls back together.
+## Big idea in one line
+
+**A transaction is one business unit of work.**  
+All steps succeed together, or none stick. Spring’s `@Transactional` marks that boundary so you do not hand-write begin/commit/rollback every time.
 
 ```text
-start transaction
-  update A
-  update B  (fails) → rollback A and B
-end
+Transfer ₹1000 A → B
+  UPDATE A  -1000
+  UPDATE B  +1000
+Must be ONE transaction (not half a transfer)
 ```
 
-## Practice
+---
 
-1. Two updates in one `@Transactional` method; throw after first; confirm rollback.
-2. Call from controller → service (proxy applies).
+## Topic 1 — ACID (plain)
 
-## Reasoning
+| Letter | Meaning |
+|--------|---------|
+| **A** Atomicity | All or nothing |
+| **C** Consistency | Valid state → valid state (rules/constraints hold) |
+| **I** Isolation | Concurrent TXs do not corrupt each other carelessly |
+| **D** Durability | After commit, result survives crash |
 
-Self-invocation can skip transaction proxy — same lesson as AOP.
+Isolation details deepen in lecture 34.
+
+---
+
+## Topic 2 — Begin / commit / rollback
+
+```text
+BEGIN  → work → COMMIT   (keep changes)
+BEGIN  → work → ROLLBACK (discard uncommitted work)
+```
+
+JDBC picture:
+
+```java
+connection.setAutoCommit(false);
+// SQL...
+connection.commit();   // or rollback()
+```
+
+Spring picture:
+
+```java
+@Transactional
+public void transfer(Long fromId, Long toId, BigDecimal amount) {
+    debit(fromId, amount);
+    credit(toId, amount);
+}
+```
+
+```text
+proxy begins TX
+  → method body
+  → success → commit
+  → rollback-eligible exception → rollback
+```
+
+---
+
+## Topic 3 — Layers (same DB TX, different APIs)
+
+```text
+@Service @Transactional
+        │
+        ▼
+ Spring transaction manager
+        │
+        ▼
+ JPA EntityManager / Hibernate Session
+        │
+        ▼
+ JDBC Connection
+        │
+        ▼
+ Database transaction
+```
+
+You are not choosing “Spring TX **or** DB TX.” Spring **coordinates** the lower APIs.
+
+---
+
+## Topic 4 — Where to put `@Transactional`
+
+Prefer **service layer** (one use case = one boundary).
+
+```java
+@Service
+public class AccountService {
+
+    @Transactional
+    public void transfer(Long fromId, Long toId, BigDecimal amount) {
+        // several repository calls
+    }
+
+    @Transactional(readOnly = true)
+    public Account get(Long id) {
+        return accounts.findById(id).orElseThrow();
+    }
+}
+```
+
+Class-level `@Transactional` sets a default; method-level can override.
+
+### Rollback rules (default mental model)
+
+| Exception type | Default |
+|----------------|---------|
+| Runtime exception / Error | **Rollback** |
+| Checked exception | **Commit** (unless configured) |
+
+Override with `rollbackFor` / `noRollbackFor` when needed (more in lecture 34 attributes).
+
+---
+
+## Topic 5 — Proxy reminder
+
+`@Transactional` works through a Spring **proxy**.
+
+```text
+OtherBean → accountService.transfer()  ✓ goes through proxy
+accountService.internal() calling this.transfer()  ✗ may skip proxy
+```
+
+Call transactional methods from **another bean**, or redesign so the boundary is the outer public method.
+
+---
+
+## Practice lab
+
+1. Two accounts with balances.  
+2. `transfer` debits then credits inside `@Transactional`.  
+3. Throw a `RuntimeException` after debit; confirm both balances unchanged.  
+4. Remove `@Transactional`; observe partial update risk.  
+5. Mark a read method `readOnly = true`.  
+6. Log SQL; confirm writes share one transactional unit.
+
+---
+
+## Short map to keep
+
+```text
+Business use case
+   └─ @Transactional on service
+         begin → repos/EM work → commit | rollback
+ACID = why we bother
+```
+
+---
+
+## Exercises
+
+1. Define a transaction without saying “SQL.”  
+2. Expand ACID in four short phrases.  
+3. Why service layer, not controller, for TX boundaries?  
+4. What happens by default if a `RuntimeException` escapes a transactional method?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. True/False: Spring replaces the database transaction with a fake one.  
+2. Does `@Transactional` on a private method get proxied reliably?  
+3. Atomicity in the bank transfer means?  
+4. JDBC `setAutoCommit(false)` is closest to which idea?
+
+Answers: [self-check-answers](self-check-answers.qmd)
