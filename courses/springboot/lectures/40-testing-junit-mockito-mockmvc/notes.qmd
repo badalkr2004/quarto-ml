@@ -1,0 +1,29 @@
+---
+title: "Lecture 40 — Testing Spring Boot"
+subtitle: "JUnit 5, Mockito, MockMvc"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Testing Spring Boot \| Full Course #40](https://www.youtube.com/watch?v=8MAjlB7g6uI)  
+**Playlist index:** 40
+
+---
+## Big idea
+
+- **Unit test:** class in isolation (mock deps with Mockito)
+- **Slice / MockMvc test:** HTTP layer without full server
+- **Integration test:** `@SpringBootTest` with real context
+
+## Practice
+
+1. Unit-test service with mocked repository.
+2. `@WebMvcTest` controller with `MockMvc`.
+3. Assert JSON status and body.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
