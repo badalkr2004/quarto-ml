@@ -1,0 +1,123 @@
+---
+title: "Lecture 24 — EM for GMMs"
+subtitle: "Mixture models as latent-variable models and the EM updates"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 24 — EM for GMMs](https://www.youtube.com/watch?v=TSNsiglfduQ)
+
+---
+
+## Learning goals
+
+- Write a GMM as $p(z)\,p(x\mid z)$ (dice then Gaussian).
+- Run the E-step: responsibilities via Bayes.
+- Set up the M-step objective for $(\alpha_j,\mu_j,\Sigma_j)$.
+- See why a fitted GMM is also a **generative** sampler.
+
+---
+
+## Before this clicks
+
+A **Gaussian mixture model (GMM)** with $M$ components:
+
+$$
+p_\theta(x) = \sum_{j=1}^{M} \alpha_j\,\mathcal{N}(x;\mu_j,\Sigma_j),\qquad \alpha_j\ge 0,\;\sum_j\alpha_j=1.
+$$
+
+Direct MLE hits $\log\sum_j(\cdots)$ — hard. Introduce a discrete latent $Z\in\{1,\ldots,M\}$ and use EM.
+
+---
+
+## Main ideas
+
+### 1. Latent-variable story
+
+$$
+p_\theta(x,z) = p_\theta(z)\,p_\theta(x\mid z).
+$$
+
+- $Z\sim\mathrm{Categorical}(\alpha_1,\ldots,\alpha_M)$ (roll an $M$-faced die).
+- $X\mid Z=j \sim \mathcal{N}(\mu_j,\Sigma_j)$.
+
+Marginalizing $Z$ recovers the mixture. Parameters:
+
+$$
+\theta = \{\alpha_j,\mu_j,\Sigma_j\}_{j=1}^{M}.
+$$
+
+### 2. E-step (responsibilities)
+
+With current $\theta^{(t)}$,
+
+$$
+q^{(t+1)}(Z=j\mid x) = p_{\theta^{(t)}}(Z=j\mid x)
+= \frac{\alpha_j^{(t)}\,\mathcal{N}(x;\mu_j^{(t)},\Sigma_j^{(t)})}{\sum_{k=1}^{M}\alpha_k^{(t)}\,\mathcal{N}(x;\mu_k^{(t)},\Sigma_k^{(t)})}.
+$$
+
+This is a discrete distribution over $j$ for each data point (do it for every $x_i$).
+
+### 3. M-step setup
+
+Form
+
+$$
+F(\theta,q^{(t+1)}) = \mathbb{E}_{q^{(t+1)}}\!\left[\log\frac{p_\theta(x,z)}{q^{(t+1)}(z)}\right]
+$$
+
+and maximize in $\theta$. For one point, the useful part is
+
+$$
+\sum_{j=1}^{M} q(Z=j\mid x)\Bigl[\log\mathcal{N}(x;\mu_j,\Sigma_j)+\log\alpha_j\Bigr],
+$$
+
+then sum over $i=1,\ldots,n$. Closed forms (derived in Tutorial 8): weighted means, weighted covariances, and $\alpha_j$ = average responsibility.
+
+### 4. GMM as a generative model
+
+After fitting: sample $j\sim\alpha$, then sample $x\sim\mathcal{N}(\mu_j,\Sigma_j)$. If the mixture matched the data distribution well (KL / likelihood), samples look like data. Course context: use GMMs to estimate **class-conditionals** for a Bayes classifier; generation is a bonus viewpoint.
+
+### 5. Why EM works here
+
+For mixture models the posterior $p(z\mid x)$ is available in closed form via Bayes — so the “optimal variational $q$” is computable. Same idea extends to other latent-variable models when that posterior is tractable (HMMs mentioned as a historically notationally heavy example).
+
+### 6. Bridge to MAP
+
+MLE uses only data. With little data, MLE can be wild (e.g. five heads $\Rightarrow\hat p=1$). Next lectures put a **prior** on $\theta$ (Bayesian / MAP).
+
+---
+
+## Worked mini-example (generative draw)
+
+$M=2$, $\alpha=(0.7,0.3)$, $\mu_1=-1$, $\mu_2=2$, unit variances. Roll: with probability $0.7$ draw from $\mathcal{N}(-1,1)$, else from $\mathcal{N}(2,1)$. The marginal density of $X$ is the two-bump mixture.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| $\alpha_j$ are free reals | They are mixture **probabilities** — simplex constraints. |
+| E-step updates $\mu_j$ | E-step only updates $q$; M-step updates $\theta$. |
+| GMM $\neq$ sampler | Fitting + ancestral sampling **is** generation. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML Ch.9 — mixtures and EM
+- Murphy PML — GMMs
+
+## Self-check questions
+
+1. Write the GMM marginal $p_\theta(x)$ and its latent factorization.
+2. Give the E-step responsibility formula.
+3. What parameters live in $\theta$?
+4. How do you sample from a fitted GMM?
+5. Why is direct MLE awkward for mixtures?
+
+*(Short answers are in `self-check-answers.qmd`.)*

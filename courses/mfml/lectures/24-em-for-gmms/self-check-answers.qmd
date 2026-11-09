@@ -1,0 +1,10 @@
+---
+title: "Lecture 24 — Self-check answers"
+sidebar: mfml
+---
+
+1. $p_\theta(x)=\sum_j\alpha_j\mathcal{N}(x;\mu_j,\Sigma_j)$; $p(z)p(x\mid z)$ with categorical $z$ and Gaussian $x\mid z$.  
+2. $q(j\mid x)\propto\alpha_j^{(t)}\mathcal{N}(x;\mu_j^{(t)},\Sigma_j^{(t)})$, normalized over $j$.  
+3. Mixing weights $\alpha_j$, means $\mu_j$, covariances $\Sigma_j$.  
+4. Sample component $j\sim\alpha$, then $x\sim\mathcal{N}(\mu_j,\Sigma_j)$.  
+5. Log-likelihood has $\log\sum_j$, so derivatives do not separate cleanly; EM introduces latents.
