@@ -1,0 +1,10 @@
+---
+title: "Lecture 44 — Self-check answers"
+sidebar: mfml
+---
+
+1. $z^{(c)}_{i,j}=\sum_{c',u,v} K^{(c)}_{c',u,v}\,h^{(c')}_{i+u,j+v}+b^{(c)}$ (notation may vary).
+2. Local connections + tied weights restrict a dense MLP to a much smaller, vision-shaped parameter set.
+3. Replaces the block by its maximum value (downsample / local summary).
+4. The forward map is still a differentiable composition of convolutions, activations, and pooling; chain rule applies to the shared $K$.
+5. Variable-length sequences / strong temporal order with shared dynamics over time (RNNs).

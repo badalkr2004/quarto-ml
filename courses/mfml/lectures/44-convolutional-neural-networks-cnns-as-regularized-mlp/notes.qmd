@@ -1,0 +1,95 @@
+---
+title: "Lecture 44 — Convolutional Neural Networks (CNNs) as Regularized MLP"
+subtitle: "A CNN is an MLP with convolution, sharing, and pooling built in as hard constraints"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 44 — Convolutional Neural Networks (CNNs) as Regularized MLP](https://www.youtube.com/watch?v=mSYTyrXCsA8)
+
+## Learning goals
+
+- View a **CNN** as a multilayer net whose layers are convolutions (local + shared weights), nonlinearities, and often pooling.
+- Interpret convolution / pooling as **architectural regularization** of a fully connected MLP.
+- Sketch forward computation: feature maps $\to$ activation $\to$ downsample $\to$ repeat $\to$ dense head.
+- Connect back to ERM: same backprop story, structured $\theta$.
+
+## Before this clicks
+
+Lecture 43 introduced local receptive fields and parameter sharing. A CNN makes those ideas the default layer type. Compared with a dense MLP on flattened images, many MLP weights are forced to zero (no long-range connections in early layers) and many remaining weights are **tied** (same filter everywhere). That is regularization by construction: we optimize over a smaller, vision-shaped subset of all possible nets.
+
+---
+
+## Main ideas
+
+### 1. Convolutional layer
+
+Input feature map(s) $h$, kernel bank $K$. Output channel $c$ at location $(i,j)$:
+
+$$
+z^{(c)}_{i,j}=\sum_{c',u,v} K^{(c)}_{c',u,v}\,h^{(c')}_{i+u,j+v}+b^{(c)}.
+$$
+
+Then $h_{\mathrm{new}}=\sigma(z)$ pointwise (ReLU, etc.). Stride and padding control output resolution.
+
+### 2. Pooling
+
+**Pooling** summarizes a local block (e.g. $2\times 2$ max or average) into one value. Effects: smaller maps, some local translation tolerance, larger effective receptive field per later unit. It is another hard constraint / downsampling choice in $\mathcal{H}$, not a learned dense mix of all pixels.
+
+### 3. CNN as regularized MLP
+
+Flatten the image and write a giant MLP. A convolutional layer corresponds to:
+
+- sparsity pattern: each output depends on a patch;
+- equality constraints: weights repeat across patches.
+
+So CNN $\subset$ MLP in function-class terms (for matching shapes), with far fewer free parameters. Soft penalties like weight decay can still be added; the CNN structure is the main regularizer for vision.
+
+### 4. Typical stack and classifier head
+
+$$
+\text{conv}\to\sigma\to\text{(pool)}\to\cdots\to\text{flatten / global pool}\to\text{dense / softmax}.
+$$
+
+Early layers: local patterns. Deeper layers: combinations over larger regions. Final dense layers map high-level features to labels. Train end-to-end by backprop on cross-entropy (or task loss).
+
+### 5. Bridge
+
+CNNs exploit **spatial** grid structure. Sequences (speech, text, time series) have **temporal** dependence with variable length — motivating recurrent nets next.
+
+---
+
+## Worked mini-example
+
+CIFAR-style $32\times 32\times 3$ input. Layer 1: $16$ filters of size $3\times 3\times 3$ $\to$ about $16\times 27+16$ parameters, producing $16$ maps. Max-pool $2\times 2$ halves height/width. Another conv block, then flatten and a small dense classifier. A dense-only net on $32\times 32\times 3=3072$ inputs with comparable hidden width would need orders of magnitude more weights and ignore locality.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| CNN $\neq$ neural net | CNN **is** a neural net with constrained connectivity / weights. |
+| Pooling is required for UAT | UAT is about MLPs; pooling is a practical inductive bias, not universality. |
+| Filters are hand-designed | Modern CNNs **learn** $K$ by ERM/backprop (classical SIFT-like features were hand-made). |
+| Regularization only means $\lambda\|\theta\|^2$ | Architecture constraints are regularization too. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (CNN chapters)
+- Bishop — *PRML*
+
+## Self-check questions
+
+1. Write the schematic sum for one convolutional output $z^{(c)}_{i,j}$.
+2. In what sense is a CNN a “regularized MLP”?
+3. What does max-pooling do to a $2\times 2$ block?
+4. Why backprop still applies to CNNs?
+5. Name one limitation of CNNs that RNNs address better.
+
+*(Short answers are in `self-check-answers.qmd`.)*
