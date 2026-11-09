@@ -1,0 +1,10 @@
+---
+title: "Tutorial 7A — Self-check answers"
+sidebar: mfml
+---
+
+1. Form log-likelihood; take partial derivatives wrt parameters; set them to zero (and check maximum).  
+2. $\mu^\star=\bar x$; $(\sigma^\star)^2=\frac1n\sum(x_j-\mu^\star)^2$.  
+3. $\Sigma^\star=\frac1n\sum(x_j-\mu^\star)(x_j-\mu^\star)^\top$.  
+4. The outer product $(x-\mu)(x-\mu)^\top$.  
+5. The quadratic form and prefactors must produce a scalar density; mismatched shapes mean a bug.

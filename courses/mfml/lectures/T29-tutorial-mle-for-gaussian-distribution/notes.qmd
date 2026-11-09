@@ -1,0 +1,116 @@
+---
+title: "Tutorial 7A — MLE for Gaussian Distribution"
+subtitle: "Closed-form mean and covariance from the log-likelihood"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 7A — MLE for Gaussian Distribution](https://www.youtube.com/watch?v=XA3UiD8zEF8)
+
+---
+
+## Learning goals
+
+- Write the Gaussian log-likelihood in 1-D and in $\mathbb{R}^d$.
+- Derive MLEs for mean and variance / covariance.
+- See the 1-D “squared residual” become a $d$-D outer product.
+
+---
+
+## Before this clicks
+
+**Maximum likelihood estimation (MLE):** given i.i.d. samples and a parametric density $p_\theta$, choose $\theta$ that maximizes $\prod_i p_\theta(x_i)$, or equivalently the **log-likelihood** $\sum_i \log p_\theta(x_i)$. Recipe: differentiate wrt parameters, set gradients to zero.
+
+Useful matrix identities (Matrix Cookbook): cyclic property of trace; derivatives of $\mathrm{tr}(A\,zz^\top)$ and $\log\det A$.
+
+---
+
+## Main ideas
+
+### 1. One-dimensional Gaussian
+
+$$
+p(x\mid\mu_i,\sigma_i) = \frac{1}{\sqrt{2\pi}\,\sigma_i}\exp\!\left(-\frac{(x-\mu_i)^2}{2\sigma_i^2}\right).
+$$
+
+For $n$ samples from one class, the log-likelihood is
+
+$$
+\ell = -n\log\sigma_i - \tfrac12 n\log(2\pi) - \sum_{j=1}^{n}\frac{(x_j-\mu_i)^2}{2\sigma_i^2}.
+$$
+
+Setting $\partial\ell/\partial\mu_i=0$ and $\partial\ell/\partial\sigma_i=0$ gives
+
+$$
+\mu_i^\star = \frac{1}{n}\sum_{j=1}^{n} x_j,\qquad
+(\sigma_i^\star)^2 = \frac{1}{n}\sum_{j=1}^{n}(x_j-\mu_i^\star)^2.
+$$
+
+(Sample mean and average squared deviation.)
+
+### 2. Multivariate Gaussian
+
+For $x,\mu\in\mathbb{R}^d$ and SPD covariance $\Sigma\in\mathbb{R}^{d\times d}$,
+
+$$
+p(x) = (2\pi)^{-d/2}\,|\Sigma|^{-1/2}\exp\!\left(-\tfrac12 (x-\mu)^\top\Sigma^{-1}(x-\mu)\right).
+$$
+
+**Sanity check:** the quadratic form is a scalar, so the density is a scalar.
+
+Log-likelihood over $n$ samples involves $\log|\Sigma|$ and sum of Mahalanobis terms. Differentiating wrt $\mu$ yields
+
+$$
+\mu^\star = \frac{1}{n}\sum_{j=1}^{n} x_j.
+$$
+
+Differentiating wrt $\Sigma$ (via $\partial\log\det$ / trace identities) yields
+
+$$
+\Sigma^\star = \frac{1}{n}\sum_{j=1}^{n}(x_j-\mu^\star)(x_j-\mu^\star)^\top.
+$$
+
+### 3. Link 1-D $\leftrightarrow$ multi-D
+
+| 1-D | Multi-D |
+|-----|---------|
+| $(x_j-\mu)^2$ | outer product $(x_j-\mu)(x_j-\mu)^\top$ |
+| scalar variance | covariance matrix |
+
+---
+
+## Worked mini-example
+
+Data $\{1,3,5\}$ in 1-D: $\mu^\star=(1+3+5)/3=3$, variance $(4+0+4)/3=8/3$.
+
+In 2-D with mean $\mu^\star$ and centered rows $z_j$, $\Sigma^\star=\frac1n\sum z_j z_j^\top$ is the empirical covariance.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Divide by $n-1$ | Classical unbiased sample variance uses $n-1$; **MLE** uses $n$. |
+| $\Sigma$ can be any matrix | Covariance must be symmetric positive (semi)definite. |
+| Class label ignored | These formulas are for **one** Gaussian component / one class-conditional. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Matrix Cookbook (Petersen & Pedersen) — matrix derivatives
+- Bishop PRML §2.3 — Gaussian MLE
+
+## Self-check questions
+
+1. State the MLE recipe in three steps.
+2. Give $\mu^\star$ and $(\sigma^\star)^2$ for 1-D Gaussian MLE.
+3. Give $\Sigma^\star$ for multivariate Gaussian MLE.
+4. What replaces $(x-\mu)^2$ in $d$ dimensions?
+5. Why check dimensions when writing the multivariate density?
+
+*(Short answers are in `self-check-answers.qmd`.)*
