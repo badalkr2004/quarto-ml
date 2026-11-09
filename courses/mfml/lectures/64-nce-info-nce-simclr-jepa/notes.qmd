@@ -1,0 +1,101 @@
+---
+title: "Lecture 64 — NCE, InfoNCE, SimCLR, JEPA"
+subtitle: "From density contrast to modern self-supervised representation learning"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 64 — NCE, Info-NCE, SimCLR, JEPA](https://www.youtube.com/watch?v=vRX_5wwImec)
+
+## Learning goals
+
+- Lift NCE to **InfoNCE**: one positive vs many negatives in embedding space.
+- Sketch **SimCLR**: augmentations create positive pairs; contrastive loss trains the encoder.
+- State the **JEPA** high-level idea: predict in **representation** space, not pixel space.
+
+## Before this clicks
+
+NCE classified data vs noise to fit a density. Representation learning often does not need an explicit $p(x)$. Instead: pull **related** views of the same object together in embedding space and push **unrelated** views apart. InfoNCE is the workhorse loss for that multi-negative contrast. JEPA is a different self-supervised family: predict missing/latent structure without reconstructing every pixel.
+
+---
+
+## Main ideas
+
+### 1. InfoNCE (schematic)
+
+Given a query embedding $q$, one positive key $k^+$ and negatives $k_1,\ldots,k_m$,
+
+$$
+\mathcal{L}_{\mathrm{InfoNCE}}=-\log\frac{\exp(\mathrm{sim}(q,k^+)/\tau)}{\exp(\mathrm{sim}(q,k^+)/\tau)+\sum_{j=1}^{m}\exp(\mathrm{sim}(q,k_j)/\tau)},
+$$
+
+where $\mathrm{sim}$ is often cosine similarity and $\tau>0$ a temperature. This is a softmax classifier that should pick the positive among the noise/negatives — the NCE spirit, now in feature space.
+
+### 2. SimCLR (high level)
+
+1. Sample an image $x$; draw two random **augmentations** $t,t'$ (crop, color jitter, …).
+2. Encode $z=f(t(x))$, $z'=f(t'(x))$ (often with a projection head during training).
+3. Treat $(z,z')$ as a **positive pair**; other batch embeddings as negatives.
+4. Minimize InfoNCE (NT-Xent) so the two views of the same image match.
+
+No class labels are required. The encoder $f$ becomes a useful feature map for downstream linear probes / fine-tuning.
+
+### 3. Why augmentations matter
+
+Positives must share semantics but differ in nuisance factors. Weak augmentations $\Rightarrow$ trivial shortcuts; strong, task-aligned augmentations $\Rightarrow$ invariant features.
+
+### 4. JEPA (Joint Embedding Predictive Architecture) — idea level
+
+Instead of reconstructing pixels (classic autoencoder) or only contrasting two views:
+
+- Encode context and a target region (or future) into embeddings.
+- Train a **predictor** so the context embedding predicts the **target embedding**.
+- Loss lives in representation space: focus on predictable structure, not high-frequency pixel noise.
+
+This sits in the broader “predict in latent space” family (alongside related non-contrastive / predictive SSL methods). Course-level takeaway: self-supervision can mean contrast **or** latent prediction.
+
+### 5. Map of ideas
+
+| Method | Core game |
+|--------|-----------|
+| NCE | Data vs noise for densities |
+| InfoNCE | Positive vs many negatives in embedding space |
+| SimCLR | InfoNCE + strong image augmentations |
+| JEPA | Predict target **representations** from context |
+
+---
+
+## Worked mini-example
+
+Batch of 4 images, two augmented views each $\Rightarrow$ 8 embeddings. For view A of image 1, the positive is view B of image 1; the other 6 are negatives. InfoNCE raises $\mathrm{sim}(q,k^+)$ relative to the negatives. After training, a linear classifier on frozen $f(x)$ often works surprisingly well on labeled tasks — labels were never used in pretraining.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| SimCLR needs ImageNet labels | Pretraining is unsupervised / self-supervised; labels are for evaluation. |
+| InfoNCE = cross-entropy on semantic classes | Classes are **instance / view** identities in the batch, not object names. |
+| JEPA reconstructs pixels | It predicts in **embedding** space by design. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Gutmann & Hyvärinen — NCE
+- Chen et al. — SimCLR / InfoNCE-style losses
+- LeCun et al. — JEPA / joint-embedding predictive ideas (high level)
+
+## Self-check questions
+
+1. What does InfoNCE ask a softmax to identify?
+2. How does SimCLR create a positive pair?
+3. Role of temperature $\tau$ in InfoNCE (qualitative)?
+4. Where does JEPA’s prediction loss live — pixels or representations?
+5. Do these methods require class labels during pretraining?
+
+*(Short answers are in `self-check-answers.qmd`.)*

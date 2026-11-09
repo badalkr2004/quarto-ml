@@ -1,0 +1,10 @@
+---
+title: "Lecture 64 — Self-check answers"
+sidebar: mfml
+---
+
+1. The positive key $k^+$ among negatives (for a query $q$).
+2. Two random augmentations of the same image; encode both and treat them as a match.
+3. Sharpens or softens the softmax over similarities (controls how peaked the match is).
+4. Representation / embedding space (not raw pixels).
+5. No — pretraining is self-supervised; labels are optional for downstream eval.
