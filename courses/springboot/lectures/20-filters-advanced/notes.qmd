@@ -1,46 +1,220 @@
 ---
-title: "Lecture 20 — Filters that change requests and responses"
-subtitle: "Wrap streams, headers, and bodies carefully"
+title: "Lecture 20 — Filters advanced"
+subtitle: "Modify request/response headers and bodies safely"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Filters that change requests and responses \| Full Course #20](https://www.youtube.com/watch?v=fXcDynZ8C-g)  
-**Playlist index:** 20
+**Video:** [Spring Boot Filters \| Modify Requests, Response, Headers & Bodies \| Spring Boot Full Course #20](https://www.youtube.com/watch?v=fXcDynZ8C-g)  
+**Playlist index:** 20  
+**Builds on:** [19 — Filters basics](../19-filters-basics/notes.qmd)
 
 ---
-## Big idea
 
-Sometimes you must read the body twice, add headers, or change the response.  
-Raw request/response streams can be read only once — use wrappers.
+## Big idea in one line
+
+Sometimes a Filter must **change** what controllers see (headers, parameters, body) or **change** what the client gets back.  
+Raw `HttpServletRequest` / `HttpServletResponse` are mostly read-once — so you wrap them with **wrapper** classes, then pass the wrappers down the chain.
 
 ```text
-Filter wraps request/response
-        │
-        ▼
-Downstream code reads the wrapper (safe)
+Request  → wrap → chain.doFilter(wrappedReq, wrappedRes)
+Response ← read from wrapper (body/headers you captured or changed)
 ```
 
-## Common uses
+---
 
-- Add security headers
-- Capture response body for logging
-- Normalize incoming JSON
-- Block requests missing a header
+## Why wrappers?
 
-## Practice ideas
+| Goal | Problem without wrapper |
+|------|-------------------------|
+| Read JSON body for logging | Input stream can be read only once — controller gets empty body |
+| Add a custom header for downstream code | Hard to “inject” without wrapping |
+| Change response body / add header after controller | Need to capture output, then write final bytes |
 
-1. Filter that rejects requests without header `X-Request-Id` (return 400).
-2. Filter that adds `X-Response-Time` header after `chain.doFilter`.
-3. Log status code from `HttpServletResponse`.
+Spring/servlet API gives:
 
-## Reasoning
+- `HttpServletRequestWrapper`  
+- `HttpServletResponseWrapper`  
+- helpers like `ContentCachingRequestWrapper` / `ContentCachingResponseWrapper` (Spring)
 
-Mutating bodies is powerful and easy to break. Prefer small, tested filters. For auth, prefer Spring Security filters when you reach those lectures.
+---
+
+## Topic 1 — Modify / add request headers
+
+Use a small wrapper that overrides `getHeader` / `getHeaders`:
+
+```java
+public class HeaderMapRequestWrapper extends HttpServletRequestWrapper {
+    private final Map<String, String> extra = new HashMap<>();
+
+    public HeaderMapRequestWrapper(HttpServletRequest request) {
+        super(request);
+    }
+
+    public void putHeader(String name, String value) {
+        extra.put(name, value);
+    }
+
+    @Override
+    public String getHeader(String name) {
+        String v = extra.get(name);
+        return v != null ? v : super.getHeader(name);
+    }
+}
+```
+
+In the filter:
+
+```java
+HeaderMapRequestWrapper wrapped = new HeaderMapRequestWrapper(req);
+wrapped.putHeader("X-Request-Id", UUID.randomUUID().toString());
+chain.doFilter(wrapped, response);
+```
+
+Downstream code / controllers that read `X-Request-Id` now see your value.
+
+---
+
+## Topic 2 — Response headers after the controller
+
+You can set response headers **before or after** `chain.doFilter`:
+
+```java
+res.setHeader("X-App", "demo");
+chain.doFilter(request, response);
+res.setHeader("X-Elapsed-Ms", String.valueOf(took));
+```
+
+Some headers must be set before the response is committed (before body flush). If you see “already committed”, set earlier or use a response wrapper that buffers.
+
+---
+
+## Topic 3 — Caching request body (read twice)
+
+Pattern with Spring’s helper:
+
+```java
+@Component
+@Order(1)
+public class BodyCacheFilter implements Filter {
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        ContentCachingRequestWrapper req =
+            new ContentCachingRequestWrapper((HttpServletRequest) request);
+
+        chain.doFilter(req, response);
+
+        byte[] buf = req.getContentAsByteArray();
+        if (buf.length > 0) {
+            String body = new String(buf, req.getCharacterEncoding());
+            System.out.println("Request body: " + body);
+        }
+    }
+}
+```
+
+**Note:** content is available **after** the downstream read fills the cache (often after `chain.doFilter`). Fine for logging. For validating body *before* the controller, use a wrapper that buffers on first read and replays.
+
+---
+
+## Topic 4 — Caching / modifying response body
+
+```java
+ContentCachingResponseWrapper res =
+    new ContentCachingResponseWrapper((HttpServletResponse) response);
+
+chain.doFilter(request, res);
+
+byte[] body = res.getContentAsByteArray();
+System.out.println("Response body: " + new String(body, res.getCharacterEncoding()));
+
+// IMPORTANT: copy buffered body to the real response
+res.copyBodyToResponse();
+```
+
+Forget `copyBodyToResponse()` → client gets an **empty** body. Classic bug.
+
+---
+
+## Picture: wrap → chain → unwrap
+
+```text
+Filter.doFilter
+  ├─ wrap request  (optional)
+  ├─ wrap response (optional)
+  ├─ chain.doFilter(wrappedReq, wrappedRes)
+  │     └─ controller writes JSON into wrapper buffer
+  ├─ inspect / tweak buffered response
+  └─ copyBodyToResponse()  // send real bytes to client
+```
+
+---
+
+## Topic 5 — Practical caution
+
+1. **Do not log secrets** (passwords, tokens) from bodies in production.  
+2. Large file uploads: caching whole body can blow memory — skip or limit paths.  
+3. Only wrap when you need to; plain logging of URL/status does not need body wrappers.  
+4. Order matters: body-caching filters usually sit early so later filters/controllers read through the same wrapper.
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Request id header
+
+1. Build a request wrapper that adds `X-Request-Id`.  
+2. Pass wrapper into `chain.doFilter`.  
+3. In a controller, read `request.getHeader("X-Request-Id")` and return it in JSON.  
+4. Call the API → you should see a UUID you did not send.
+
+### Step 2 — Response header
+
+After `chain.doFilter`, set `X-Elapsed-Ms`.  
+Check Postman headers tab.
+
+### Step 3 — Log response body
+
+1. Wrap with `ContentCachingResponseWrapper`.  
+2. Call chain, print body, then `copyBodyToResponse()`.  
+3. Remove `copyBodyToResponse()` once on purpose → empty client body (then put it back).
+
+### Step 4 — Log request JSON on POST
+
+Use `ContentCachingRequestWrapper`, POST a JSON DTO, print body after the chain.  
+Confirm the controller still receives the DTO (body not consumed away).
+
+---
+
+## Short map to keep
+
+```text
+Need to change/read stream twice? → Wrapper
+Request wrapper  → fake/extra headers, replay body
+Response wrapper → capture body, then copyBodyToResponse()
+Never forget copy for caching response wrappers
+```
+
+---
+
+## Exercises
+
+1. Why can you not simply `request.getInputStream()` in a filter and still expect the controller to read the same JSON?  
+2. What happens if you forget `copyBodyToResponse()`?  
+3. When is a header-only filter enough (no body wrapper)?  
+4. Why buffer carefully for file upload endpoints?  
+5. Name the Spring class often used to cache request content.
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Which base class do you extend to customize request behavior?  
+2. True/False: setting a response header is always safe after the body has been flushed.  
+3. What does `ContentCachingResponseWrapper` store?  
+4. Should body-logging filters run on every binary download by default?
+
+Answers: [self-check-answers](self-check-answers.qmd)

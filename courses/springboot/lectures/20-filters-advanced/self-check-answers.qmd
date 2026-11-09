@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Streams are one-shot; wrappers buffer.\n2. Missing auth header, response timing header.\n3. Prefer Security for real auth.
+## Exercises (sample)
+
+1. The servlet input stream is consumed once; without a caching/replaying wrapper the controller sees nothing left.
+2. The client typically gets an empty response body even though the controller “wrote” to the wrapper.
+3. When you only need URL/method/status/timing or simple header inject/check — no body access.
+4. Full-body buffering can exhaust memory; exclude large upload paths or cap size.
+5. `ContentCachingRequestWrapper`.
+
+## Self-check
+
+1. `HttpServletRequestWrapper`.
+2. **False.** Once committed/flushed, many header changes fail or are ignored.
+3. The response body bytes (and related metadata) so you can inspect them and later copy out.
+4. **No.** Prefer path limits; logging huge/binary payloads is costly and noisy.
