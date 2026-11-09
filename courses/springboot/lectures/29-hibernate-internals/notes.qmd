@@ -1,0 +1,225 @@
+---
+title: "Lecture 29 — Hibernate internals"
+subtitle: "Persistence context, L1 cache, dirty checking, flush"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Hibernate Internals \| Persistence Context, L1 Cache & Transactions \| Full Course #29](https://www.youtube.com/watch?v=0Ko1Ux1otqE)  
+**Playlist index:** 29  
+**Builds on:** [28 — Hibernate fundamentals](../28-hibernate-fundamentals/notes.qmd)  
+**Next:** [30 — JPA relationships](../30-jpa-relationships/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**`EntityManager` is not “just a SQL helper.”**  
+It holds a **persistence context**: a short-lived workspace of managed entities for one unit of work (usually one transaction).
+
+```text
+@Service method (@Transactional)
+        │
+        ▼
+ persistence context (1st-level cache)
+   map of managed entities
+        │
+        ▼
+ flush → SQL to DB
+        │
+        ▼
+ commit → DB transaction ends
+```
+
+---
+
+## Topic 1 — Spec vs provider (again, sharper)
+
+```text
+JPA annotations + EntityManager API
+              │
+              ▼
+        Hibernate Session
+              │
+              ▼
+             JDBC
+```
+
+You code to JPA. Hibernate tracks state, builds SQL, caches entities in the persistence context.
+
+---
+
+## Topic 2 — Persistence context
+
+Plain meaning: **Hibernate’s memory of entities it is currently managing.**
+
+| Question | Answer |
+|----------|--------|
+| Where do managed entities live? | Persistence context |
+| How long? | Typically for the transaction |
+| What is first-level cache? | That same context (per persistence context, not app-wide) |
+
+```java
+Student a = em.find(Student.class, 1L);
+Student b = em.find(Student.class, 1L);
+// a == b  (same managed instance) inside same context
+```
+
+Second `find` often hits **L1 cache** → no second SELECT for same id.
+
+---
+
+## Topic 3 — Entity lifecycle states
+
+```text
+          persist()
+ transient ───────► managed ◄──── merge() (returns managed copy)
+                       │  ▲
+              remove() │  │ refresh / find again in new context...
+                       ▼  │
+                    removed    detached
+                                 ▲
+                                 │ clear() / transaction end / em.close()
+```
+
+| State | Meaning |
+|-------|---------|
+| **Transient** | New Java object, not known to Hibernate yet |
+| **Managed** | Tracked by persistence context; changes can auto-flush |
+| **Detached** | Was managed; context no longer tracks it |
+| **Removed** | Scheduled for DELETE on flush |
+
+**Important:** managed ≠ “SQL already ran.” Inserts/updates often wait until **flush**.
+
+---
+
+## Topic 4 — Dirty checking & flush
+
+```java
+@Transactional
+public void rename(Long id, String name) {
+    Student s = em.find(Student.class, id); // managed
+    s.setName(name);                        // dirty
+} // end → flush → UPDATE → commit
+```
+
+```text
+Dirty checking: compare current field values to loaded snapshot
+Flush:          push pending SQL to the database
+Commit:         finish the DB transaction
+```
+
+| Myth | Reality |
+|------|---------|
+| Setter runs UPDATE immediately | Usually waits until flush |
+| `flush()` == `commit()` | Flush writes SQL; commit ends transaction |
+| `detach()` deletes the row | No — only stops tracking |
+
+Manual flush (rare in normal apps):
+
+```java
+em.flush();  // SQL now, transaction still open
+```
+
+Batch tip: after many inserts, `flush()` + `clear()` keeps memory small.
+
+---
+
+## Topic 5 — Why `@Transactional` on the service
+
+Spring starts a transaction, binds an `EntityManager`/Session to that work, then commits or rolls back.
+
+```text
+Controller
+   → Service proxy (@Transactional)
+        begin TX + persistence context
+        → repository / EntityManager calls
+        flush + commit (or rollback)
+```
+
+Self-invocation note (same as AOP): calling `this.method()` inside the same class may **skip** the proxy → no new transaction boundary. Prefer calling through another Spring bean.
+
+### Which ops need a transaction?
+
+| Operation | Usually needs TX? |
+|-----------|-------------------|
+| `find` (simple) | Often works read-only / auto |
+| `persist` / `merge` / `remove` / `flush` | **Yes** |
+
+Put write methods in `@Transactional` service methods.
+
+---
+
+## Topic 6 — First-level cache limits
+
+L1 helps **same id** lookups in **one** persistence context.
+
+It does **not**:
+
+- Share across HTTP requests / different transactions by default  
+- Automatically make every JPQL query use the cache the same way as `find`  
+- Replace a second-level cache (separate topic)
+
+```text
+Request A TX          Request B TX
+ context A            context B
+ (own L1)             (own L1)
+```
+
+---
+
+## Topic 7 — Handy EntityManager methods
+
+| Method | Plain use |
+|--------|-----------|
+| `persist` | New entity → managed (insert later) |
+| `find` | Load by PK (uses L1) |
+| `remove` | Managed entity → delete later |
+| `merge` | Copy detached state into a managed instance |
+| `flush` | Sync SQL now |
+| `clear` | Detach all (empty L1) |
+| `detach` | Detach one |
+| `refresh` | Reload from DB (overwrite memory) |
+| `contains` | Is this instance managed here? |
+
+---
+
+## Practice lab
+
+1. In one `@Transactional` method: `find` the same id twice; print `a == b`.  
+2. Change a field; enable `show-sql`; confirm UPDATE timing (end of method).  
+3. Call `em.flush()` mid-method; watch SQL appear earlier.  
+4. After commit, in a **new** transaction, `find` again — new managed instance.  
+5. Try modifying a detached entity outside a context; notice no automatic UPDATE.
+
+---
+
+## Short map to keep
+
+```text
+@Transactional service
+   persistence context = L1 cache
+   entities: transient → managed → detached/removed
+   setters on managed → dirty → flush SQL → commit
+```
+
+---
+
+## Exercises
+
+1. What is the persistence context in one sentence?  
+2. Name the four lifecycle states.  
+3. Difference between flush and commit?  
+4. Why is L1 cache not “global for the whole app”?
+
+---
+
+## Self-check
+
+1. True/False: two `find(1L)` calls in the same context return the same instance.  
+2. Does `setName` always hit the database immediately?  
+3. What does `detach` do to the database row?  
+4. Where should write transaction boundaries usually live?
+
+Answers: [self-check-answers](self-check-answers.qmd)

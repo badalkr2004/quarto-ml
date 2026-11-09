@@ -1,0 +1,19 @@
+---
+title: "Lecture 29 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Hibernate’s working set of managed entities for a unit of work (usually one transaction).
+2. Transient, managed, detached, removed.
+3. Flush sends pending SQL; commit finishes the database transaction.
+4. Each persistence context / transaction has its own L1; it is not a shared app-wide map.
+
+## Self-check
+
+1. **True** (same managed instance).
+2. **No.** Dirty checking + flush usually delay the UPDATE.
+3. **Nothing.** It only stops tracking that instance in the context.
+4. In the **service** layer around a full business use case.
