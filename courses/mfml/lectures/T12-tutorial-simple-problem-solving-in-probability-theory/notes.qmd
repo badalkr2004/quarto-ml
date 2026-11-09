@@ -1,0 +1,189 @@
+---
+title: "Tutorial 2 — Simple Problem Solving in Probability Theory"
+subtitle: "Worked mini-problems that lock in IID, Bayes, densities, expectations"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 2 — Simple Problem Solving in Probability Theory](https://www.youtube.com/watch?v=nGwjqvLHguA)
+
+### Learning goals
+- Practice event reasoning (sometimes probability is **zero** by logic)
+- Apply Bayes’ rule on a two-coin bag
+- Normalize a density; respect $<$ vs $\le$ for continuous RVs
+- Use linearity, LOTUS, standardization, IID products, covariance tricks
+
+### Before this clicks
+PMF vs PDF (Lecture 9); IID (Lecture 7); conditional probability. Expectation for discrete: $\sum x\,p(x)$; continuous: $\int x\,p(x)\,dx$.
+
+---
+
+## 1. Letters and envelopes — impossible event
+
+Four letters, four envelopes, random permutation. Probability that **exactly three** are in the correct envelope?
+
+**Answer: $0$.** If three are correct, the fourth is forced correct. “Exactly three” cannot occur.
+
+---
+
+## 2. Two coins + Bayes
+
+Bag: fair coin + double-headed coin. Draw a coin at random, toss.
+
+**Prior:** $P(F)=P(B)=1/2$.  
+**Likelihoods:** $P(H\mid F)=1/2$, $P(H\mid B)=1$.
+
+$$
+P(F\mid H)
+=\frac{P(H\mid F)P(F)}{P(H\mid F)P(F)+P(H\mid B)P(B)}
+=\frac{(1/2)(1/2)}{(1/2)(1/2)+(1)(1/2)}
+=\frac{1}{3}.
+$$
+
+If the **same** coin then shows **tails**, it must be fair: $P(F\mid H,T)=1$ (double-headed coin cannot produce $T$).
+
+---
+
+## 3. Find $k$ so a density integrates to 1
+
+Support $[0,1]$, candidate $p(x)=k\,x(1-x)$. Need
+
+$$
+\int_{0}^{1}k\,x(1-x)\,dx=1
+\implies
+k\int_{0}^{1}(x-x^{2})\,dx=k\Bigl(\tfrac12-\tfrac13\Bigr)=\frac{k}{6}=1
+\implies k=6.
+$$
+
+**Takeaway:** densities normalize by **integration over the whole space**, not by forcing $p(x)\le 1$ pointwise.
+
+---
+
+## 4. Uniform on $[-1,2]$ and $|X|$
+
+$X\sim\mathrm{Uniform}[-1,2]$, so $p_X=1/3$ on that interval. Let $Y=|X|$.
+
+- $P(X\le Y)=P(X\le|X|)=1$ (true for every real $x$).
+- $P(X<Y)=P(X<|X|)=P(X<0)=\int_{-1}^{0}(1/3)\,dx=1/3$.
+
+**Takeaway:** $<$ vs $\le$ can matter when you describe events carefully (here the equality case has positive probability on a continuum? actually $P(X=|X|)=P(X\ge 0)=2/3$, so the two probabilities differ).
+
+---
+
+## 5. Discrete expectation
+
+If $X$ uniform on $\{1,\ldots,20\}$,
+
+$$
+\mathbb{E}[X]=\sum_{k=1}^{20}k\cdot\frac{1}{20}=\frac{1}{20}\cdot\frac{20\cdot 21}{2}=\frac{21}{2}.
+$$
+
+---
+
+## 6. LOTUS + linearity
+
+$X\sim\mathrm{Uniform}[0,1]$, $Y=X^{2}+2X+1$.
+
+$$
+\mathbb{E}[Y]=\mathbb{E}[X^{2}]+2\mathbb{E}[X]+1.
+$$
+
+$\mathbb{E}[X]=1/2$, $\mathbb{E}[X^{2}]=\int_0^1 x^{2}\,dx=1/3$, so $\mathbb{E}[Y]=7/3$.
+
+**LOTUS:** $\mathbb{E}[g(X)]=\int g(x)p(x)\,dx$ without finding the law of $g(X)$ first.
+
+---
+
+## 7. Standardization
+
+$Y=(X-\mu)/\sigma$ with $\mu=\mathbb{E}[X]$, $\sigma=\sqrt{\mathrm{Var}(X)}$ gives $\mathbb{E}[Y]=0$, $\mathrm{Var}(Y)=1$ (using linearity and $\mathrm{Var}(aX+b)=a^{2}\mathrm{Var}(X)$).
+
+---
+
+## 8. IID binaries — mass of $Z=X+Y$
+
+$X,Y$ i.i.d. Bernoulli($p$). Then $Z\in\{0,1,2\}$ and
+
+$$
+\begin{aligned}
+P(Z=0)&=(1-p)^{2},\\
+P(Z=1)&=2p(1-p),\\
+P(Z=2)&=p^{2}.
+\end{aligned}
+$$
+
+Independence $\to$ products; identical laws $\to$ same $p$ in each factor. **Watch which property you use at each step.**
+
+---
+
+## 9. Max of 10 Uniform$[0,1]$
+
+$X_1,\ldots,X_{10}$ i.i.d. Uniform$[0,1]$.
+
+$$
+P(\max_i X_i \le 0.8)=P(X_1\le 0.8,\ldots,X_{10}\le 0.8)=(0.8)^{10}.
+$$
+
+---
+
+## 10. Covariance without a full density
+
+$\mathbb{E}[X]=\mathbb{E}[Y]=0$, $\mathrm{Var}(X)=\mathrm{Var}(Y)=1$, $\mathrm{Cov}(X,Y)=\rho$.
+
+$$
+\mathbb{E}[(X+Y)^{2}]=\mathbb{E}[X^{2}]+\mathbb{E}[Y^{2}]+2\mathbb{E}[XY]=1+1+2\rho=2(1+\rho),
+$$
+
+using $\mathbb{E}[X^{2}]=\mathrm{Var}(X)+(\mathbb{E}[X])^{2}$ and $\mathbb{E}[XY]=\rho$ when means are zero.
+
+---
+
+## 11. Conditional expectation under independence
+
+$X\perp Y$, $Z=X+Y$. Then
+
+$$
+\mathbb{E}[Z\mid Y]=\mathbb{E}[X\mid Y]+\mathbb{E}[Y\mid Y]=\mathbb{E}[X]+Y=\mu_1+Y.
+$$
+
+---
+
+## 12. Linear image of joint Gaussians
+
+$X,Y$ i.i.d. $\mathcal{N}(0,1)$, $Z=3X+4Y$. Then $\mathbb{E}[Z]=0$, $\mathrm{Var}(Z)=9+16=25$ (cross term vanishes by independence), so
+
+$$
+p_Z(z)=\frac{1}{5\sqrt{2\pi}}\exp\Bigl(-\frac{z^{2}}{50}\Bigr).
+$$
+
+---
+
+## 13. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| Every verbally plausible event has positive probability | Logic can force probability zero. |
+| Density value must be $\le 1$ | Normalization is an integral constraint. |
+| IID used as a vague synonym for “random” | Factor joints; reuse the same parameters. |
+| Need full density for every expectation | Variance / covariance identities often suffice. |
+
+---
+
+## 14. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Blitzstein & Hwang, *Introduction to Probability* — Bayes, LOTUS, transforms
+- Bertsekas & Tsitsiklis, *Introduction to Probability* — conditioning drills
+
+---
+
+## 15. Self-check
+
+1. Why is $P(\text{exactly 3 fixed points in }S_4)=0$?
+2. Compute $P(F\mid H)$ for the two-coin bag.
+3. For $p(x)=kx(1-x)$ on $[0,1]$, what is $k$?
+4. In the Bernoulli sum, which step uses independence vs identical distribution?
+5. Why is $\mathrm{Var}(3X+4Y)=25$ for i.i.d. standard normals?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*

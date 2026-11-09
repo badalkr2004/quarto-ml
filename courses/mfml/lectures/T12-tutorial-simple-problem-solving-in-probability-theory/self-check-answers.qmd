@@ -1,0 +1,10 @@
+---
+title: "Tutorial 2 — Self-check answers"
+sidebar: mfml
+---
+
+1. If three letters are correct, the fourth is automatically correct — “exactly three” is impossible.
+2. $1/3$ by Bayes with $P(H\mid F)=1/2$, $P(H\mid B)=1$, equal priors.
+3. $k=6$ so that $\int_0^1 p=1$.
+4. Independence: $P(X=0,Y=0)=P(X=0)P(Y=0)$. Identical laws: both factors use the same $1-p$ (or $p$).
+5. Independence kills the covariance term; $\mathrm{Var}(3X)+ \mathrm{Var}(4Y)=9\cdot 1+16\cdot 1=25$.
