@@ -1,6 +1,6 @@
 ---
 title: "Lecture 67 — Variational Autoencoders (VAEs)"
-subtitle: "Encoder $q(z\mid x)$, decoder $p(x\mid z)$, train with the ELBO"
+subtitle: "Encoder q(z|x), decoder p(x|z), train with the ELBO"
 author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
 sidebar: mfml
 toc: true

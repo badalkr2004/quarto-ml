@@ -1,6 +1,6 @@
 ---
 title: "Lecture 22 — Expectation Maximization Algorithm"
-subtitle: "Tight ELBO via $q=P_\theta(z\mid x)$, then alternate E and M steps"
+subtitle: "Tight ELBO via the true posterior for q, then alternate E and M steps"
 author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
 sidebar: mfml
 toc: true

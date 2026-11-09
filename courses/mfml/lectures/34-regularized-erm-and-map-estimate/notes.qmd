@@ -1,6 +1,6 @@
 ---
 title: "Lecture 34 — Regularized ERM and MAP Estimate"
-subtitle: "Weight decay meets Gaussian priors; early stopping as $\ell_2$"
+subtitle: "Weight decay meets Gaussian priors; early stopping as L2"
 author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
 sidebar: mfml
 toc: true

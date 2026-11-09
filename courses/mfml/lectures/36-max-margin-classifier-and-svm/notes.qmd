@@ -1,6 +1,6 @@
 ---
 title: "Lecture 36 — Max-Margin Classifier and SVM"
-subtitle: "Linear separability, margins, and maximizing $2/\|w\|$"
+subtitle: "Linear separability, margins, and maximizing 2 over the weight norm"
 author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
 sidebar: mfml
 toc: true
