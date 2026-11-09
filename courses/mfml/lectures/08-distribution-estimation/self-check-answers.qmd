@@ -1,0 +1,10 @@
+---
+title: "Lecture 8 — Self-check answers"
+sidebar: mfml
+---
+
+1. Given i.i.d. samples $\mathcal{D}$ from unknown $P$, estimate $P$ (or conditionals/marginals/moments) and possibly learn to sample.
+2. The marginal $P_{Y}$ (or $P(Y=1)$ for prevalence).
+3. The conditional $P(Y\mid X)$ evaluated at the new image.
+4. Masked pixels can play the role of $Y$ while visible pixels play $X$ — still estimating a conditional, with “labels” carved from the data.
+5. Estimate expectations / moments of $P$ instead of recovering the entire law.

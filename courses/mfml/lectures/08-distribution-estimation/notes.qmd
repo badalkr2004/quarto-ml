@@ -1,0 +1,148 @@
+---
+title: "Lecture 8 — Distribution Estimation"
+subtitle: "ML as estimating joints, marginals, conditionals (and moments)"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 08 — Distribution Estimation](https://www.youtube.com/watch?v=aYb8KG9JYsg)
+
+### Learning goals
+- Restate the raw material of ML: an i.i.d. dataset from unknown $P_{X,Y}$
+- List what we might estimate: joints, marginals, conditionals, or moments
+- Map real questions (disease rate, diagnose image, …) to the right $P$
+- Understand supervised / unsupervised as naming conventions, not different physics
+
+### Before this clicks
+Lectures 6–7: data points live in ranges of RVs; $\mathcal{D}$ is modeled as i.i.d. samples from an unknown law. Independence = product of joints; identical = same law for each sample.
+
+---
+
+## 1. Starting point
+
+$$
+\mathcal{D}=\bigl\{(x_i,y_i)\bigr\}_{i=1}^{n}
+\sim_{\text{i.i.d.}} P_{X,Y}\ \text{(unknown)}.
+$$
+
+- $x_i\in\mathbb{R}^{D}$ — features / inputs / “data”
+- $y_i\in\mathbb{R}^{K}$ or discrete categories — outputs / “labels” (optional)
+
+Both $X$ and $Y$ are RVs on one $\Omega$. Labels may be absent; then we only have $\{x_i\}$.
+
+**Data is the raw material** — algorithms are only as good as the samples they see.
+
+---
+
+## 2. Foundational problem
+
+$$
+\text{Given }\mathcal{D}\text{ from unknown }P,\quad
+\text{estimate }P,\quad\text{and/or learn to sample from }P.
+$$
+
+| Focus | Common name |
+|-------|-------------|
+| Estimate useful laws / conditionals; sampling secondary | Discriminative methods |
+| Emphasize generating new samples | Generative methods |
+
+This course leans on **estimation**; a later course goes deep on generative sampling.
+
+Sometimes we do not need the full law — only a **moment** (expectation, second moment, …). That is still “learning about $P$.”
+
+---
+
+## 3. Which distribution? Depends on the question
+
+Fix a dataset of images with disease labels. Different questions pick different targets:
+
+| Real question | Target |
+|---------------|--------|
+| Given this image, how likely is disease? | $P(Y\mid X)$ |
+| How common is disease in the population (ignore pixels)? | $P_{Y}$ |
+| How do pixels look in general (ignore labels)? | $P_{X}$ |
+| How do pixels look **among diseased cases**? | $P(X\mid Y=y)$ |
+| Full coupled story of image and label | $P_{X,Y}$ |
+
+**Classification / regression** (conventional names): estimate $P(Y\mid X)$.
+
+- discrete $Y$ $\to$ classification  
+- continuous $Y\in\mathbb{R}^{K}$ $\to$ regression  
+
+Boundaries are thin; inpainting can be “$P(Y\mid X)$” where $Y$ is just masked pixels of $X$.
+
+---
+
+## 4. Conditioning reminder
+
+When we write $P(X\mid Y)$ or $p(x\mid y)$:
+
+- the **conditioned** variable is fixed to a value,
+- the object is a distribution **over the other** variable,
+- changing the fixed value changes the conditional law.
+
+So conditionals are functions of the conditioning value.
+
+---
+
+## 5. Supervised vs unsupervised (know the words)
+
+| Conventional phrase | Meaning in industry talk |
+|---------------------|---------------------------|
+| Supervised | Labels present; used in the algorithm |
+| Unsupervised | No labels |
+
+Mathematically in this course: labels are just another RV / dimensions. Human labeling is costly — that is why “supervised” feels expensive — but the abstract problem is still distribution estimation.
+
+Self-supervised learning: carve fake labels out of $X$ itself.
+
+---
+
+## 6. Preview: densities next
+
+Class mostly writes **density** functions (for continuous RVs) for algorithmic convenience, while conceptually we still mean the underlying **distribution / measure**. Lecture 9 makes that precise.
+
+---
+
+## 7. Tiny concrete example
+
+$n=10{,}000$ chest X-rays, $y_i\in\{0,1\}$.
+
+1. Screen a new scan $\to$ need $\widehat{P}(Y\mid X=x_{\text{new}})$.  
+2. Report prevalence $\to$ need $\widehat{P}(Y=1)$ (can ignore images).  
+3. Build a “disease look” synthesizer $\to$ need something like $\widehat{P}(X\mid Y=1)$ plus a sampler.
+
+Same $\mathcal{D}$; three different estimation targets.
+
+---
+
+## 8. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| $P_Y$ vs $P(X\mid Y)$ | $P_Y$ never looks at pixels; $P(X\mid Y)$ is the law of images for a fixed label. |
+| Estimating $P_{X,Y}$ always means generative sampling | You can estimate a joint without shipping a sampler. |
+| One true supervised/unsupervised split in math | Naming; both are distribution estimation. |
+| IID is an English vibe | It is a precise product / same-law assumption used by algorithms. |
+
+---
+
+## 9. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Bishop, *PRML*, Ch. 1 — density estimation framing of ML
+- Murphy, *Probabilistic Machine Learning* — discriminative vs generative
+- Hastie, Tibshirani, Friedman, *ESL* — classification vs regression overview
+
+---
+
+## 10. Self-check
+
+1. Write the foundational ML problem in one line.
+2. Which law answers “how common is disease, ignoring images?”
+3. Which law answers “label this new image?”
+4. Why might inpainting still look like supervised learning?
+5. What is a moment-based alternative to estimating the full distribution?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
