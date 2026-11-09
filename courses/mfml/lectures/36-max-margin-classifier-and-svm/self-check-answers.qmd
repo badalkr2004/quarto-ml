@@ -1,0 +1,10 @@
+---
+title: "Lecture 36 — Self-check answers"
+sidebar: mfml
+---
+
+1. Exists $(w,b)$ with $y_i(w^\top x_i+b)>0$ for all training $i$.
+2. $w^\top x+b=+1$ and $w^\top x+b=-1$, parallel to the decision boundary.
+3. $2/\|w\|$.
+4. A wider empty slab is more robust to small perturbations of $x$.
+5. Elegant loss+regularizer design and generalization analysis; philosophy transfers even when nets win empirically.

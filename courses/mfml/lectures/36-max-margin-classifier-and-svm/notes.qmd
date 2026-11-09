@@ -1,0 +1,114 @@
+---
+title: "Lecture 36 — Max-Margin Classifier and SVM"
+subtitle: "Linear separability, margins, and maximizing $2/\|w\|$"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 36 — Max-Margin Classifier and SVM](https://www.youtube.com/watch?v=joL7g6DSxPU)
+
+## Learning goals
+
+- Place SVMs in the ERM + regularizer design philosophy.
+- Define **linear separability** and the **margin** geometry.
+- State the max-margin criterion: maximize $2/\|w\|$ (equivalently minimize $\|w\|$).
+
+## Before this clicks
+
+A linear discriminant in $\mathbb{R}^{d}$ is $f(x)=w^\top x+b$. Sign of $f(x)$ predicts the label. For labels $y_i\in\{-1,+1\}$, correct classification means $y_i(w^\top x_i+b)>0$. Many separators may exist; SVM picks a special one.
+
+---
+
+## Main ideas
+
+### 1. Why study SVMs still?
+
+Modern practice favors neural nets, but SVMs:
+
+- show how a **loss + regularizer** encode a crisp geometric bias (large margin);
+- admit **sample-complexity** style bounds linking true risk, empirical risk, and margin (harder for deep nets).
+
+Take-home: elegant formulation teaches design principles even when nets win empirically.
+
+### 2. Linear separability
+
+$\mathcal{D}$ is **linearly separable** if some $(w,b)$ satisfies
+
+$$
+y_i(w^\top x_i+b)>0\quad\text{for all }i
+$$
+
+(100% linear training accuracy).
+
+### 3. Canonical margins
+
+If separable, scale $(w,b)$ so that the closest points obey
+
+$$
+w^\top x+b=\pm 1
+$$
+
+on the two supporting hyperplanes (parallel to the decision boundary $w^\top x+b=0$), with **no training points strictly between them**.
+
+Perpendicular distance between those planes:
+
+$$
+\frac{2}{\|w\|}.
+$$
+
+That distance is the **margin**.
+
+### 4. Max-margin criterion
+
+Among separators, choose the one with **largest margin**:
+
+$$
+\max_{w,b}\;\frac{2}{\|w\|}
+\quad\Longleftrightarrow\quad
+\min_{w,b}\;\frac12\|w\|_2^{2}
+$$
+
+subject to correct classification with the $\pm 1$ scaling (formal constraints next lecture).
+
+Intuition: a fat empty slab between classes is stabler under small input perturbations than a knife-edge boundary hugging the points — a geometric regularizer.
+
+### 5. Open question flagged in class
+
+Does maximizing margin always coincide with the Bayes-optimal linear rule under Gaussian class-conditionals? Not automatic — optimality notions differ (margin vs true risk). Treat max-margin as **one** design criterion.
+
+---
+
+## Worked mini-example
+
+Two points in $\mathbb{R}$: class $+1$ at $x=2$, class $-1$ at $x=-2$. The boundary $x=0$ (i.e. $w=1,b=0$ after scaling so $wx=\pm 1$ at the points) has margin $2/|w|=2$. Shifting the boundary toward either point shrinks the margin.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Any separating line is an SVM | SVM is the **maximum-margin** separator (hard-margin case). |
+| Margin is horizontal gap in a plot | It is **perpendicular** distance between supporting hyperplanes. |
+| Labels must be $\{0,1\}$ | Softmax lectures used $\{0,1\}$; classic SVM uses $\pm 1$. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Cortes & Vapnik — Support-Vector Networks
+- Bishop *PRML* — SVM chapter
+- ESL — large-margin classifiers
+
+## Self-check questions
+
+1. Define linear separability with $y_i\in\{-1,+1\}$.
+2. What are the supporting hyperplanes in the canonical scaling?
+3. Express the margin width in terms of $\|w\|$.
+4. Why maximize margin? (one geometric sentence)
+5. Why does the course still teach SVMs if nets dominate practice?
+
+*(Short answers are in `self-check-answers.qmd`.)*
