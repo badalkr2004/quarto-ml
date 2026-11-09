@@ -1,0 +1,91 @@
+---
+title: "Lecture 66 — GAN (Generative Adversarial Networks)"
+subtitle: "Generator vs discriminator in a min-max game"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 66 — GAN - Generative Adversarial Networks](https://www.youtube.com/watch?v=nd3laZj5Cdg)
+
+## Learning goals
+
+- Define the **generator** $G(z)$ and **discriminator** $D(x)$.
+- Write the classic **min-max** GAN objective.
+- Note training instability and **mode collapse** at an intuitive level.
+
+## Before this clicks
+
+A GAN does not write down $p_\theta(x)$ explicitly. Instead the generator turns noise $z\sim p(z)$ into a fake sample $G(z)$. A discriminator tries to tell real $x\sim p_{\mathrm{data}}$ from fake $G(z)$. Training is adversarial: $G$ learns to fool $D$; $D$ learns to catch $G$.
+
+---
+
+## Main ideas
+
+### 1. Two players
+
+- **Generator** $G_\theta$: $\mathbb{R}^{k}\to\mathbb{R}^{d}$, map latent noise to data space.
+- **Discriminator** $D_\phi$: $\mathbb{R}^{d}\to(0,1)$, probability that input is real.
+
+### 2. Value function (Goodfellow et al.)
+
+$$
+\min_G\max_D\;
+V(D,G)=
+\mathbb{E}_{x\sim p_{\mathrm{data}}}[\log D(x)]
++\mathbb{E}_{z\sim p(z)}[\log(1-D(G(z)))].
+$$
+
+- Inner $\max_D$: better real-vs-fake classification.
+- Outer $\min_G$: make $D(G(z))$ large (fakes look real). In practice one often maximizes $\log D(G(z))$ for stronger gradients early on.
+
+### 3. Equilibrium intuition
+
+If $G$ perfectly matches $p_{\mathrm{data}}$, the optimal $D$ is $1/2$ everywhere and $G$ is indistinguishable from real data. Training rarely sits at a clean Nash equilibrium in deep nets — hence heuristics (architectures, losses, regularization).
+
+### 4. Mode collapse
+
+$G$ may cover only a **few modes** of $p_{\mathrm{data}}$ (same face pose, same digit style) that reliably fool $D$. Samples look sharp but lack diversity. Mitigations are an active research area (alternative divergences, minibatch features, larger/better $D$, etc.) — remember the failure mode even if details vary.
+
+### 5. Pros / cons (beginner)
+
+| Pros | Cons |
+|------|------|
+| Often sharp samples | Unstable training |
+| No explicit $Z(\theta)$ | No easy likelihood |
+| Flexible $G$ | Mode collapse / evaluation hard |
+
+---
+
+## Worked mini-example
+
+$z\sim\mathcal{N}(0,I)$, $G$ a small MLP outputting 2D points, data = two Gaussian blobs. A healthy GAN spreads fakes across both blobs. Mode collapse: all $G(z)$ pile on **one** blob that $D$ currently struggles with — low $V$ for $G$ locally, but the other mode is missing.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Discriminator is the generator | $D$ only judges; $G$ creates. |
+| GAN maximizes likelihood | Classic GANs optimize an adversarial game, not $\log p(x)$. |
+| Collapse = training NaNs only | Collapse can yield finite loss with **low diversity**. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — Generative Adversarial Nets; *Deep Learning* book
+- Murphy — modern generative survey chapters
+
+## Self-check questions
+
+1. What does $G(z)$ take as input and produce?
+2. Write the two expectations in $V(D,G)$.
+3. What is $D$ trained to do?
+4. What is mode collapse?
+5. Do classic GANs provide $\log p_\theta(x)$ easily?
+
+*(Short answers are in `self-check-answers.qmd`.)*
