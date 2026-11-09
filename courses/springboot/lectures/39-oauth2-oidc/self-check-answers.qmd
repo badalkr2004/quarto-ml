@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Delegated login.\n2. Redirect + code/token.\n3. Still authorize local APIs.
+## Exercises (sample)
+
+1. That would give your app full account power; OAuth lets Google authenticate and grant limited scoped access instead.
+2. Scope = what access you request; consent = user approving that request.
+3. The **ID token** (OIDC).
+4. Stolen authorization codes are harder to redeem without the `code_verifier`.
+5. Google only redirects to pre-registered URIs; a mismatch blocks the flow (and prevents open redirects).
+
+## Self-check
+
+1. **False.** OAuth 2.0 is primarily authorization; OIDC adds authentication on top.
+2. The **consent** screen.
+3. `openid` (often with `profile` / `email`).
+4. **No.** Public clients cannot keep secrets; use PKCE and avoid embedding secrets in the browser.
