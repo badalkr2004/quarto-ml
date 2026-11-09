@@ -1,0 +1,379 @@
+---
+title: "Lecture 10 — Application properties, @Value & runners"
+subtitle: "External config, property injection, and startup runners (in plain words)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Boot application properties, @Value & Runner Interface \| Full Course #10](https://www.youtube.com/watch?v=4naCY3vCSfk&list=PLEYgx5hMdopw&index=10)  
+**Playlist index:** 10  
+**Builds on:** [Lecture 9](../09-spring-boot-core/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**Do not hardcode changeable values in Java.**  
+Put them in config. Inject them into beans. Run startup code with a runner — not by hand from `main`.
+
+```text
+Hardcoded Java values          Externalized config
+─────────────────────          ───────────────────
+provider = "Razorpay"   →      payment.provider=Razorpay
+retry = 3               →      payment.retry-count=3
+
+Change value? edit Java,       Change value? edit config
+recompile, rebuild             (same code can stay)
+```
+
+---
+
+## Why configuration files?
+
+Tomorrow you may switch Razorpay → Stripe, or change retry count per environment.
+
+If those values live inside a class:
+
+1. Edit Java  
+2. Recompile  
+3. Rebuild  
+4. Redeploy  
+
+Painful for settings that change often.
+
+Better place for them:
+
+- payment provider name  
+- retry / timeout  
+- feature flags  
+- database URL / username  
+- server port  
+
+Keep **business logic** in Java. Keep **settings** outside.
+
+---
+
+## Topic 1 — `application.properties`
+
+Spring Boot loads this file by convention from:
+
+```text
+src/main/resources/application.properties
+```
+
+Example:
+
+```properties
+payment.provider=Razorpay
+payment.retry-count=3
+payment.enabled=true
+payment.timeout=5000
+```
+
+YAML works too (`application.yml`). Same idea, different writing style:
+
+```yaml
+payment:
+  provider: Razorpay
+  retry-count: 3
+  enabled: true
+  timeout: 5000
+```
+
+### Is this “external”?
+
+The file inside `src/main/resources` is packaged into the JAR. Changing *only* that source file still needs a rebuild.
+
+But Boot also reads overrides from outside the JAR:
+
+- environment variables  
+- command-line args  
+- system properties  
+- external config files  
+
+**Plain words:** keep settings out of business methods so environments can differ without rewriting logic.
+
+```text
+Dev:  payment.provider=TestProvider
+Prod: payment.provider=Razorpay
+Same PaymentService code in both places.
+```
+
+---
+
+## Topic 2 — Inject one value with `@Value`
+
+```java
+@Component
+public class PaymentService {
+    private final String providerName;
+    private final int retryCount;
+
+    public PaymentService(
+            @Value("${payment.provider}") String providerName,
+            @Value("${payment.retry-count}") int retryCount) {
+        this.providerName = providerName;
+        this.retryCount = retryCount;
+    }
+
+    public void pay() {
+        System.out.println("Payment done using " + providerName);
+        System.out.println("Retry count: " + retryCount);
+    }
+}
+```
+
+`@Value("${payment.provider}")` means:  
+look up `payment.provider` in Spring’s Environment and inject it.
+
+### Default when property is missing
+
+```java
+@Value("${payment.provider:DefaultProvider}")
+private String providerName;
+```
+
+Syntax: `${key:default}`.  
+If key is missing → use the default. If key is missing *and* no default → startup can fail.
+
+### When `@Value` gets messy
+
+Four related payment settings → four `@Value` lines. Fine for demos. Ugly for groups of settings.
+
+---
+
+## Topic 3 — Bind a group with `@ConfigurationProperties`
+
+```java
+@Component
+@ConfigurationProperties(prefix = "payment")
+public class PaymentProperties {
+    private String provider;
+    private int retryCount;
+    private boolean enabled;
+    private int timeout;
+
+    // getters + setters (needed for binding)
+}
+```
+
+Prefix `payment` maps:
+
+| Property | Field |
+|----------|-------|
+| `payment.provider` | `provider` |
+| `payment.retry-count` | `retryCount` |
+| `payment.enabled` | `enabled` |
+| `payment.timeout` | `timeout` |
+
+Inject the whole object:
+
+```java
+@Component
+public class PaymentService {
+    private final PaymentProperties props;
+
+    public PaymentService(PaymentProperties props) {
+        this.props = props;
+    }
+
+    public void pay() {
+        System.out.println(props.getProvider());
+        System.out.println(props.getRetryCount());
+    }
+}
+```
+
+### Relaxed binding (why `retry-count` → `retryCount`)
+
+Boot accepts several naming styles for the same idea:
+
+```text
+retry-count   (kebab in properties)
+retryCount    (camel in Java)
+retry_count
+RETRY_COUNT
+```
+
+**Rule of thumb:** properties in kebab-case; Java fields in camelCase. Boot connects them.
+
+### `@Value` vs `@ConfigurationProperties`
+
+| Need | Prefer |
+|------|--------|
+| One or two values | `@Value` |
+| A related group | `@ConfigurationProperties` |
+
+---
+
+## Topic 4 — Why runner interfaces?
+
+This lecture often uses Boot **without** Web. There is no controller endpoint to hit.
+
+You still need code to run **after** the container is ready.
+
+Options:
+
+1. Manually call `getBean` from `main` (works, but feels like Core homework)  
+2. Let Boot call a **runner** bean automatically  
+
+```text
+Web style:     request → controller → service
+No-web style:  startup → CommandLineRunner / ApplicationRunner → service
+```
+
+### Why not call beans from `main`?
+
+```java
+var context = SpringApplication.run(App.class, args);
+PaymentService pay = context.getBean(PaymentService.class);
+pay.pay();
+```
+
+Works. But you are back to manual “fetch bean, call method.”  
+Prefer: Spring creates a runner bean; Boot invokes it after startup.
+
+---
+
+## Topic 5 — `CommandLineRunner`
+
+```java
+@Component
+public class AppRunner implements CommandLineRunner {
+    private final PaymentService paymentService;
+
+    public AppRunner(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @Override
+    public void run(String... args) {
+        paymentService.pay();
+    }
+}
+```
+
+What happens:
+
+1. Spring creates `AppRunner`  
+2. Injects `PaymentService`  
+3. Boot sees `CommandLineRunner`  
+4. After context is ready → calls `run(...)`  
+
+Args are raw strings (`String... args`).  
+`java -jar app.jar hello world` → print each arg.
+
+---
+
+## Topic 6 — `ApplicationRunner`
+
+Same job. Arguments arrive as `ApplicationArguments` (structured).
+
+```java
+@Component
+public class AppStartupRunner implements ApplicationRunner {
+    private final PaymentService paymentService;
+
+    public AppStartupRunner(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+        paymentService.pay();
+        System.out.println(args.getOptionValues("provider"));
+    }
+}
+```
+
+Example: `java -jar app.jar --provider=Razorpay --retry=3`  
+`getOptionValues("provider")` reads the option cleanly.
+
+| | `CommandLineRunner` | `ApplicationRunner` |
+|--|---------------------|---------------------|
+| Args | raw `String...` | `ApplicationArguments` |
+| Best for | simple args | named options |
+
+Either is fine for “run this after startup.”
+
+---
+
+## Startup flow (short map)
+
+```text
+main()
+  → SpringApplication.run
+  → Environment prepared (properties / env / args)
+  → ApplicationContext created
+  → @SpringBootApplication (scan + auto-config)
+  → beans created + injected
+  → context ready
+  → CommandLineRunner / ApplicationRunner.run(...)
+  → app ready
+```
+
+Configuration is loaded **before** your beans need those values.
+
+---
+
+## Practice lab (type this)
+
+Use a Boot project **without** Web starter (like lecture 9).
+
+### Step 1 — `application.properties`
+
+```properties
+payment.provider=Razorpay
+payment.retry-count=3
+payment.enabled=true
+payment.timeout=5000
+```
+
+### Step 2 — properties class + service
+
+Create `PaymentProperties` with `@ConfigurationProperties(prefix = "payment")`.  
+Create `PaymentService` that prints the four values.
+
+### Step 3 — runner
+
+Implement `CommandLineRunner` (or `ApplicationRunner`) that calls `paymentService.pay()`.
+
+### Step 4 — run
+
+Run the main class. You should see payment lines **without** calling `getBean` from `main`.
+
+### Step 5 — optional `@Value` drill
+
+Temporarily inject one field with `@Value("${payment.provider:DefaultProvider}")`.  
+Delete the property → confirm the default appears.
+
+---
+
+## How to reason when something fails
+
+1. **Property not found?** Check spelling and `src/main/resources` location.  
+2. **Binding failed?** Need getters/setters (or a record / constructor binding setup).  
+3. **Runner never runs?** Is the class a Spring bean (`@Component`)? Under the main package?  
+4. **Still calling from `main`?** Fine for debugging; prefer runners as the habit.
+
+---
+
+## Exercises
+
+1. Why is hardcoding a payment provider a bad long-term habit?  
+2. What does `${payment.provider:DefaultProvider}` mean?  
+3. When would you pick `@ConfigurationProperties` over `@Value`?  
+4. Name one difference between `CommandLineRunner` and `ApplicationRunner`.  
+5. In the startup map, when do runners execute — before or after beans are ready?
+
+---
+
+## Self-check
+
+1. Where does Boot look for `application.properties` by default?  
+2. True/False: `@Value` is best for large groups of related settings.  
+3. What interface method does Boot call after the context is ready for a `CommandLineRunner` bean?  
+4. Why is calling `getBean` from `main` not the preferred Boot style?
+
+Answers: [self-check-answers](self-check-answers.qmd)

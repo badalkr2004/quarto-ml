@@ -1,0 +1,20 @@
+---
+title: "Lecture 10 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Changing the value means editing Java, recompiling, rebuilding, and redeploying — settings should live outside business logic.
+2. Use `payment.provider` if present; otherwise inject `DefaultProvider`.
+3. When many related keys share a prefix (group them into one object).
+4. `CommandLineRunner` gets raw `String...` args; `ApplicationRunner` gets structured `ApplicationArguments` (options, etc.).
+5. **After** beans are created and the context is ready.
+
+## Self-check
+
+1. `src/main/resources/` (file name `application.properties` or `application.yml`).
+2. **False.** Prefer `@ConfigurationProperties` for groups; `@Value` for one or two values.
+3. `run(String... args)`.
+4. It is a manual Core-style fetch/call; runners let Boot invoke startup logic automatically after the container is ready.
