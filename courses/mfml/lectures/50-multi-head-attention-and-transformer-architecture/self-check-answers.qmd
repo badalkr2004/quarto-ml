@@ -1,0 +1,10 @@
+---
+title: "Lecture 50 — Self-check answers"
+sidebar: mfml
+---
+
+1. Different heads can specialize in different relation patterns in parallel.
+2. Concatenate head outputs, then multiply by $W_O$.
+3. Multi-head self-attention and a position-wise feed-forward network.
+4. Cross-attention over encoder memory ($Q$ from decoder, $K,V$ from encoder).
+5. $d_k=512/8=64$.

@@ -1,0 +1,112 @@
+---
+title: "Lecture 50 — Multi-Head Attention and Transformer Architecture"
+subtitle: "Several attention views in parallel, then encoder–decoder stacks"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 50 — Multi-Head Attention and Transformer Architecture](https://www.youtube.com/watch?v=NQyNZ6Plxzs)
+
+## Learning goals
+
+- Explain **multi-head** attention as parallel QKV projections concatenated.
+- Sketch one **Transformer block**: attention + feed-forward + residuals/norms.
+- Outline the **encoder–decoder** layout from *Attention Is All You Need*.
+
+## Before this clicks
+
+One attention head learns one pattern of “who looks at whom.” Language needs several patterns at once (syntax, coreference, …). **Multi-head attention** runs $h$ heads in parallel with different projections, then merges them. Stack those blocks and you get a Transformer — no recurrence required.
+
+---
+
+## Main ideas
+
+### 1. One head (reminder)
+
+$$
+\mathrm{head}=\mathrm{Attention}(QW_Q,KW_K,VW_V).
+$$
+
+### 2. Multi-head attention (MHA)
+
+For heads $r=1,\ldots,h$:
+
+$$
+\mathrm{head}_r=\mathrm{Attention}\big(QW_Q^{(r)},KW_K^{(r)},VW_V^{(r)}\big).
+$$
+
+Concatenate and project:
+
+$$
+\mathrm{MHA}(Q,K,V)=\mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_h)\,W_O.
+$$
+
+Often $d_k=d_v=d_{\mathrm{model}}/h$ so total width matches $d_{\mathrm{model}}$.
+
+### 3. Position-wise feed-forward
+
+After attention, each position independently goes through a small MLP:
+
+$$
+\mathrm{FFN}(x)=W_2\,\sigma(W_1 x+b_1)+b_2
+$$
+
+(same weights for every position; ReLU or GELU for $\sigma$).
+
+### 4. Residual + layer norm (block sketch)
+
+A typical encoder layer:
+
+$$
+\begin{aligned}
+z &= \mathrm{LayerNorm}\big(x+\mathrm{MHA}(x,x,x)\big),\\
+y &= \mathrm{LayerNorm}\big(z+\mathrm{FFN}(z)\big).
+\end{aligned}
+$$
+
+(Pre-norm variants swap the order; idea is the same: skip connections stabilize deep stacks.)
+
+### 5. Encoder–decoder Transformer
+
+- **Encoder stack:** self-attention + FFN (bidirectional context over the source).
+- **Decoder stack:** masked self-attention (causal) $\to$ **cross-attention** to encoder outputs $\to$ FFN.
+- Final linear + softmax maps decoder states to next-token probabilities (for generation).
+
+Encoder-only (BERT-style) and decoder-only (GPT-style) are popular special cases of this recipe.
+
+---
+
+## Worked mini-example
+
+$d_{\mathrm{model}}=8$, $h=2$ $\Rightarrow$ each head uses $d_k=4$. Head 1 might put mass on adjacent tokens; head 2 on a distant subject noun. Concatenate two length-$4$ vectors $\to$ length $8$, then $W_O$ mixes the two “views” into the residual stream.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Heads share one $W_Q$ | Each head has its **own** $W_Q^{(r)},W_K^{(r)},W_V^{(r)}$. |
+| FFN mixes positions | FFN is position-wise; **mixing across time** is the attention’s job. |
+| Transformer needs an RNN | Original model replaces recurrence with attention + positions. |
+| Decoder always uses cross-attention | Decoder-only LMs skip encoder cross-attn; encoder–decoder MT uses it. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Vaswani et al. (2017) — *Attention Is All You Need*
+- Goodfellow et al. — *Deep Learning*
+
+## Self-check questions
+
+1. Why use multiple heads instead of one?
+2. Write how MHA combines heads.
+3. What two sublayers sit inside a standard encoder block (plus residuals/norms)?
+4. What extra attention type does the decoder use in encoder–decoder MT?
+5. If $d_{\mathrm{model}}=512$ and $h=8$, what is a common $d_k$?
+
+*(Short answers are in `self-check-answers.qmd`.)*
