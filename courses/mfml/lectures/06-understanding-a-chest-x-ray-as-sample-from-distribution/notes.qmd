@@ -1,0 +1,160 @@
+---
+title: "Lecture 6 — Understanding a Chest X-Ray as Sample from Distribution"
+subtitle: "Every data point lives in the range of a random variable"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 06 — Understanding a Chest X-Ray as Sample from Distribution](https://www.youtube.com/watch?v=bdcvsSNAHIk)
+
+### Learning goals
+- See an image (or any data point) as a vector in the **range** of a random variable
+- Separate **pixel values** from **probabilities**
+- Model image + label as two RVs on one $\Omega$, with a joint $P_{X,Y}$
+- State the course slogan: knowing the distribution means knowing the experiment
+
+### Before this clicks
+From Lectures 2–5: random variable $X:\Omega\to\mathbb{R}^{d}$, pushforward / distribution $P_{X}$, joints and conditionals. An $d$-dimensional RV is the same idea as $d$ scalar RVs on the same $\Omega$.
+
+---
+
+## 1. An image is a $D$-dimensional vector
+
+Take an image of size $P\times Q$ pixels. In software it is a $P\times Q$ grid of numbers. Stack the rows into one long list and you get a vector in $\mathbb{R}^{PQ}$. Write
+
+$$
+D = PQ.
+$$
+
+So every image is a point in $\mathbb{R}^{D}$. The same story holds for any tabular feature vector: **a data point is a $D$-dimensional vector**.
+
+---
+
+## 2. That vector sits in the *range* of a random variable
+
+In the probabilistic view:
+
+$$
+X:\Omega\to\mathbb{R}^{D},
+$$
+
+and the image you store on disk is one value $x$ in the **range** of $X$ (one realization / observation).
+
+Behind $X$ sit:
+
+- an underlying random experiment with sample space $\Omega$,
+- a probability measure $P$ on events,
+- a pushforward distribution $P_{X}$ on (Borel) sets in $\mathbb{R}^{D}$.
+
+> **Take-home line from class:** every data point is an element of the range space of a random variable.
+
+What is $\Omega$ for “patients get X-rayed”? That is a **modeling choice** — you invent a coherent story for the experiment that produces the images (and later the labels).
+
+---
+
+## 3. Pixel values are *not* probabilities
+
+A common confusion (asked in class): pixel intensities lie in $\{0,\ldots,255\}$ or $[0,1]$ after normalization — so are they probabilities?
+
+**No.**
+
+- A data point $x\in\mathbb{R}^{D}$ is just a **real vector** (an outcome in the range).
+- Probability lives on **events** (sets), via $P$ or the pushforward $P_{X}$.
+- The distribution tells you the **likelihood of observing** (sets of) such vectors under the experiment — not that the vector entries themselves are probabilities.
+
+Uniform-on-$[0,1/2]$ density equals $2$ everywhere on its support: that number is clearly **not** a probability (Lecture 9 will hammer this again for densities).
+
+---
+
+## 4. What the distribution is telling you
+
+For continuous models you talk about subsets of the range, not single points. Roughly:
+
+- subsets of images $\leftrightarrow$ inverse-image events in $\Omega$ $\leftrightarrow$ values of $P_{X}$.
+
+Intuition used in class: $P_{X}$ quantifies how likely it is to **obtain that kind of image** under the experiment.
+
+**Key slogan:**
+
+> The distribution function completely specifies what we need to know about the underlying experiment (for the purposes of this course).
+
+That is why the whole course is about **estimating distributions from samples**.
+
+---
+
+## 5. Labels = another random variable on the same $\Omega$
+
+The X-ray story is not only “get an image”; a clinician also assigns a label (disease / no disease, or a bounding box, …).
+
+Model:
+
+$$
+X:\Omega\to\mathbb{R}^{D},\qquad Y:\Omega\to\mathbb{R}^{K}
+$$
+
+(or $Y$ discrete with a finite set of categories). Both sit on the **same** sample space. Calling $Y$ a “label” is nomenclature; mathematically it is just another RV.
+
+| Task | Typical $Y$ |
+|------|-------------|
+| Binary disease | $Y\in\{0,1\}$ |
+| Multi-class | $Y\in\{1,\ldots,K\}$ |
+| Tumor box (center, height, width) | $Y\in\mathbb{R}^{3}$ |
+
+Because both exist, there is a **joint** $P_{X,Y}$.
+
+---
+
+## 6. The dataset notation that appears next
+
+A supervised dataset is a set of pairs
+
+$$
+\mathcal{D}=\bigl\{(x_i,y_i)\bigr\}_{i=1}^{n},
+$$
+
+said to be sampled **i.i.d.** from the unknown joint $P_{X,Y}$ (tilde notation $\sim$). What “i.i.d.” means is the next lecture.
+
+---
+
+## 7. Tiny concrete example
+
+Suppose $2\times 2$ grayscale patches, so $D=4$. One observed patch might be
+
+$$
+x = (0.1,\ 0.8,\ 0.2,\ 0.7)\in\mathbb{R}^{4}.
+$$
+
+A binary label $y=1$ (“abnormal”) is **not** a fifth pixel of $x$; it is a value of a second RV $Y$ defined on the same experiment “patient imaged and labeled.” The object we want later is often $P(Y\mid X)$ — likelihood of the label given the image — which needs the joint world of $(X,Y)$.
+
+---
+
+## 8. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| “The image *is* the random variable.” | Loosely said in class; precisely: the image is a **point in the range** of an RV. |
+| Pixel values = probabilities | No — they are coordinates in $\mathbb{R}^{D}$. |
+| Supervised vs unsupervised are totally different math | Both are distribution estimation; “label” is just another coordinate / RV. |
+| Knowing one sample tells you $P_{X}$ | One point is not a distribution; we need many samples + structure (later lectures). |
+
+---
+
+## 9. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Blitzstein & Hwang, *Introduction to Probability* — RVs and joints
+- Bishop, *Pattern Recognition and Machine Learning*, Ch. 1 — data as samples from $p(x)$, $p(x,y)$
+
+---
+
+## 10. Self-check
+
+1. How do you turn a $P\times Q$ image into a vector in $\mathbb{R}^{D}$?
+2. In one sentence: where does a data point live relative to $X$?
+3. Why are pixel intensities not probabilities?
+4. How do we model “image + disease label” with random variables?
+5. What does class mean by “the distribution completely specifies the experiment”?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*

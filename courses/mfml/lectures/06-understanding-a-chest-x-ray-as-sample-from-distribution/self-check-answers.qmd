@@ -1,0 +1,10 @@
+---
+title: "Lecture 6 — Self-check answers"
+sidebar: mfml
+---
+
+1. Stack the $P\times Q$ pixel grid into one long list; then $D=PQ$ and the image is a point in $\mathbb{R}^{D}$.
+2. It is an element of the **range** of the random variable $X:\Omega\to\mathbb{R}^{D}$ (a realization / observation).
+3. They are real numbers (coordinates). Probability is assigned to **events** via $P$ / $P_{X}$, not by treating pixel entries as probabilities.
+4. Two RVs on the same $\Omega$: $X$ for the image, $Y$ for the label; work with the joint $P_{X,Y}$ (and later conditionals).
+5. If you know the law of the observations, you know the likelihoods of the measurable events that matter for that experiment — which is what ML will try to learn from samples.
