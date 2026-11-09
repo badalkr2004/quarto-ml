@@ -1,0 +1,10 @@
+---
+title: "Lecture 59 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\widehat{R}_{\mathrm{CV}}=\frac{1}{k}\sum_{j=1}^{k} L_j$ with $L_j$ the loss on fold $j$ after training on the other folds.
+2. $k=n$ (each fold is a single point).
+3. The full training set (all data except a final held-out test set, if any).
+4. Fitting scaling / PCA / feature selection on all data before splitting folds.
+5. Random folds can train on the future and validate on the past; use rolling / forward splits.

@@ -1,0 +1,112 @@
+---
+title: "Lecture 59 — Cross Validation"
+subtitle: "Estimate test error without burning the holdout; k-fold and friends"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 59 — Cross Validation](https://www.youtube.com/watch?v=R36BJ52Lr1A)
+
+## Learning goals
+
+- Separate **train**, **validation**, and **test** roles.
+- Define $k$-fold CV and the CV estimate of risk.
+- Use CV to choose hyperparameters; keep a final untouched test set when possible.
+
+## Before this clicks
+
+Training error is optimistically biased: the model already saw those points. A single holdout validation set is honest but noisy if $n$ is small, and wastes data. **Cross-validation** rotates which slice is held out so every point validates once, then averages the slice errors — a more stable estimate of generalization for model selection.
+
+---
+
+## Main ideas
+
+### 1. Holdout reminder
+
+Split $\mathcal{D}=\mathcal{D}_{\mathrm{train}}\cup\mathcal{D}_{\mathrm{val}}$ (and ideally a final $\mathcal{D}_{\mathrm{test}}$). Fit on train; score on val; report once on test after all choices freeze.
+
+### 2. $k$-fold CV
+
+Partition data into $k$ folds $F_1,\ldots,F_k$ of roughly equal size. For $j=1,\ldots,k$:
+
+- Train on $\mathcal{D}^{(-j)}=\bigcup_{i\neq j}F_i$.
+- Compute loss on $F_j$: $L_j$.
+
+CV estimate:
+
+$$
+\widehat{R}_{\mathrm{CV}}=\frac{1}{k}\sum_{j=1}^{k} L_j
+$$
+
+(or the sample-weighted average if folds differ slightly in size). Common $k=5$ or $10$; $k=n$ is leave-one-out (LOO).
+
+### 3. Choosing hyperparameters
+
+For each candidate $\lambda$ (depth, $\nu$, $C$, …), compute $\widehat{R}_{\mathrm{CV}}(\lambda)$ and pick
+
+$$
+\hat{\lambda}=\arg\min_\lambda \widehat{R}_{\mathrm{CV}}(\lambda).
+$$
+
+Then refit the model with $\hat{\lambda}$ on **all** training data (excluding the final test set).
+
+### 4. Bias–variance of the CV estimate
+
+| Scheme | Bias of error estimate | Cost |
+|--------|------------------------|------|
+| Large holdout | Higher variance of estimate | Cheap |
+| $k=5,10$ | Mild optimistic/pessimistic tradeoffs | $k$ fits |
+| LOO | Nearly unbiased for some losses; high variance / cost | $n$ fits |
+
+Nested CV (outer test folds + inner selection folds) is the careful way when you must estimate the error of the whole selection pipeline.
+
+### 5. Pitfalls
+
+- Leakage: preprocess (scaling, feature select) **inside** each train fold, not on the full set before splitting.
+- Do not tune on the final test fold.
+- Time series: use forward chaining, not random folds that peek at the future.
+
+---
+
+## Worked mini-example
+
+$n=10$ points, $k=5$ $\Rightarrow$ folds of $2$. Hyperparameter: tree depth $d\in\{1,2,3\}$.
+
+For $d=2$, five models each train on $8$ points; validation MSE on the two held-out points might be $(0.4,0.6,0.5,0.3,0.7)$. Then
+
+$$
+\widehat{R}_{\mathrm{CV}}(2)=\frac{0.4+0.6+0.5+0.3+0.7}{5}=0.5.
+$$
+
+If $\widehat{R}_{\mathrm{CV}}(1)=0.7$ and $\widehat{R}_{\mathrm{CV}}(3)=0.55$, pick $d=2$, refit depth-$2$ tree on all $10$ (or on full train if a separate test exists).
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| CV replaces a test set | CV is for **selection/estimation**; keep a true test when you can |
+| Report the best fold’s score | Average (or pool) all folds — do not cherry-pick |
+| Scale features once globally | Fit scalers on train folds only |
+| Higher $k$ always better | Cost $\uparrow$; LOO can be unstable for discontinuous models |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al. — *ESL* (cross-validation, model selection)
+- Bishop *PRML* — assessing performance
+
+## Self-check questions
+
+1. Write the $k$-fold CV average $\widehat{R}_{\mathrm{CV}}$.
+2. What is leave-one-out in terms of $k$?
+3. After picking $\hat{\lambda}$ by CV, what do you refit on?
+4. Name one leakage mistake in CV pipelines.
+5. Why might random $k$-fold be wrong for time series?
+
+*(Short answers are in `self-check-answers.qmd`.)*
