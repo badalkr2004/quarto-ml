@@ -1,0 +1,19 @@
+---
+title: "Lecture 32 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. A runtime proxy with standard CRUD (and paging/sorting) methods already implemented.
+2. `WHERE email = ? AND age = ?`.
+3. On `@Query` update/delete statements that change the database.
+4. **`Page`** typically triggers a count query; **`Slice`** avoids full totals.
+
+## Self-check
+
+1. The **id type** (e.g. `Long`).
+2. **False.** Spring Data builds the implementation.
+3. **Entity / field names** (JPQL), not raw table names.
+4. `PageRequest.of(0, 10, Sort.by("name"))` (asc by default unless you set direction).

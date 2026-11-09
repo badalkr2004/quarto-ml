@@ -1,0 +1,218 @@
+---
+title: "Lecture 32 — Spring Data JPA"
+subtitle: "JpaRepository, derived queries, JPQL, pagination"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Master Spring Data JPA in one video \| JpaRepository, JPQL, Pagination \| Full Course #32](https://www.youtube.com/watch?v=xugZno16FgQ)  
+**Playlist index:** 32  
+**Builds on:** [28](../28-hibernate-fundamentals/notes.qmd)–[31](../31-jpa-cascading-lazy-nplus1/notes.qmd)  
+**Next:** [33 — Spring transactions](../33-spring-transactions/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**You declare a repository interface. Spring builds the implementation.**  
+CRUD + query methods without hand-writing every `EntityManager` call.
+
+```text
+public interface StudentRepository extends JpaRepository<Student, Long> { }
+
+Spring creates a proxy at runtime
+   → save / findById / findAll / delete...
+   → derived methods from method names
+   → @Query JPQL / native when needed
+```
+
+---
+
+## Topic 1 — Where Spring Data sits
+
+```text
+Controller → Service → Spring Data repository interface
+                              │
+                              ▼
+                     EntityManager / Hibernate
+                              │
+                              ▼
+                            JDBC → DB
+```
+
+JPA = mapping + EntityManager API.  
+**Spring Data JPA** = repository abstraction on top.
+
+---
+
+## Topic 2 — Interface hierarchy (simple)
+
+```text
+Repository
+   └── CrudRepository
+          └── ListCrudRepository / PagingAndSortingRepository ...
+                 └── JpaRepository  ← common choice in Boot apps
+```
+
+`JpaRepository<Entity, IdType>` gives:
+
+- `save`, `saveAll`
+- `findById`, `findAll`
+- `deleteById`, `delete`
+- `count`, `existsById`
+- flush / batch helpers
+- paging & sorting overloads
+
+---
+
+## Topic 3 — Declare a repository (IDE)
+
+```java
+public interface StudentRepository extends JpaRepository<Student, Long> {
+}
+```
+
+No `@Repository` required on the interface for scanning in typical Boot apps (still fine if present). Put interface under a scanned package.
+
+Use from a service:
+
+```java
+@Service
+public class StudentService {
+    private final StudentRepository students;
+
+    public StudentService(StudentRepository students) {
+        this.students = students;
+    }
+
+    @Transactional
+    public Student create(String name, String email, Integer age) {
+        return students.save(new Student(name, email, age));
+    }
+}
+```
+
+### `save` vs dirty checking
+
+- **New** entity (no id / unsaved) → insert path  
+- **Managed** entity already loaded in a TX → changing fields is enough; `save` often redundant but common in Spring Data style  
+
+---
+
+## Topic 4 — Derived query methods
+
+Spring parses the method name:
+
+```java
+List<Student> findByEmail(String email);
+List<Student> findByAgeGreaterThan(Integer age);
+List<Student> findByNameContainingIgnoreCase(String part);
+Optional<Student> findByEmailAndAge(String email, Integer age);
+```
+
+```text
+findBy + Email           → WHERE email = ?
+findBy + AgeGreaterThan  → WHERE age > ?
+And / Or / Between / IsNull / OrderBy...
+```
+
+If the name is wrong, startup often fails fast — good.
+
+---
+
+## Topic 5 — JPQL with `@Query`
+
+When names get ugly or logic is complex:
+
+```java
+@Query("select s from Student s where s.age >= :minAge order by s.name")
+List<Student> olderThan(@Param("minAge") Integer minAge);
+```
+
+JPQL uses **entity names / fields**, not table/column names (unless native).
+
+Update/delete queries need `@Modifying` + transaction:
+
+```java
+@Modifying
+@Query("update Student s set s.age = s.age + 1 where s.id = :id")
+int bumpAge(@Param("id") Long id);
+```
+
+### Native SQL
+
+```java
+@Query(value = "select * from students where age > ?1", nativeQuery = true)
+List<Student> nativeOlder(Integer age);
+```
+
+Prefer JPQL when portable mapping matters; native when you need DB-specific SQL.
+
+---
+
+## Topic 6 — Sorting & pagination
+
+```java
+Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
+Page<Student> page = students.findAll(pageable);
+
+page.getContent();      // rows
+page.getTotalElements(); // total count
+page.getTotalPages();
+```
+
+| Type | Meaning |
+|------|---------|
+| `Page<T>` | Content + total count (extra count query) |
+| `Slice<T>` | Content + hasNext (no full count — cheaper for infinite scroll) |
+
+Derived + pageable:
+
+```java
+Page<Student> findByAgeGreaterThan(Integer age, Pageable pageable);
+```
+
+---
+
+## Practice lab
+
+1. `StudentRepository extends JpaRepository<Student, Long>`.  
+2. Save 25 students via runner.  
+3. Add `findByNameContainingIgnoreCase`.  
+4. Add `@Query` JPQL for age filter.  
+5. Call `findAll(PageRequest.of(0, 5, Sort.by("id")))`.  
+6. Compare `Page` vs `Slice` SQL (count query presence).  
+7. Watch `show-sql` for derived method SQL.
+
+---
+
+## Short map to keep
+
+```text
+JpaRepository
+  ├─ built-in CRUD
+  ├─ findBy... derived queries
+  ├─ @Query JPQL / native
+  └─ Pageable / Sort / Page / Slice
+```
+
+---
+
+## Exercises
+
+1. What does Spring Data generate for an empty `JpaRepository`?  
+2. Translate `findByEmailAndAge` to a WHERE idea.  
+3. When do you need `@Modifying`?  
+4. `Page` vs `Slice` — which runs a count query?
+
+---
+
+## Self-check
+
+1. Second generic parameter of `JpaRepository` is?  
+2. True/False: you must write a class implementing every repository method.  
+3. Does JPQL use table names or entity names by default?  
+4. How do you request page 0 size 10 sorted by name?
+
+Answers: [self-check-answers](self-check-answers.qmd)
