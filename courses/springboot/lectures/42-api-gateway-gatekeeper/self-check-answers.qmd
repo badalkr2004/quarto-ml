@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Edge routing/policy.\n2. Single entry.\n3. Cross-cutting at the edge.
+## Exercises (sample)
+
+1. Routes/policies can change without rebuilding gateway code; config becomes data.
+2. Example order: correlation ID → route match → JWT → roles → rate limit → idempotency → transform → proxy → access event → response.
+3. Platform admin manages the platform; tenant admin manages one tenant’s API config—not global platform power.
+4. **API Management Service** (via its APIs), not the Gateway writing MySQL directly.
+5. Keep analytics off the hot path; Kafka decouples forwarding from storage and lets Analytics scale separately.
+
+## Self-check
+
+1. **False.** Demos are thin targets; admin/config lives in Management.
+2. A **Kafka configuration event** (then Gateway fetches latest config from Management).
+3. **`eventId`** (not `correlationId`).
+4. Path rewrite and/or adding/removing headers (e.g. propagate correlation id, strip hop-by-hop headers).

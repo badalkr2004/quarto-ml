@@ -1,39 +1,222 @@
 ---
-title: "Lecture 24 — Pointcuts and proxy types"
-subtitle: "Who gets advice, and JDK vs CGLIB"
+title: "Lecture 24 — Pointcuts & proxy types"
+subtitle: "Target the right methods; JDK vs CGLIB proxies"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Pointcuts and proxy types \| Full Course #24](https://www.youtube.com/watch?v=Kf2V2QYikVY)  
-**Playlist index:** 24
+**Video:** [Spring AOP Pointcuts & Types of Proxies \| Spring Boot Full Course #24](https://www.youtube.com/watch?v=Kf2V2QYikVY)  
+**Playlist index:** 24  
+**Builds on:** [22–23 AOP](../22-aop-basics/notes.qmd)
 
 ---
-## Pointcuts
+
+## Big idea in one line
+
+**Pointcuts** choose *which* methods get advice.  
+**Proxy type** chooses *how* Spring wraps the bean (interface-based JDK proxy vs subclass-based CGLIB) — and that affects what can be intercepted.
+
+```text
+Pointcut expression ──► matching methods
+Spring wraps bean ────► JDK proxy OR CGLIB proxy
+Caller uses proxy ────► advice runs
+```
+
+---
+
+## Topic 1 — `execution` pointcut (most common)
+
+Shape:
+
+```text
+execution( modifiers? return-type declaring-type? method-name(params) throws? )
+```
 
 Examples:
 
-- `execution(* com.example.demo.service.*.*(..))`
-- `@annotation(com.example.demo.Logged)`
+```java
+// any method in a package
+execution(* com.example.demo.service.*.*(..))
 
-Be precise — too wide slows and surprises.
+// any public method named save
+execution(public * save(..))
 
-## Proxy types
+// ProductService only
+execution(* com.example.demo.service.ProductService.*(..))
 
-| Kind | Used when |
-|------|-----------|
-| JDK dynamic proxy | Bean implements interface; proxy implements interface |
-| CGLIB subclass | Concrete class proxy (common with Spring Boot) |
+// one arg
+execution(* com.example.demo.service.*.*(*))
 
-**Self-invocation problem:** `this.method()` inside the same class bypasses the proxy → advice may not run. Call through injected bean instead.
+// starts with get
+execution(* com.example.demo.service.*.get*(..))
+```
 
-## Practice
+| Piece | Meaning |
+|-------|---------|
+| `*` return | any return type |
+| `..` in params | any number of args (including 0) |
+| `*` in params | exactly one arg of any type |
+| `*` in name/package | wildcard segment |
 
-Prove self-invocation skips advice; then fix by moving call to another bean.
+---
+
+## Topic 2 — Other useful pointcut kinds
+
+```java
+// methods annotated with @GetMapping (example)
+@annotation(org.springframework.web.bind.annotation.GetMapping)
+
+// any method in classes annotated @Service
+@within(org.springframework.stereotype.Service)
+
+// bean name patterns (Spring extension)
+bean(*Service)
+```
+
+You can combine with `&&`, `||`, `!`:
+
+```java
+@Around("execution(* com.example.demo.service.*.*(..)) && !execution(* com.example.demo.service.InternalService.*(..))")
+```
+
+---
+
+## Topic 3 — Named pointcuts (cleaner aspects)
+
+```java
+@Aspect
+@Component
+public class TimingAspect {
+
+    @Pointcut("execution(* com.example.demo.service.*.*(..))")
+    public void serviceLayer() {}
+
+    @Around("serviceLayer()")
+    public Object time(ProceedingJoinPoint pjp) throws Throwable {
+        long t = System.currentTimeMillis();
+        try {
+            return pjp.proceed();
+        } finally {
+            System.out.println(pjp.getSignature() + " " + (System.currentTimeMillis() - t) + "ms");
+        }
+    }
+}
+```
+
+One expression, many advice methods can reuse `serviceLayer()`.
+
+---
+
+## Topic 4 — JDK dynamic proxy vs CGLIB
+
+```text
+Bean implements an interface?
+  │
+  ├─ YES (classic Spring default story)
+  │     JDK dynamic proxy
+  │     - implements the same interface(s)
+  │     - cast to interface type works
+  │     - cast to concrete class may fail
+  │
+  └─ NO  (class only)  OR Boot often prefers CGLIB anyway
+        CGLIB proxy
+        - subclass of the concrete class
+        - works without an interface
+```
+
+### Practical rules
+
+1. Prefer injecting the **interface** type (`OrderService`) not the impl class when you have one.  
+2. **Final** classes / methods are hard or impossible for CGLIB to override — advice may not apply.  
+3. Private methods are not advised by Spring AOP (only public calls through the proxy on Spring beans).  
+4. **Self-invocation:** `this.helper()` inside the same class bypasses the proxy → no advice on `helper()`.
+
+```text
+Wrong (self-call)                 Right
+─────────────────                 ─────
+@Service                          @Service
+class S {                         class S {
+  void a(){ this.b(); }             void a(){ other.b(); } // or inject self carefully
+  void b(){ ... }  // no advice     ...
+}                                 }
+```
+
+---
+
+## Topic 5 — Confirm you got a proxy
+
+```java
+@Autowired OrderService orderService;
+
+System.out.println(orderService.getClass());
+// often something like: ...$SpringCGLIB$0  or  $Proxy123
+System.out.println(AopUtils.isAopProxy(orderService));
+System.out.println(AopUtils.isCglibProxy(orderService));
+System.out.println(AopUtils.isJdkDynamicProxy(orderService));
+```
+
+If `isAopProxy` is false, your pointcut did not match (or AOP not enabled).
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Named pointcut
+
+Refactor last lecture’s `@Around` to use `@Pointcut` + `serviceLayer()`.
+
+### Step 2 — Narrow the match
+
+Change execution to only `*Service.create*(..)`.  
+Confirm `get*` methods are no longer timed.
+
+### Step 3 — Interface vs class injection
+
+1. Extract an interface for a service.  
+2. Inject the interface in the controller.  
+3. Print `getClass()` and `AopUtils.isAopProxy(...)`.
+
+### Step 4 — Self-invocation surprise
+
+1. From method `a()`, call `this.b()` where `b` matches the pointcut.  
+2. Observe advice on `b` **missing**.  
+3. Move the call to another bean (or redesign) and see advice return.
+
+### Step 5 — Final method experiment (optional)
+
+Make a matched method `final` and see whether advice still applies with CGLIB (often breaks). Restore after learning.
+
+---
+
+## Short map to keep
+
+```text
+execution(...)  = main pointcut tool
+@Pointcut       = name + reuse
+JDK proxy       = interface-based
+CGLIB proxy     = subclass-based
+Proxy only sees external calls
+Self-call = no advice
+```
+
+---
+
+## Exercises
+
+1. What does `..` mean inside `execution` parameter list?  
+2. Why extract a named `@Pointcut`?  
+3. Why might casting a proxied bean to its concrete class fail with a JDK proxy?  
+4. Why does `this.b()` skip advice?  
+5. How can you check at runtime that a bean is AOP-proxied?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Write a pointcut for all methods in `com.example.demo.service`.  
+2. True/False: Spring AOP advises private methods the same as public ones.  
+3. Which proxy type subclasses your concrete class?  
+4. What annotation declares a reusable pointcut method?
+
+Answers: [self-check-answers](self-check-answers.qmd)

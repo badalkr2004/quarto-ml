@@ -1,34 +1,271 @@
 ---
-title: "Lecture 42 — API gateway project #2"
-subtitle: "GateKeeper-style edge service"
+title: "Lecture 42 — GateKeeper project #2"
+subtitle: "Building the production-style API gateway (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [API gateway project #2 \| Full Course #42](https://www.youtube.com/watch?v=ZxCcYHL96x8)  
-**Playlist index:** 42
+**Video:** [Building a Production-Style API Gateway \| GateKeeper Project \| #2](https://www.youtube.com/watch?v=ZxCcYHL96x8)  
+**Playlist index:** 42  
+**Builds on:** [Lecture 41](../41-production-project-microservices/notes.qmd)
 
 ---
-## Big idea
 
-An **API gateway** is the front door: routing, auth, rate limits, cross-cutting concerns for many backends.
+## Big idea in one line
+
+Part 1 explained **why** GateKeeper looks the way it does.  
+Part 2 turns that into a **buildable shape**: monorepo modules, roles/tenants, dynamic routes, the gateway request pipeline, and how MySQL / MongoDB / Redis / Kafka plug in.
 
 ```text
-Client → Gateway → Service A
-                 → Service B
+Monorepo
+├── smart-gateway-service      (data plane)
+├── api-management-service     (control plane)
+├── analytics-service          (observability path)
+├── catalog-service            (demo target)
+└── order-service              (demo target)
 ```
 
-## Practice focus
+---
 
-Implement or follow GateKeeper flow from the video: route headers, auth check, forward request.
+## Topic 1 — Monorepo + Initializr workflow
 
-## Course wrap
+### Practical setup
 
-You can now reason about: Core IoC → Boot → Web → Data → Security → Tests → production edges.
+1. Create a parent folder `gatekeeper/`  
+2. Generate each Spring Boot app (Maven, Jar, Java version matching the course)  
+3. Keep **one port per app** (example teaching ports—adjust as in the video):
+
+| Service | Example port |
+|---------|--------------|
+| Smart Gateway | 8080 (public entry) |
+| API Management | 8081 |
+| Analytics | 8082 |
+| Catalog | 8083 |
+| Order | 8084 |
+
+4. Run apps independently first (health check) before wiring Redis/Kafka.
+
+**Why monorepo:** one place to navigate shared ideas; still separate deployable Boot apps (not one giant WAR of everything).
+
+---
+
+## Topic 2 — Multi-tenant thinking (roles)
+
+GateKeeper-style platforms usually separate **who administers the platform** from **who administers one tenant’s APIs**.
+
+```text
+Platform admin  → manage the platform itself
+Tenant admin    → manage routes/policies for one tenant
+API caller      → call routes with a JWT under that tenant’s rules
+```
+
+Plain words:
+
+- Not every authenticated user is an admin  
+- Route policies can require roles (`ROLE_ADMIN`, tenant roles, …)  
+- Management APIs are themselves protected (JWT + roles)
+
+Exact role names follow the lecture’s code—learn the **idea**: platform vs tenant vs caller.
+
+---
+
+## Topic 3 — Dynamic routing (config, not if-else)
+
+Hard-coding targets in Java:
+
+```text
+if (path.startsWith("/catalog")) ...
+else if (path.startsWith("/orders")) ...
+```
+
+…does not scale.
+
+**Dynamic route** (stored by Management, loaded by Gateway) roughly includes:
+
+| Field | Meaning |
+|-------|---------|
+| Path pattern | What URL matches |
+| Methods | GET/POST/… |
+| Target base URL | Where to proxy |
+| Auth required? | Anonymous vs JWT |
+| Roles allowed | Authorization |
+| Rate limit | Redis window/limit |
+| Timeout | Fail slow targets |
+| Path rewrite / header rules | Transform at the edge |
+| Active flag | Enable/disable without redeploy |
+
+```text
+Admin updates route in Management
+  → save MySQL + version
+  → Kafka config event
+  → Gateway fetches latest
+  → memory registry updated
+  → next requests use new rules
+```
+
+---
+
+## Topic 4 — Live request pipeline (Gateway)
+
+Think in ordered stages (filters / interceptors / services—same story):
+
+```text
+1. Correlation ID     (create or propagate X-Correlation-Id)
+2. Route match        (memory registry)
+3. JWT validate       (local signature + claims)
+4. Role check         (route policy)
+5. Rate limit         (Redis atomic)
+6. Idempotency        (Redis; mainly configured POSTs)
+7. Transform          (path rewrite, header add/remove)
+8. Proxy forward      (HTTP to target + timeout)
+9. Access event       (publish to Kafka)
+10. Return response / gateway error
+```
+
+If a stage fails → consistent gateway error (do not leak stack traces to clients).
+
+---
+
+## Topic 5 — API Management responsibilities (hands-on view)
+
+Management is not on the hot path for every forward, but it is critical for:
+
+- Register / login → issue JWTs  
+- CRUD for routes and policies  
+- Versioning config  
+- Auditing admin actions (AOP is a good fit: “when admin changes route, write audit row”)  
+- Publishing configuration events  
+
+**MySQL tables (conceptual):** users, roles, routes, policy settings, versions, audits.
+
+Other services must **not** UPDATE Management tables directly.
+
+---
+
+## Topic 6 — Analytics & observability path
+
+```text
+Gateway ──access event──► Kafka topic (e.g. gateway-access-events)
+                              │
+                              ▼
+                         Analytics service
+                              │
+                              ▼
+                           MongoDB
+```
+
+Useful fields: eventId, correlationId, route, method, outcome, duration, rate-limited?, idempotent-replay?
+
+Queries you want later:
+
+- requests per route  
+- error rate  
+- slow routes  
+- rate-limit rejections  
+
+**Dedup:** consumers can see duplicates after retries → use unique `eventId`.  
+`correlationId` ties work for **one client request**; it is not the dedup key.
+
+---
+
+## Topic 7 — Demo targets (Catalog / Order)
+
+Keep them small on purpose:
+
+- A few REST endpoints  
+- Optionally check a business rule the gateway cannot know  
+- Observe path rewrite + header propagation (`X-Correlation-Id`)  
+- Use for timeout / idempotency demos  
+
+They prove the **pipe**, not a full e-commerce domain.
+
+---
+
+## Topic 8 — Practice lab (IDE checklist)
+
+### A — Skeleton
+
+1. Create the five Boot modules  
+2. Hit each `/actuator/health` or custom `/health`  
+3. Commit locally only if *you* want (this agent will not commit)
+
+### B — Management first
+
+1. User entity + JWT login (reuse skills from lectures 36–38)  
+2. Route entity + admin-only CRUD  
+3. Return route list API the Gateway can call on refresh  
+
+### C — Gateway pipeline
+
+1. In-memory `RouteRegistry`  
+2. Load routes at startup from Management  
+3. Filter/interceptor chain for correlation → auth → Redis → proxy  
+4. Use `WebClient` or `RestClient`/`RestTemplate` for forwarding (course choice)
+
+### D — Redis
+
+1. Run Redis locally (Docker is fine)  
+2. Implement rate limit with atomic ops / Lua as shown in the video  
+3. Prove two rapid requests → second blocked when over limit  
+
+### E — Kafka + Analytics
+
+1. Topic for access events  
+2. Gateway publisher  
+3. Analytics consumer → MongoDB document  
+4. Confirm client still gets a fast response if Analytics is slow  
+
+### F — End-to-end demo script
+
+1. Admin creates `/catalog/**` route → target catalog:8083  
+2. Caller JWT without role → 403  
+3. Caller with role → 200 from catalog through gateway  
+4. Burst traffic → 429 / rate-limit style response  
+5. Check Analytics for the access trail  
+
+---
+
+## Topic 9 — Boundaries to defend while coding
+
+| Temptation | Better boundary |
+|------------|-----------------|
+| Put order business rules in Gateway | Keep in Order service |
+| Gateway reads MySQL routes directly | Load via Management API |
+| Gateway writes Mongo analytics itself | Publish Kafka events |
+| Skip rate limit when Redis is down | Fail closed for that policy |
+| Log Authorization header in events | Never |
+
+---
+
+## Short map to keep
+
+```text
+Monorepo of Boot apps, separate ports
+Management = JWT + routes + MySQL + config events
+Gateway = memory routes + local JWT + Redis + proxy + access events
+Analytics = Kafka → MongoDB
+Tenants/roles separate platform power from caller power
+Dynamic routes beat hard-coded if/else
+```
+
+---
+
+## Exercises
+
+1. Why prefer dynamic routes over hard-coded path ifs?  
+2. List five stages of the gateway pipeline in order.  
+3. Platform admin vs tenant admin — what differs?  
+4. Who should write MySQL route rows?  
+5. Why publish access events instead of inserting MongoDB from the Gateway?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. True/False: Catalog/Order demos should hold all platform admin logic.  
+2. What notifies the Gateway that routes changed?  
+3. Which ID deduplicates analytics events?  
+4. Name one transformation a gateway might apply before proxying.
+
+Answers: [self-check-answers](self-check-answers.qmd)

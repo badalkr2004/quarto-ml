@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Pointcut selects join points.\n2. JDK vs CGLIB.\n3. Self-invocation bypasses proxy.
+## Exercises (sample)
+
+1. Any number of parameters (including zero).
+2. Avoid duplicating long expressions; reuse from multiple advice methods.
+3. JDK proxies implement interfaces only — the runtime object is not an instance of your concrete class.
+4. The call never enters the proxy; it goes straight to the target method on `this`.
+5. `AopUtils.isAopProxy(bean)` (and related helpers) or inspect `bean.getClass()`.
+
+## Self-check
+
+1. Example: `execution(* com.example.demo.service.*.*(..))`.
+2. **False.** Spring AOP focuses on external calls to Spring beans (typically public API through the proxy).
+3. **CGLIB**.
+4. `@Pointcut`.

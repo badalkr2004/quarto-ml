@@ -1,35 +1,212 @@
 ---
-title: "Lecture 41 — Production-style project #1"
-subtitle: "Microservices, Kafka, Redis overview"
+title: "Lecture 41 — GateKeeper project #1"
+subtitle: "Production-style gateway with microservices, Kafka & Redis (in plain words)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Production-style project #1 \| Full Course #41](https://www.youtube.com/watch?v=-Wv5uCu2PIg)  
-**Playlist index:** 41
+**Video:** [Build a Production-Grade Full Stack Project \| Microservices, Kafka & Redis \| #1](https://www.youtube.com/watch?v=-Wv5uCu2PIg)  
+**Playlist index:** 41  
+**Builds on:** Security, JWT, filters, and testing from lectures 35–40
 
 ---
-## Big idea
 
-Real systems split into services, pass messages (Kafka), cache (Redis), and deploy as units.
+## Big idea in one line
+
+When one backend becomes many services, clients should not know every host and repeat the same security/rate-limit code.  
+**GateKeeper** is a teaching project: a **custom API gateway** plus management and analytics services using **Spring Boot**, **Redis**, and **Kafka**.
 
 ```text
-API service → Kafka → worker service
-     │
-     └→ Redis cache
+Client
+  │
+  ▼
+Smart Gateway  ──policies──► Redis (rate limit / idempotency)
+  │            ──events───► Kafka ──► Analytics (MongoDB)
+  │
+  ├──► Catalog / Order (demo targets)
+  │
+  └── config loaded from API Management (MySQL) via notifications
 ```
 
-## Practice focus
+---
 
-Follow the video’s project structure. Map each piece: which service owns which data? What is sync HTTP vs async messaging?
+## Topic 1 — Why an API gateway?
 
-## Reasoning
+Without a gateway, every client must know:
 
-Microservices add network failure modes. Start modular monolith unless you need independent scaling.
+- which service owns which URL  
+- how to validate tokens everywhere  
+- how to apply shared limits and correlation IDs  
+
+**Gateway jobs:**
+
+| Job | Meaning |
+|-----|---------|
+| Routing | Choose the target service for this request |
+| Policy enforcement | AuthN/AuthZ, rate limits, idempotency, … |
+| Reverse proxying | Forward HTTP and return the response |
+
+```text
+Forward proxy  → helps clients reach the internet
+Reverse proxy  → sits in front of your servers
+API gateway    → reverse proxy + API policies
+```
+
+**Boundary rule:** gateway handles **entry** rules. Target services still enforce **business** rules (who may change *this* order).
+
+---
+
+## Topic 2 — What GateKeeper is (and is not)
+
+Educational, scoped gateway platform—not a replacement for Kong / Spring Cloud Gateway / commercial products.
+
+### Main apps
+
+| App | Plane | Purpose |
+|-----|-------|---------|
+| Smart Gateway Service | Data plane | Live request path |
+| API Management Service | Control plane | Users, routes, policies, JWT issue |
+| Analytics Service | Side path | Consume access events → stats |
+| Catalog / Order demos | Targets | Prove routing & policies |
+
+### Intentionally out of scope (examples)
+
+Spring Cloud Gateway / Eureka / Config Server, service mesh, circuit breakers as a product feature, TLS termination productization, billing/API keys product, body transforms as a general engine, …
+
+You build enough to **see the insides**.
+
+---
+
+## Topic 3 — Data plane vs control plane
+
+```text
+Control plane (API Management)
+  define routes, roles, limits
+  store durable config in MySQL
+  publish "config changed" events
+
+Data plane (Smart Gateway)
+  keep active routes in MEMORY
+  validate JWT locally
+  talk to Redis for shared counters
+  forward to targets
+  publish access events (async)
+```
+
+If Management is temporarily down, **already loaded** routes can still serve traffic. New admin changes wait until Management returns.
+
+---
+
+## Topic 4 — Latency design
+
+A gateway always adds a hop. GateKeeper avoids *extra* synchronous calls:
+
+| Work | Where | Why |
+|------|-------|-----|
+| Route match | Gateway memory | No DB hit per request |
+| JWT validate | Gateway process | No auth-service round trip each time |
+| Rate limit / idempotency | Redis | Shared, fast state |
+| Analytics store | Kafka → Analytics | Off the live response path |
+
+```text
+BAD:  every request → Management + Auth + Analytics + DB + target
+GOOD: memory + local JWT + Redis if needed + target
+      (+ Kafka fire-and-forget style analytics)
+```
+
+---
+
+## Topic 5 — Redis vs Kafka (do not mix them up)
+
+| Question | Redis here | Kafka here |
+|----------|------------|------------|
+| Job | Immediate shared state | Durable async events |
+| Examples | Rate-limit counters, idempotency keys | Access events, config notifications |
+| Retention | Short TTL | Topic retention policy |
+| On request path? | Yes, when policy needs it | Publish; client does not wait for Analytics |
+
+**Rate limiting:** atomic increment + limit check + TTL window.  
+**Idempotency (POST):** same key → return saved success instead of repeating a write.  
+**Access events:** never log passwords, JWTs, or Authorization headers.
+
+---
+
+## Topic 6 — Ownership map
+
+| Store | Owner | Holds |
+|-------|-------|-------|
+| MySQL | API Management | users, roles, routes, versions, audits |
+| MongoDB | Analytics | access event documents |
+| Redis | used by Gateway | temporary policy state |
+| In-memory routes | Gateway | fast matching copy |
+
+No service should casually write another service’s tables.
+
+---
+
+## Topic 7 — Practice lab (milestone #1)
+
+### Step 1 — Create three Boot apps
+
+From Initializr (three times) or a monorepo modules layout:
+
+1. `smart-gateway-service`  
+2. `api-management-service`  
+3. `analytics-service`  
+
+Give each a **different port** in `application.properties`.
+
+### Step 2 — Health endpoints
+
+Each app answers a simple health/hello URL so you can prove independent startup.
+
+### Step 3 — Draw the architecture on paper
+
+Reproduce the mindmap at the top from memory: client → gateway → redis/kafka/targets → management/analytics.
+
+### Step 4 — Failure table (think first)
+
+| If this dies | Expected teaching behavior |
+|--------------|----------------------------|
+| Management | Serving continues on cached routes; admin/refresh pauses |
+| Analytics / Mongo | Forwarding continues; stats lag |
+| Redis | Policies that need Redis **fail closed** (reject) in this design |
+| Target | That route fails through the gateway |
+
+**Fail closed** = if you cannot check the limit, do not silently skip the limit.
+
+---
+
+## Short map to keep
+
+```text
+Gateway = route + policy + proxy
+Data plane ≠ control plane
+Memory routes + local JWT → lower latency
+Redis → shared short state
+Kafka → async events
+Each service owns its data
+Business rules stay in targets
+```
+
+---
+
+## Exercises
+
+1. Name the three gateway jobs.  
+2. Data plane vs control plane — one sentence each.  
+3. Why validate JWT locally on the gateway?  
+4. Redis vs Kafka for rate limiting — which and why?  
+5. What must never appear in access events?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. True/False: GateKeeper aims to replace every production gateway product.  
+2. Who owns MySQL in this design?  
+3. Does the client wait for MongoDB writes on every API call?  
+4. What does “fail closed” mean for Redis outages?
+
+Answers: [self-check-answers](self-check-answers.qmd)

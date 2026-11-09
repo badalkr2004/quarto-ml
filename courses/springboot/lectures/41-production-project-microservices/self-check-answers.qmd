@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Separate deployable services.\n2. Kafka async.\n3. Redis cache/speed.
+## Exercises (sample)
+
+1. Routing, policy enforcement, reverse proxying.
+2. Data plane = live request handling (Smart Gateway); control plane = define/store rules (API Management).
+3. Avoid a network call to an auth/management service on every protected request.
+4. **Redis** — you need an immediate shared counter/decision on the request path.
+5. Passwords, JWTs, cookies, Authorization headers (secrets / credentials).
+
+## Self-check
+
+1. **False.** It is an educational, scoped implementation to learn internals.
+2. **API Management Service.**
+3. **No.** Analytics is asynchronous via Kafka; the client response path should not wait on MongoDB.
+4. If Redis cannot be consulted for a required policy, **reject** the request instead of skipping the check.
