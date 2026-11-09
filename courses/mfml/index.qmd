@@ -17,11 +17,94 @@ Probability-first foundations of machine learning: from function approximation a
 
 | # | Topic | Materials |
 |---|--------|-----------|
-| 01 | [Overview of Function Approximation](lectures/01-overview-of-function-approximation/notes.qmd) | [Tutorial](lectures/01-overview-of-function-approximation/tutorial.ipynb) · [Self-check](lectures/01-overview-of-function-approximation/self-check-answers.qmd) |
-| 02 | [Recap of Probability Theory - 1, Part 1](lectures/02-recap-probability-theory-1-part-1/notes.qmd) | [Tutorial](lectures/02-recap-probability-theory-1-part-1/tutorial.ipynb) · [Self-check](lectures/02-recap-probability-theory-1-part-1/self-check-answers.qmd) |
-| 03 | [Recap of Probability Theory - 1, Part 2](lectures/03-recap-probability-theory-1-part-2/notes.qmd) | [Tutorial](lectures/03-recap-probability-theory-1-part-2/tutorial.ipynb) · [Self-check](lectures/03-recap-probability-theory-1-part-2/self-check-answers.qmd) |
-| 04 | [Recap of Probability Theory - 1, Part 3](lectures/04-recap-probability-theory-1-part-3/notes.qmd) | [Tutorial](lectures/04-recap-probability-theory-1-part-3/tutorial.ipynb) · [Self-check](lectures/04-recap-probability-theory-1-part-3/self-check-answers.qmd) |
-| 05 | *Coming after you share the next lecture link* | |
+| `01` | Lecture 1 — Overview of Function Approximation | [Notes](lectures/01-overview-of-function-approximation/notes.qmd) · [Tutorial](lectures/01-overview-of-function-approximation/tutorial.ipynb) · [Self-check](lectures/01-overview-of-function-approximation/self-check-answers.qmd) |
+| `02` | Lecture 2 — Recap of Probability Theory - 1, Part 1 | [Notes](lectures/02-recap-probability-theory-1-part-1/notes.qmd) · [Tutorial](lectures/02-recap-probability-theory-1-part-1/tutorial.ipynb) · [Self-check](lectures/02-recap-probability-theory-1-part-1/self-check-answers.qmd) |
+| `03` | Lecture 3 — Recap of Probability Theory - 1, Part 2 | [Notes](lectures/03-recap-probability-theory-1-part-2/notes.qmd) · [Tutorial](lectures/03-recap-probability-theory-1-part-2/tutorial.ipynb) · [Self-check](lectures/03-recap-probability-theory-1-part-2/self-check-answers.qmd) |
+| `04` | Lecture 4 — Recap of Probability Theory - 1, Part 3 | [Notes](lectures/04-recap-probability-theory-1-part-3/notes.qmd) · [Tutorial](lectures/04-recap-probability-theory-1-part-3/tutorial.ipynb) · [Self-check](lectures/04-recap-probability-theory-1-part-3/self-check-answers.qmd) |
+| `05` | Lecture 5 — Recap of Probability Theory Part 2 | [Notes](lectures/05-recap-of-probability-theory-part-2/notes.qmd) · [Self-check](lectures/05-recap-of-probability-theory-part-2/self-check-answers.qmd) |
+| `06` | Lecture 6 — Understanding a Chest X-Ray as Sample from Distribution | [Notes](lectures/06-understanding-a-chest-x-ray-as-sample-from-distribution/notes.qmd) · [Self-check](lectures/06-understanding-a-chest-x-ray-as-sample-from-distribution/self-check-answers.qmd) |
+| `07` | Lecture 7 — IID Assumption | [Notes](lectures/07-iid-assumption/notes.qmd) · [Self-check](lectures/07-iid-assumption/self-check-answers.qmd) |
+| `08` | Lecture 8 — Distribution Estimation | [Notes](lectures/08-distribution-estimation/notes.qmd) · [Self-check](lectures/08-distribution-estimation/self-check-answers.qmd) |
+| `09` | Lecture 9 — Density Function | [Notes](lectures/09-density-function/notes.qmd) · [Self-check](lectures/09-density-function/self-check-answers.qmd) |
+| `10` | Lecture 10 — Challenge With ML | [Notes](lectures/10-challenge-with-ml/notes.qmd) · [Self-check](lectures/10-challenge-with-ml/self-check-answers.qmd) |
+| `11` | Lecture 11 — Entropy | [Notes](lectures/11-entropy/notes.qmd) · [Self-check](lectures/11-entropy/self-check-answers.qmd) |
+| `12` | Lecture 12 — Kullback-Leibler (KL) Divergence | [Notes](lectures/12-kullback-leibler-kl-divergence/notes.qmd) · [Self-check](lectures/12-kullback-leibler-kl-divergence/self-check-answers.qmd) |
+| `13` | Lecture 13 — Minimization of KL Divergence | [Notes](lectures/13-minimization-of-kl-divergence/notes.qmd) · [Self-check](lectures/13-minimization-of-kl-divergence/self-check-answers.qmd) |
+| `14` | Lecture 14 — Example of ML Estimate | [Notes](lectures/14-example-of-ml-estimate/notes.qmd) · [Self-check](lectures/14-example-of-ml-estimate/self-check-answers.qmd) |
+| `15` | Lecture 15 — Risk Minimization Framework | [Notes](lectures/15-risk-minimization-framework/notes.qmd) · [Self-check](lectures/15-risk-minimization-framework/self-check-answers.qmd) |
+| `16` | Lecture 16 — Bayes Classifier | [Notes](lectures/16-bayes-classifier/notes.qmd) · [Self-check](lectures/16-bayes-classifier/self-check-answers.qmd) |
+| `17` | Lecture 17 — MLE for Gaussian Distribution | [Notes](lectures/17-mle-for-gaussian-distribution/notes.qmd) · [Self-check](lectures/17-mle-for-gaussian-distribution/self-check-answers.qmd) |
+| `18` | Lecture 18 — MLE for Generalized Discrete Random Variable | [Notes](lectures/18-mle-for-generalized-discrete-random-variable/notes.qmd) · [Self-check](lectures/18-mle-for-generalized-discrete-random-variable/self-check-answers.qmd) |
+| `19` | Lecture 19 — Density Estimation for Mixed Distribution | [Notes](lectures/19-density-estimation-for-mixed-distribution/notes.qmd) · [Self-check](lectures/19-density-estimation-for-mixed-distribution/self-check-answers.qmd) |
+| `20` | Lecture 20 — Latent Variable Models | [Notes](lectures/20-latent-variable-models/notes.qmd) · [Self-check](lectures/20-latent-variable-models/self-check-answers.qmd) |
+| `21` | Lecture 21 — MLE for Latent Variable Models | [Notes](lectures/21-mle-for-latent-variable-models/notes.qmd) · [Self-check](lectures/21-mle-for-latent-variable-models/self-check-answers.qmd) |
+| `22` | Lecture 22 — Expectation Maximization Algorithm | [Notes](lectures/22-expectation-maximization-algorithm/notes.qmd) · [Self-check](lectures/22-expectation-maximization-algorithm/self-check-answers.qmd) |
+| `23` | Lecture 23 — Convergence of EM | [Notes](lectures/23-convergence-of-em/notes.qmd) · [Self-check](lectures/23-convergence-of-em/self-check-answers.qmd) |
+| `24` | Lecture 24 — EM for GMMs | [Notes](lectures/24-em-for-gmms/notes.qmd) · [Self-check](lectures/24-em-for-gmms/self-check-answers.qmd) |
+| `25` | Lecture 25 — MAP Estimate | [Notes](lectures/25-map-estimate/notes.qmd) · [Self-check](lectures/25-map-estimate/self-check-answers.qmd) |
+| `26` | Lecture 26 — Parzen Window | [Notes](lectures/26-parzen-window/notes.qmd) · [Self-check](lectures/26-parzen-window/self-check-answers.qmd) |
+| `27` | Lecture 27 — Nearest Neighbor Classifier | [Notes](lectures/27-nearest-neighbor-classifier/notes.qmd) · [Self-check](lectures/27-nearest-neighbor-classifier/self-check-answers.qmd) |
+| `28` | Lecture 28 — Ordinary Least Squares (OLS) | [Notes](lectures/28-ordinary-least-squares-ols/notes.qmd) · [Self-check](lectures/28-ordinary-least-squares-ols/self-check-answers.qmd) |
+| `29` | Lecture 29 — Generalized Least Squares (GLS) | [Notes](lectures/29-generalized-least-squares-gls/notes.qmd) · [Self-check](lectures/29-generalized-least-squares-gls/self-check-answers.qmd) |
+| `30` | Lecture 30 — Linear Models for Classification | [Notes](lectures/30-linear-models-for-classification/notes.qmd) · [Self-check](lectures/30-linear-models-for-classification/self-check-answers.qmd) |
+| `31` | Lecture 31 — Bias–Variance Decomposition and Analysis | [Notes](lectures/31-bias-variance-decomposition-and-analysis/notes.qmd) · [Self-check](lectures/31-bias-variance-decomposition-and-analysis/self-check-answers.qmd) |
+| `32` | Lecture 32 — Bias and Variance in Practice | [Notes](lectures/32-bias-and-variance-in-practice/notes.qmd) · [Self-check](lectures/32-bias-and-variance-in-practice/self-check-answers.qmd) |
+| `33` | Lecture 33 — Regularization | [Notes](lectures/33-regularization/notes.qmd) · [Self-check](lectures/33-regularization/self-check-answers.qmd) |
+| `34` | Lecture 34 — Regularized ERM and MAP Estimate | [Notes](lectures/34-regularized-erm-and-map-estimate/notes.qmd) · [Self-check](lectures/34-regularized-erm-and-map-estimate/self-check-answers.qmd) |
+| `35` | Lecture 35 — Stochastic Gradient Descent as a Regularizer | [Notes](lectures/35-stochastic-gradient-descent-as-a-regularizer/notes.qmd) · [Self-check](lectures/35-stochastic-gradient-descent-as-a-regularizer/self-check-answers.qmd) |
+| `36` | Lecture 36 — Max-Margin Classifier and SVM | [Notes](lectures/36-max-margin-classifier-and-svm/notes.qmd) · [Self-check](lectures/36-max-margin-classifier-and-svm/self-check-answers.qmd) |
+| `37` | Lecture 37 — SVM Formulation | [Notes](lectures/37-svm-formulation/notes.qmd) · [Self-check](lectures/37-svm-formulation/self-check-answers.qmd) |
+| `38` | Lecture 38 — Dual Function in SVM | [Notes](lectures/38-dual-function-in-svm/notes.qmd) · [Self-check](lectures/38-dual-function-in-svm/self-check-answers.qmd) |
+| `39` | Lecture 39 — SVM for the Non-Linearly Separable Case | [Notes](lectures/39-svm-for-non-linear-seperable-case/notes.qmd) · [Self-check](lectures/39-svm-for-non-linear-seperable-case/self-check-answers.qmd) |
+| `40` | Lecture 40 — SVM with Kernel Function | [Notes](lectures/40-svm-with-kernel-function/notes.qmd) · [Self-check](lectures/40-svm-with-kernel-function/self-check-answers.qmd) |
+| `41` | Lecture 41 — Neural Networks and Universal Approximation Theorem | [Notes](lectures/41-neural-networks-and-universal-approximation-theorem/notes.qmd) · [Self-check](lectures/41-neural-networks-and-universal-approximation-theorem/self-check-answers.qmd) |
+| `42` | Lecture 42 — ERM on Neural Networks and Error Backpropagation | [Notes](lectures/42-erm-on-neural-networks-and-error-backpropagation/notes.qmd) · [Self-check](lectures/42-erm-on-neural-networks-and-error-backpropagation/self-check-answers.qmd) |
+| `43` | Lecture 43 — Local Receptive Field and Parameter Sharing | [Notes](lectures/43-local-receptive-field-and-parameter-sharing/notes.qmd) · [Self-check](lectures/43-local-receptive-field-and-parameter-sharing/self-check-answers.qmd) |
+| `44` | Lecture 44 — Convolutional Neural Networks (CNNs) as Regularized MLP | [Notes](lectures/44-convolutional-neural-networks-cnns-as-regularized-mlp/notes.qmd) · [Self-check](lectures/44-convolutional-neural-networks-cnns-as-regularized-mlp/self-check-answers.qmd) |
+| `45` | Lecture 45 — Recurrent Neural Networks (RNNs) | [Notes](lectures/45-recurrent-neural-networks-rnns/notes.qmd) · [Self-check](lectures/45-recurrent-neural-networks-rnns/self-check-answers.qmd) |
+| `46` | Lecture 46 — Backpropagation in RNNs and Vanishing Gradients | [Notes](lectures/46-back-prapogation-in-rnns-and-vanishing-gradients-problem/notes.qmd) · [Self-check](lectures/46-back-prapogation-in-rnns-and-vanishing-gradients-problem/self-check-answers.qmd) |
+| `47` | Lecture 47 — LSTMs and GRUs | [Notes](lectures/47-lstms-and-grus/notes.qmd) · [Self-check](lectures/47-lstms-and-grus/self-check-answers.qmd) |
+| `48` | Lecture 48 — Attention Part 1 | [Notes](lectures/48-attention-part1/notes.qmd) · [Self-check](lectures/48-attention-part1/self-check-answers.qmd) |
+| `49` | Lecture 49 — Attention Part 2 | [Notes](lectures/49-attention-part2/notes.qmd) · [Self-check](lectures/49-attention-part2/self-check-answers.qmd) |
+| `50` | Lecture 50 — Multi-Head Attention and Transformer Architecture | [Notes](lectures/50-multi-head-attention-and-transformer-architecture/notes.qmd) · [Self-check](lectures/50-multi-head-attention-and-transformer-architecture/self-check-answers.qmd) |
+| `51` | Lecture 51 — Positional Embeddings | [Notes](lectures/51-positional-embeddings/notes.qmd) · [Self-check](lectures/51-positional-embeddings/self-check-answers.qmd) |
+| `52` | Lecture 52 — Transfer Learning and Knowledge Distillation | [Notes](lectures/52-transfer-learning-and-knowledge-distilation/notes.qmd) · [Self-check](lectures/52-transfer-learning-and-knowledge-distilation/self-check-answers.qmd) |
+| `53` | Lecture 53 — SGD, RMSProp, Adam: Optimizers | [Notes](lectures/53-sgd-rms-prop-adam-optimizers/notes.qmd) · [Self-check](lectures/53-sgd-rms-prop-adam-optimizers/self-check-answers.qmd) |
+| `54` | Lecture 54 — Decision Trees and Impurity Measures | [Notes](lectures/54-decision-trees-and-impurity-measures/notes.qmd) · [Self-check](lectures/54-decision-trees-and-impurity-measures/self-check-answers.qmd) |
+| `55` | Lecture 55 — Regression Trees | [Notes](lectures/55-regression-trees/notes.qmd) · [Self-check](lectures/55-regression-trees/self-check-answers.qmd) |
+| `56` | Lecture 56 — Ensemble Methods, Bagging and Boosting | [Notes](lectures/56-ensemble-methods-bagging-and-boosting/notes.qmd) · [Self-check](lectures/56-ensemble-methods-bagging-and-boosting/self-check-answers.qmd) |
+| `57` | Lecture 57 — Gradient Boosting Algorithm | [Notes](lectures/57-gradient-boosting-algorithm/notes.qmd) · [Self-check](lectures/57-gradient-boosting-algorithm/self-check-answers.qmd) |
+| `58` | Lecture 58 — Ada-Boosting | [Notes](lectures/58-ada-boosting/notes.qmd) · [Self-check](lectures/58-ada-boosting/self-check-answers.qmd) |
+| `59` | Lecture 59 — Cross Validation | [Notes](lectures/59-cross-validation/notes.qmd) · [Self-check](lectures/59-cross-validation/self-check-answers.qmd) |
+| `60` | Lecture 60 — Unsupervised Learning | [Notes](lectures/60-un-supervised-learning/notes.qmd) · [Self-check](lectures/60-un-supervised-learning/self-check-answers.qmd) |
+| `61` | Lecture 61 — $k$-Means Clustering | [Notes](lectures/61-k-means-clustering/notes.qmd) · [Self-check](lectures/61-k-means-clustering/self-check-answers.qmd) |
+| `62` | Lecture 62 — PCA (Principal Component Analysis) | [Notes](lectures/62-pca-principal-component-analysis/notes.qmd) · [Self-check](lectures/62-pca-principal-component-analysis/self-check-answers.qmd) |
+| `63` | Lecture 63 — NCE (Noise Contrastive Estimation) | [Notes](lectures/63-nce-noise-contrastive-estimation/notes.qmd) · [Self-check](lectures/63-nce-noise-contrastive-estimation/self-check-answers.qmd) |
+| `64` | Lecture 64 — NCE, InfoNCE, SimCLR, JEPA | [Notes](lectures/64-nce-info-nce-simclr-jepa/notes.qmd) · [Self-check](lectures/64-nce-info-nce-simclr-jepa/self-check-answers.qmd) |
+| `65` | Lecture 65 — Introduction to Generative Models | [Notes](lectures/65-introduction-to-generative-models/notes.qmd) · [Self-check](lectures/65-introduction-to-generative-models/self-check-answers.qmd) |
+| `66` | Lecture 66 — GAN (Generative Adversarial Networks) | [Notes](lectures/66-gan-generative-adversarial-networks/notes.qmd) · [Self-check](lectures/66-gan-generative-adversarial-networks/self-check-answers.qmd) |
+| `67` | Lecture 67 — Variational Autoencoders (VAEs) | [Notes](lectures/67-variational-auto-encoders-vaes/notes.qmd) · [Self-check](lectures/67-variational-auto-encoders-vaes/self-check-answers.qmd) |
+| `68` | Lecture 68 — Introduction to Large Language Models (LLMs) | [Notes](lectures/68-introduction-to-large-language-models-llms/notes.qmd) · [Self-check](lectures/68-introduction-to-large-language-models-llms/self-check-answers.qmd) |
+| `69` | Lecture 69 — Introduction to Reinforcement Learning (RL) | [Notes](lectures/69-introduction-to-reinforcement-learning-rl/notes.qmd) · [Self-check](lectures/69-introduction-to-reinforcement-learning-rl/self-check-answers.qmd) |
+| `T11` | Tutorial 1 — Introduction to Python Basics | [Notes](lectures/T11-tutorial-introduction-to-python-basics/notes.qmd) · [Self-check](lectures/T11-tutorial-introduction-to-python-basics/self-check-answers.qmd) |
+| `T12` | Tutorial 2 — Simple Problem Solving in Probability Theory | [Notes](lectures/T12-tutorial-simple-problem-solving-in-probability-theory/notes.qmd) · [Self-check](lectures/T12-tutorial-simple-problem-solving-in-probability-theory/self-check-answers.qmd) |
+| `T19` | Tutorial 3 — Risk Minimization Framework | [Notes](lectures/T19-tutorial-risk-minimization-framework/notes.qmd) · [Self-check](lectures/T19-tutorial-risk-minimization-framework/self-check-answers.qmd) |
+| `T26` | Tutorial 4 — Minmax Classifier | [Notes](lectures/T26-tutorial-minmax-classifier/notes.qmd) · [Self-check](lectures/T26-tutorial-minmax-classifier/self-check-answers.qmd) |
+| `T27` | Tutorial 5 — Neyman–Pearson Classifier | [Notes](lectures/T27-tutorial-neyman-pearson-classifier/notes.qmd) · [Self-check](lectures/T27-tutorial-neyman-pearson-classifier/self-check-answers.qmd) |
+| `T28` | Tutorial 6 — NP Classifier Example and ROC Curve | [Notes](lectures/T28-tutorial-example-of-np-classifier-roc-curve/notes.qmd) · [Self-check](lectures/T28-tutorial-example-of-np-classifier-roc-curve/self-check-answers.qmd) |
+| `T29` | Tutorial 7A — MLE for Gaussian Distribution | [Notes](lectures/T29-tutorial-mle-for-gaussian-distribution/notes.qmd) · [Self-check](lectures/T29-tutorial-mle-for-gaussian-distribution/self-check-answers.qmd) |
+| `T30` | Tutorial 7B — MLE for Generalized Discrete Distribution | [Notes](lectures/T30-tutorial-mle-for-generalized-discrete-distribution/notes.qmd) · [Self-check](lectures/T30-tutorial-mle-for-generalized-discrete-distribution/self-check-answers.qmd) |
+| `T36` | Tutorial 8 — Computation of EM for GMMs | [Notes](lectures/T36-tutorial-computation-of-em-for-gmms/notes.qmd) · [Self-check](lectures/T36-tutorial-computation-of-em-for-gmms/self-check-answers.qmd) |
+| `T37` | Tutorial 9 — MAP Estimate | [Notes](lectures/T37-tutorial-map-estimate/notes.qmd) · [Self-check](lectures/T37-tutorial-map-estimate/self-check-answers.qmd) |
+| `T43` | Tutorial 10A — Numerical Example on Bayes Classifier | [Notes](lectures/T43-tutorial-numerical-example-on-bayes-classifier/notes.qmd) · [Self-check](lectures/T43-tutorial-numerical-example-on-bayes-classifier/self-check-answers.qmd) |
+| `T44` | Tutorial 10B — Numerical Example on MLE and MAP | [Notes](lectures/T44-tutorial-numerical-example-on-mle-and-map-estimate/notes.qmd) · [Self-check](lectures/T44-tutorial-numerical-example-on-mle-and-map-estimate/self-check-answers.qmd) |
+| `T60` | Tutorial 11 — PyTorch: Tensors and Data Loaders | [Notes](lectures/T60-tutorial-pytorch-tensors-and-data-loaders/notes.qmd) · [Self-check](lectures/T60-tutorial-pytorch-tensors-and-data-loaders/self-check-answers.qmd) |
+| `T61` | Tutorial 12 — PyTorch: Building MLP and Autograd | [Notes](lectures/T61-tutorial-pytorch-building-mlp-and-auto-grad/notes.qmd) · [Self-check](lectures/T61-tutorial-pytorch-building-mlp-and-auto-grad/self-check-answers.qmd) |
+| `T62` | Tutorial 13 — PyTorch: Training the Model | [Notes](lectures/T62-tutorial-pytorch-training-the-model/notes.qmd) · [Self-check](lectures/T62-tutorial-pytorch-training-the-model/self-check-answers.qmd) |
+| `T69` | Tutorial 14A — CNNs | [Notes](lectures/T69-tutorial-cnns/notes.qmd) · [Self-check](lectures/T69-tutorial-cnns/self-check-answers.qmd) |
+| `T70` | Tutorial 14B — Transfer Learning using CNNs | [Notes](lectures/T70-tutorial-transfer-learning-using-cnns/notes.qmd) · [Self-check](lectures/T70-tutorial-transfer-learning-using-cnns/self-check-answers.qmd) |
+| `T71` | Tutorial 15A — RNNs, LSTMs and GRUs | [Notes](lectures/T71-tutorial-rnns-lstms-and-grus/notes.qmd) · [Self-check](lectures/T71-tutorial-rnns-lstms-and-grus/self-check-answers.qmd) |
+| `T72` | Tutorial 15B — Deep RNNs, LSTMs and GRUs | [Notes](lectures/T72-tutorial-deep-rnns-lstms-and-grus/notes.qmd) · [Self-check](lectures/T72-tutorial-deep-rnns-lstms-and-grus/self-check-answers.qmd) |
 
 ## Course references
 

@@ -3,19 +3,32 @@ title: "MFML — References"
 sidebar: mfml
 ---
 
-Course-specific reading. Shared / cross-course links live in [References](../../references/index.qmd).
+Course-specific reading. Shared links also live under [References](../../references/index.qmd).
 
-## Primary
+## Primary course links
 
-- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
-- YouTube playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841 — Mathematical Foundations of Machine Learning](https://nptel.ac.in/courses/106108841)
+- YouTube playlist: [MFML (Prathosh A.P.)](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
 - Instructor: [Dr. Prathosh A.P.](https://prathosh.in/)
 
-## Suggested background (before / during early weeks)
+## Prerequisites / refreshers
 
-- A first course in **probability** (random variables, distributions, expectation, LLN)
-- Comfortable with basic **linear algebra** (vectors, matrices) — deepened as needed in later lectures
+| Topic | Resource |
+|-------|----------|
+| Probability basics | Blitzstein & Hwang, *Introduction to Probability* (free online) |
+| Probability (measure-minded) | Bertsekas & Tsitsiklis, *Introduction to Probability* |
+| Linear algebra refresh | Deisenroth et al., *Mathematics for Machine Learning* (free PDF) |
 
-## To add later
+## Core ML theory texts (use as needed by lecture)
 
-As lectures introduce books/papers (Bishop, Murphy, ESL, papers on EM/SVM/transformers, etc.), list them here under week headings.
+| Topic | Resource |
+|-------|----------|
+| Classical probabilistic ML | Bishop, *Pattern Recognition and Machine Learning* |
+| Modern probabilistic ML | Murphy, *Probabilistic Machine Learning* |
+| Statistical learning | Hastie, Tibshirani, Friedman, *Elements of Statistical Learning* (free PDF) |
+| Information theory (entropy, KL) | Cover & Thomas, *Elements of Information Theory* |
+| Deep learning | Goodfellow, Bengio, Courville, *Deep Learning* |
+
+## Note on math in this site
+
+All notes use `$...$` / `$$...$$` only (not `\\(...\\)`), so symbols like $\Omega$ render correctly with MathJax.
