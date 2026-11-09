@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Around wraps proceed.\n2. AfterReturning only on success.\n3. Always call `proceed()` unless intentionally blocking.
+## Exercises (sample)
+
+1. `@Around`.
+2. `proceed()`.
+3. `@After` runs on success and failure; `@AfterReturning` only on success (and can see the return value).
+4. So it can pass through (or replace) whatever the target method returned — including void as `null`.
+5. Use `throwing = "ex"` (name) and a matching method parameter.
+
+## Self-check
+
+1. **False.** `@Before` returns `void`; to skip/alter control flow use `@Around` (or throw). Interceptor `preHandle` is the boolean gate.
+2. `@AfterThrowing`.
+3. The target method does not run.
+4. `ProceedingJoinPoint`.

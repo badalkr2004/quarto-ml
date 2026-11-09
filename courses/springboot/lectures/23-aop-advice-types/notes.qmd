@@ -1,43 +1,193 @@
 ---
 title: "Lecture 23 — AOP advice types"
-subtitle: "@Before, @After, @Around and friends"
+subtitle: "@Before, @After, @Around (and friends) — when your extra code runs"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [AOP advice types \| Full Course #23](https://www.youtube.com/watch?v=hMsALeV_uG0)  
-**Playlist index:** 23
+**Video:** [Spring AOP Advice Types Explained \| @Before, @After, @Around \| Spring Boot Full Course #23](https://www.youtube.com/watch?v=hMsALeV_uG0)  
+**Playlist index:** 23  
+**Builds on:** [22 — AOP basics](../22-aop-basics/notes.qmd)
 
 ---
-## Advice types
 
-| Annotation | When it runs |
-|------------|--------------|
-| `@Before` | Before method |
-| `@AfterReturning` | After success |
-| `@AfterThrowing` | After exception |
-| `@After` | After finally (success or fail) |
-| `@Around` | Full control; must `proceed()` |
+## Big idea in one line
+
+**Advice** = the code that runs at a chosen moment around a method.  
+Pick the annotation that matches the moment you need — or use **`@Around`** when you need full control (before + after + decide whether to call the method).
+
+```text
+        @Around (outer wrapper)
+   ┌────────────┴────────────┐
+@Before                   @After / @AfterReturning / @AfterThrowing
+   │                           │
+   └──────── method body ──────┘
+```
+
+---
+
+## Topic 1 — Advice cheat sheet
+
+| Annotation | Runs | Typical use |
+|------------|------|-------------|
+| `@Before` | Before method | Auth check, log entry args |
+| `@AfterReturning` | After success (can see return value) | Log result |
+| `@AfterThrowing` | After exception | Log error |
+| `@After` | After method finishes (success or fail) | Cleanup-ish logging |
+| `@Around` | Wraps the whole call | Timing, retry, modify args/result |
+
+`@After` runs for both success and failure (like `finally` relative to the join point).  
+`@AfterReturning` only on success; `@AfterThrowing` only on failure.
+
+---
+
+## Topic 2 — `@Before`
+
+```java
+@Before("execution(* com.example.demo.service.*.*(..))")
+public void before(JoinPoint jp) {
+    System.out.println("BEFORE " + jp.getSignature().getName());
+    System.out.println("args=" + Arrays.toString(jp.getArgs()));
+}
+```
+
+`JoinPoint` gives method signature and arguments.
+
+---
+
+## Topic 3 — `@AfterReturning` / `@AfterThrowing` / `@After`
+
+```java
+@AfterReturning(
+    pointcut = "execution(* com.example.demo.service.*.*(..))",
+    returning = "result")
+public void afterReturn(JoinPoint jp, Object result) {
+    System.out.println("RETURNED " + result);
+}
+
+@AfterThrowing(
+    pointcut = "execution(* com.example.demo.service.*.*(..))",
+    throwing = "ex")
+public void afterThrow(JoinPoint jp, Throwable ex) {
+    System.out.println("THREW " + ex.getMessage());
+}
+
+@After("execution(* com.example.demo.service.*.*(..))")
+public void afterFinally(JoinPoint jp) {
+    System.out.println("AFTER (always) " + jp.getSignature().getName());
+}
+```
+
+Names in `returning = "result"` / `throwing = "ex"` must match the method parameter names.
+
+---
+
+## Topic 4 — `@Around` (most powerful)
 
 ```java
 @Around("execution(* com.example.demo.service.*.*(..))")
-public Object time(ProceedingJoinPoint pjp) throws Throwable {
-    long t = System.currentTimeMillis();
+public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    long start = System.currentTimeMillis();
     try {
-        return pjp.proceed();
+        Object result = pjp.proceed(); // call the real method
+        return result;
     } finally {
-        System.out.println(pjp.getSignature() + " " + (System.currentTimeMillis()-t) + "ms");
+        long took = System.currentTimeMillis() - start;
+        System.out.println(pjp.getSignature().getName() + " took " + took + "ms");
     }
 }
 ```
 
-## Practice
+### Rules that bite beginners
 
-Time all service methods with `@Around`. Add `@Before` that logs method name.
+1. **`proceed()`** runs the target method (and later advice further inside).  
+2. If you forget `proceed()`, the business method never runs.  
+3. You may call `proceed(args)` with modified arguments.  
+4. You may change / replace the returned value.  
+5. Signature returns `Object` and may declare `throws Throwable`.
+
+```text
+@Around
+  ├─ code before
+  ├─ pjp.proceed()  → real method
+  ├─ code after success
+  └─ catch / finally as you like
+```
+
+---
+
+## Topic 5 — Order when several advice apply
+
+Multiple aspects → use `@Order` on aspect classes.  
+Prefer **one clear `@Around` for timing** rather than fighting a pile of overlapping advice while learning.
+
+Rough intuition for a single aspect stack:
+
+```text
+@Around start
+  @Before
+    method
+  @AfterReturning / @AfterThrowing
+  @After
+@Around end
+```
+
+(Exact nesting can get subtle with many aspects — start simple.)
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Service with success + failure paths
+
+```java
+public String ok() { return "OK"; }
+public String fail() { throw new IllegalStateException("boom"); }
+```
+
+### Step 2 — Add `@Before` and `@After`
+
+Call both methods; confirm AFTER runs even when `fail()` throws (after your exception handler / error path as applicable).
+
+### Step 3 — `@AfterReturning` vs `@AfterThrowing`
+
+Print return value on `ok`; print exception message on `fail`.
+
+### Step 4 — Replace with `@Around` timer
+
+Remove the noisy before/after logs if you want; wrap with `@Around` + `proceed()` + duration log.  
+Confirm forgetting `proceed()` breaks the API (then restore it).
+
+---
+
+## Short map to keep
+
+```text
+@Before          = entrance
+@AfterReturning  = success exit + return value
+@AfterThrowing   = failure exit + exception
+@After           = finally-like
+@Around          = full remote control via proceed()
+```
+
+---
+
+## Exercises
+
+1. Which advice can both measure time and skip the real method?  
+2. What method on `ProceedingJoinPoint` invokes the target?  
+3. Difference between `@After` and `@AfterReturning`?  
+4. Why must `@Around` methods return `Object`?  
+5. How do you bind the thrown exception into an `@AfterThrowing` method?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. True/False: `@Before` can cancel the method by returning `false` (like interceptors).  
+2. Which advice runs only when the method throws?  
+3. What happens if `@Around` never calls `proceed()`?  
+4. Which object type does `@Around` use instead of plain `JoinPoint`?
+
+Answers: [self-check-answers](self-check-answers.qmd)
