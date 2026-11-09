@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Filters + AuthenticationManager.\n2. UserDetailsService.\n3. On success, context populated.
+## Exercises (sample)
+
+1. Easy to miss hashing, context setup, and the rest of Security’s protections; inconsistent with the filter chain.
+2. A `UserDetailsService` and a `PasswordEncoder` (plus valid user data).
+3. Unauthenticated = claim + raw credentials; authenticated = verified principal + authorities.
+4. Exploit protection, authentication, authorization, misc/special (logout, anonymous, exceptions, …).
+5. An HTTP **session** cookie (session id) that reconnects to the stored security context.
+
+## Self-check
+
+1. An **`AuthenticationProvider`** (e.g. `DaoAuthenticationProvider`) via the `AuthenticationManager`.
+2. **False.** You authenticate first, then authorize.
+3. **403 Forbidden.**
+4. Those APIs often do not use cookie sessions for auth (e.g. Bearer tokens); CSRF mainly targets cookie-authenticated browser requests. Still understand the trade-off before disabling.
