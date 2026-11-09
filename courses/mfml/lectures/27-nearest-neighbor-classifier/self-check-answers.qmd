@@ -1,0 +1,10 @@
+---
+title: "Lecture 27 — Self-check answers"
+sidebar: mfml
+---
+
+1. Fix $K$ and grow $V$ until $K$ points are enclosed (Parzen fixes $V$ and counts $K$).  
+2. Joint $\propto K_i$; marginal $\propto\sum_j K_j=K$; ratio $K_i/K$.  
+3. Predict the majority label among the $k$ nearest training points.  
+4. Predict the label of the single closest training point.  
+5. Even this simple rule is theoretically strong; beating Bayes by huge margins with something worse than NN is a red flag.
