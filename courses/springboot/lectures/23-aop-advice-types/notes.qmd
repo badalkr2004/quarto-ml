@@ -1,0 +1,43 @@
+---
+title: "Lecture 23 — AOP advice types"
+subtitle: "@Before, @After, @Around and friends"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [AOP advice types \| Full Course #23](https://www.youtube.com/watch?v=hMsALeV_uG0)  
+**Playlist index:** 23
+
+---
+## Advice types
+
+| Annotation | When it runs |
+|------------|--------------|
+| `@Before` | Before method |
+| `@AfterReturning` | After success |
+| `@AfterThrowing` | After exception |
+| `@After` | After finally (success or fail) |
+| `@Around` | Full control; must `proceed()` |
+
+```java
+@Around("execution(* com.example.demo.service.*.*(..))")
+public Object time(ProceedingJoinPoint pjp) throws Throwable {
+    long t = System.currentTimeMillis();
+    try {
+        return pjp.proceed();
+    } finally {
+        System.out.println(pjp.getSignature() + " " + (System.currentTimeMillis()-t) + "ms");
+    }
+}
+```
+
+## Practice
+
+Time all service methods with `@Around`. Add `@Before` that logs method name.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
