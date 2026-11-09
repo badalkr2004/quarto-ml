@@ -1,0 +1,136 @@
+---
+title: "Lecture 30 — Linear Models for Classification"
+subtitle: "Sigmoid, softmax, logistic models, and gradient descent for ERM"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 30 — Linear Models for Classification](https://www.youtube.com/watch?v=EydAoMbslkc)
+
+## Learning goals
+
+- Adapt a linear hypothesis so its range matches **labels** (binary and $K$-class).
+- Recognize **logistic regression** as $\sigma(\theta^\top x)$ / softmax of a linear map.
+- See why classification ERM usually needs **gradient descent**, and how **cross-entropy** fits the recipe.
+
+## Before this clicks
+
+ERM picks $\theta$ by minimizing average loss of a hypothesis $h_\theta$ on data. For regression we often used $h_\theta(x)=\theta^\top x$ (or $\theta^\top\phi(x)$) with squared loss. Classification labels live in a discrete set (or one-hot vectors), so a raw linear score is the wrong *type* of output until we compose with a squash / normalize map.
+
+---
+
+## Main ideas
+
+### 1. Range mismatch for classification
+
+Data: $\mathcal{D}=\{(x_i,y_i)\}$ with $x_i\in\mathbb{R}^{d}$.
+
+- Binary: $y_i\in\{0,1\}$ (or $\{-1,+1\}$).
+- $K$-class: often encode $y$ as a **one-hot** vector in $\{0,1\}^{K}$.
+
+If $h_\theta(x)=\theta^\top x\in\mathbb{R}$, the range is not $\{0,1\}$ (or the simplex). Fix by **composition**.
+
+### 2. Binary case: logistic / sigmoid link
+
+$$
+h_\theta(x)=\sigma(\theta^\top x),\qquad
+\sigma(t)=\frac{1}{1+e^{-t}}.
+$$
+
+Then $h_\theta(x)\in(0,1)$. A common classifier is thresholding:
+
+$$
+\hat{y}(x)=\mathbf{1}\{h_\theta(x)>\tau\}
+$$
+
+for a threshold $\tau$ (a hyperparameter; ROC / false-positive tradeoffs appear in the tutorials). Same idea works with $\sigma(\theta^\top\phi(x))$ (generalized linear features).
+
+In class: any map that asymptotes to $0$ on the left and $1$ on the right is a **sigmoid** in Cybenko’s sense; the logistic is one popular choice.
+
+### 3. $K$-class case: linear scores + softmax
+
+Let $\Theta\in\mathbb{R}^{K\times d}$ and scores $v=\Theta x\in\mathbb{R}^{K}$. Softmax:
+
+$$
+[\mathrm{softmax}(v)]_j
+=\frac{e^{v_j}}{\sum_{k=1}^{K}e^{v_k}}.
+$$
+
+Properties: each coordinate in $(0,1)$, and they **sum to $1$** (a discrete distribution over classes). Final decision: usually $\arg\max_j$ of the softmax (or another rule you choose).
+
+These models are the **logistic** classifiers / logistic regression family.
+
+### 4. Loss + ERM: squared or cross-entropy
+
+With one-hot $y$ and probability vector $h_\theta(x)$, squared error is possible but awkward. Cross-entropy (discrete) is the natural KL-style loss:
+
+$$
+L\big(h_\theta(x),y\big)
+=-\sum_{k=1}^{K} y_k\log\big([h_\theta(x)]_k\big)
+$$
+
+(use the convention that puts the **hard** $0/1$ label outside the $\log$ so $\log 0$ does not appear). Cross-entropy $= $ KL $+$ entropy of the label distribution.
+
+**Exercise from class:** which conditional $P(Y\mid X)$ makes MLE match this loss?
+
+### 5. No closed form $\Rightarrow$ gradient descent
+
+Unlike OLS, softmax + CE (or logistic + CE) generally has **no closed-form** $\theta^\star$. Numerically:
+
+$$
+\theta^{(t+1)}=\theta^{(t)}-\alpha\,\nabla_\theta \widehat{R}(\theta^{(t)}).
+$$
+
+- First-order methods dominate huge models (Hessian for $10^{10}$ parameters is impossible).
+- Nonconvex surfaces: GD is **not** guaranteed to find a global minimum; the update comes from a first-order Taylor picture.
+- Logistic gradients can be hardcoded; deep nets need **backpropagation** (later).
+
+### 6. Recipe (and teaser)
+
+Choose $h_\theta$, choose a loss, run GD on ERM. Same story as MLE / KL minimization under different packaging. Next lectures: **bias–variance**, then **regularized ERM $\leftrightarrow$ MAP**.
+
+---
+
+## Worked mini-example
+
+Binary $x\in\mathbb{R}^{2}$, $\theta=(1,1)$, $\tau=1/2$.
+
+$$
+\sigma(\theta^\top x)=\sigma(x_1+x_2).
+$$
+
+- Point $(2,2)$: score $4$, $\sigma(4)\approx 0.98>1/2$ $\to$ class $1$.
+- Point $(-1,0)$: score $-1$, $\sigma(-1)\approx 0.27<1/2$ $\to$ class $0$.
+
+Changing $\tau$ moves the decision boundary in score-space and trades false positives vs false negatives (ROC).
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| “Logistic regression is a classifier with range $\{0,1\}$” | The model outputs a **probability** in $(0,1)$; the discrete label comes from a **threshold**. |
+| Softmax outputs a one-hot | Softmax outputs a **soft** distribution; one-hot is for labels (or after $\arg\max$). |
+| Squared loss for classification is “wrong” | It is a design choice with an implicit Gaussian-style story; CE matches a discrete conditional better. |
+| GD always finds the global ERM optimum | Not for general nonconvex $\widehat{R}$. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop, *PRML* — logistic / softmax regression
+- Murphy, *Probabilistic Machine Learning* — GLM / classification chapter
+
+## Self-check questions
+
+1. Why is $h_\theta(x)=\theta^\top x$ alone a bad range match for binary labels in $\{0,1\}$?
+2. Write $\sigma(t)$ and state the range of $\sigma(\theta^\top x)$.
+3. Give the $j$-th coordinate of $\mathrm{softmax}(v)$.
+4. Write the multiclass cross-entropy loss between one-hot $y$ and $h_\theta(x)$.
+5. Why do huge models use first-order GD rather than Newton / Hessian methods?
+
+*(Short answers are in `self-check-answers.qmd`.)*
