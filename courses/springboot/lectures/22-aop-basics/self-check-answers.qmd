@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. Shared logic via proxies.\n2. Advice/pointcut/proxy.\n3. Call through Spring bean, not `this`.
+## Exercises (sample)
+
+1. Logging, timing, security checks, transactions, auditing.
+2. Duplication, easy to miss methods, harder to change the log format later.
+3. A **proxy** wrapping the real target bean.
+4. **No.** It must be a Spring bean (`@Component` / `@Bean`).
+5. `spring-boot-starter-aop`.
+
+## Self-check
+
+1. Aspect-Oriented Programming.
+2. **False.** Filters are HTTP/servlet-level; service-to-service calls need AOP (or similar).
+3. Which join points (methods) the advice should apply to.
+4. `@Transactional` (also parts of Spring Security method security).

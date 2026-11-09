@@ -1,39 +1,202 @@
 ---
 title: "Lecture 22 — AOP basics"
-subtitle: "Cross-cutting concerns and proxies"
+subtitle: "Cross-cutting concerns and proxies (why logging need not live in every method)"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [AOP basics \| Full Course #22](https://www.youtube.com/watch?v=s4B-WbUWEFs)  
-**Playlist index:** 22
+**Video:** [Spring AOP \| Cross-Cutting Concerns & Proxies \| Spring Boot Full Course #22](https://www.youtube.com/watch?v=s4B-WbUWEFs)  
+**Playlist index:** 22  
+**Builds on:** IoC beans, Filters/Interceptors (HTTP-only cross-cutting)
 
 ---
-## Big idea
 
-Some needs touch many methods: logging, timing, transactions, security.  
-Copy-paste into every method is bad. **AOP** adds that behavior around methods using **proxies**.
+## Big idea in one line
+
+**AOP (Aspect-Oriented Programming)** lets you keep shared behavior — logging, timing, transactions, security checks — in one place (**aspect**), and apply it to many methods without copy-paste.  
+Spring usually does this with a **proxy** around your bean.
 
 ```text
-Caller → Spring proxy → @Before advice → real method → @After advice → back
+Without AOP                         With AOP
+───────────                         ────────
+OrderService.place()                OrderService.place()  ← clean business
+  log...                              │
+  time...                             ▼
+  business                            Proxy
+  log...                                ├─ log / time / security
+                                        └─ real OrderService.place()
 ```
 
-## Terms
+---
 
-| Term | Plain meaning |
-|------|----------------|
-| Cross-cutting concern | Logic needed in many places |
-| Advice | The extra code (before/after/around) |
-| Pointcut | Which methods get the advice |
-| Proxy | Wrapper object Spring injects instead of the raw bean |
+## Topic 1 — Cross-cutting concerns
 
-## Practice mindset
+A concern is “cross-cutting” when it cuts across many classes:
 
-Call a `@Service` method from another bean (not `this` inside same class) so the proxy applies.
+| Concern | Shows up in |
+|---------|-------------|
+| Logging | almost every service method |
+| Timing | APIs / slow use-cases |
+| Transactions | many service methods (`@Transactional` is AOP!) |
+| Security | methods that need roles |
+
+Filters/Interceptors help for **HTTP**.  
+AOP helps for **any Spring bean method** (service layer especially).
+
+---
+
+## Topic 2 — Core vocabulary (simple)
+
+```text
+Aspect     = the class that holds the extra behavior (@Aspect)
+Advice     = the actual code that runs (@Before, @Around, ...)
+Join point = a moment you could plug into (method call in Spring AOP)
+Pointcut   = expression choosing which join points
+Proxy      = wrapper bean clients actually call
+```
+
+Mindmap:
+
+```text
+          @Aspect
+             │
+     ┌───────┴────────┐
+ Pointcut          Advice
+ "which methods?"  "what to run?"
+             │
+          Proxy applies both
+             │
+          Your @Service
+```
+
+---
+
+## Topic 3 — Why proxies?
+
+You ask Spring for `OrderService`.  
+If an aspect applies, Spring may give you a **proxy object** that implements the same API:
+
+```text
+Client → orderService.place()
+           │
+           ▼
+         Proxy
+           ├─ run advice
+           └─ call target.place() on real bean
+```
+
+**Important limitation (preview):** self-calls inside the same class (`this.otherMethod()`) do **not** go through the proxy, so advice may not run. Call through the injected bean/proxy instead. More in lecture 24.
+
+---
+
+## Topic 4 — Enable AOP in Boot
+
+Dependency:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-aop</artifactId>
+</dependency>
+```
+
+That starter pulls AspectJ weaving support for Spring AOP proxies.
+
+Mark the aspect as a bean:
+
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+    // advice methods in next lectures
+}
+```
+
+`@Aspect` alone is not enough — it must also be a Spring bean (`@Component` or `@Bean`).
+
+---
+
+## Topic 5 — Tiny first taste (`@Before`)
+
+```java
+@Aspect
+@Component
+public class LoggingAspect {
+
+    @Before("execution(* com.example.demo.service.*.*(..))")
+    public void logBefore(JoinPoint joinPoint) {
+        System.out.println("Calling: " + joinPoint.getSignature());
+    }
+}
+```
+
+Call any matching service method → log appears **without** editing that service.
+
+We will unpack advice types and pointcuts in lectures 23–24.
+
+---
+
+## Picture: HTTP tools vs AOP
+
+```text
+HTTP request concerns     → Filter / Interceptor
+Any bean method concerns  → Spring AOP aspect
+DB transaction boundary   → @Transactional (AOP under the hood)
+```
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Add starter
+
+Add `spring-boot-starter-aop` to the POM; reload Maven.
+
+### Step 2 — Aspect + `@Before`
+
+1. Create `LoggingAspect` with `@Aspect` + `@Component`.  
+2. Pointcut: all methods in your `service` package.  
+3. Print method name in `@Before`.
+
+### Step 3 — Prove it
+
+Call a service method from a controller.  
+You should see the aspect log, then business output — service class itself has no log lines.
+
+### Step 4 — Remove starter temporarily (optional)
+
+Comment out AOP starter / or the `@Aspect` bean → logs disappear. Confirms advice is not “magic in the service.”
+
+---
+
+## Short map to keep
+
+```text
+Cross-cutting = same extra logic in many places
+Aspect holds that logic once
+Spring AOP ≈ proxy around bean
+starter-aop + @Aspect + @Component
+Filters ≠ AOP (different layer)
+```
+
+---
+
+## Exercises
+
+1. Give two examples of cross-cutting concerns.  
+2. Why is copy-pasting `log.info` into every service method painful?  
+3. What object do callers often receive instead of the raw target bean when AOP applies?  
+4. Does `@Aspect` work without registering the class as a Spring bean?  
+5. Which starter enables Spring AOP in Boot?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Expand AOP.  
+2. True/False: Filters alone can wrap every service method, even non-web calls.  
+3. What is a pointcut selecting?  
+4. Name one famous Spring feature that uses AOP behind the scenes.
+
+Answers: [self-check-answers](self-check-answers.qmd)
