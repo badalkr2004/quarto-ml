@@ -1,0 +1,124 @@
+---
+title: "Lecture 18 — MLE for Generalized Discrete Random Variable"
+subtitle: "One-hot coding, constrained MLE, and empirical frequencies"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 18 — MLE for Generalized Discrete Random Variable](https://www.youtube.com/watch?v=j7jbpicYdik)
+
+---
+
+## Learning goals
+
+- Model a general discrete RV with $M$ atoms and probabilities $p_1,\ldots,p_M$
+- Write its PMF using **one-hot** auxiliary codes
+- Solve constrained MLE $\Rightarrow$ $\hat p_j=$ empirical frequency of symbol $a_j$
+
+---
+
+## Before this clicks
+
+MLE maximizes $\sum_i\log P_\theta(v_i)$.  
+Probabilities must satisfy $p_j\ge 0$ and $\sum_j p_j=1$ (constrained optimization / Lagrange).
+
+---
+
+## Main ideas
+
+### 1. Model
+
+Each $V_i$ takes values in $\{a_1,\ldots,a_M\}$ with
+
+$$
+P(V=a_j)=p_j,\qquad \theta=(p_1,\ldots,p_M).
+$$
+
+(Coin = $M=2$; die = $M=6$.) Only $M-1$ free parameters because of the simplex constraint.
+
+### 2. One-hot representation
+
+For each observation $v_i$, define $z_i\in\{0,1\}^{M}$ with
+
+$$
+z_{ij}=1 \iff v_i=a_j.
+$$
+
+Example (die): $v=2$ $\mapsto$ $(0,1,0,0,0,0)$.
+
+Then the PMF compactly reads
+
+$$
+P_\theta(v_i)=\prod_{j=1}^{M} p_j^{z_{ij}}.
+$$
+
+(Only the matching $p_j$ survives.)
+
+### 3. Log-likelihood
+
+$$
+\sum_{i=1}^{n}\log P_\theta(v_i)=\sum_{i=1}^{n}\sum_{j=1}^{M} z_{ij}\log p_j.
+$$
+
+### 4. Constraints matter
+
+Without $\sum_j p_j=1$ and bounds, maximizing $\sum z_{ij}\log p_j$ drives some $p_j\to\infty$. So optimize with
+
+$$
+p_j\ge 0,\qquad \sum_{j=1}^{M}p_j=1.
+$$
+
+Lagrangian algebra (exercise in class) yields
+
+$$
+\hat p_j=\frac{1}{n}\sum_{i=1}^{n} z_{ij}=\frac{\#\{i:v_i=a_j\}}{n}.
+$$
+
+**Moral:** counting frequencies **is** MLE for this categorical model — again minimum KL under that assumption.
+
+### 5. Estimator quality (pointer)
+
+How close $\hat p$ is to true $p$ is a concentration / confidence question (analogous to generalization for ERM). Beyond this course’s depth, but the same spirit.
+
+---
+
+## Worked mini-example
+
+Die rolls: $2,3,2,1,2$ ($n=5$). Then
+
+$$
+\hat p_1=\tfrac15,\; \hat p_2=\tfrac35,\; \hat p_3=\tfrac15,\; \hat p_4=\hat p_5=\hat p_6=0.
+$$
+
+(Zero estimates for unseen faces are allowed under plain MLE; smoothing is a later / other topic.)
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| This is binomial / multinomial trials | One categorical draw’s PMF; multinomial is counts from many IID draws |
+| Unconstrained MLE is fine | Without simplex constraints the optimum is nonsense |
+| One-hot changes the experiment | Reparameterization for algebra; same data |
+| Frequency estimator is “just heuristics” | It is the ML estimator for this model |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Blitzstein & Hwang — discrete RVs / MLE intuition
+- Bishop *PRML* Ch.2 — multinomial / categorical
+
+## Self-check questions
+
+1. How many free parameters does $(p_1,\ldots,p_M)$ really have?
+2. Write $P_\theta(v_i)$ using one-hot $z_{ij}$.
+3. Why add Lagrange constraints before differentiating?
+4. State $\hat p_j$ in counting language.
+5. Name one practical issue with $\hat p_j=0$ for unseen symbols.
+
+*(Short answers are in `self-check-answers.qmd`.)*

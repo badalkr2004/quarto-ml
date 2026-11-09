@@ -1,0 +1,10 @@
+---
+title: "Lecture 18 — Self-check answers"
+sidebar: mfml
+---
+
+1. $M-1$, because $\sum_j p_j=1$ (and non-negativity).
+2. $P_\theta(v_i)=\prod_{j=1}^M p_j^{z_{ij}}$.
+3. Without them the log-likelihood is unbounded in the $p_j$'s; probabilities would not stay on the simplex.
+4. $\hat p_j=$ (number of times $a_j$ appears)$/n$.
+5. Unseen symbols get probability $0$, so any future observation of them has likelihood $0$ under the fitted model ( motivates smoothing / priors later).
