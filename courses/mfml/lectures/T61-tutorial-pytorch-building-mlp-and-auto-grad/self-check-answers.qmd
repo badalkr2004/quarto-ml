@@ -1,0 +1,10 @@
+---
+title: "Tutorial 12 — Self-check answers"
+sidebar: mfml
+---
+
+1. Shape $(B,2)$.
+2. Before each training step (after the previous `backward`), so gradients do not accumulate across steps.
+3. `.grad` on tensors that require grad and participated in the graph (typically parameters).
+4. Avoid building an unused computation graph; saves memory and time.
+5. `__init__` (register layers / parameters) and `forward` (compute the output).

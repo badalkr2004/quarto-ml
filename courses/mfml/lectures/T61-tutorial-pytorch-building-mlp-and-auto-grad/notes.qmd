@@ -1,0 +1,131 @@
+---
+title: "Tutorial 12 — PyTorch: Building MLP and Autograd"
+subtitle: "nn.Module layers and reverse-mode gradients for free"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 12 — PyTorch: Building MLP and Autograd](https://www.youtube.com/watch?v=SEEQ2A2WN9g)
+
+## Learning goals
+
+- Build a small **MLP** with `nn.Linear` and nonlinearities inside `nn.Module`.
+- Explain what **autograd** stores and how `loss.backward()` fills `.grad`.
+- Distinguish parameters (`requires_grad=True`) from plain data tensors.
+
+## Before this clicks
+
+A multilayer perceptron (MLP) stacks affine maps and elementwise nonlinearities:
+
+$$
+h = \sigma(Wx + b).
+$$
+
+Training needs $\partial L/\partial W$ for every weight. **Autograd** builds a computation graph while you run the forward pass, then applies reverse-mode differentiation (backprop) when you call `backward()`.
+
+---
+
+## Main ideas
+
+### 1. `nn.Module` skeleton
+
+```python
+import torch.nn as nn
+
+class MLP(nn.Module):
+    def __init__(self, d_in, d_hid, d_out):
+        super().__init__()
+        self.fc1 = nn.Linear(d_in, d_hid)
+        self.fc2 = nn.Linear(d_hid, d_out)
+        self.act = nn.ReLU()
+    def forward(self, x):
+        return self.fc2(self.act(self.fc1(x)))
+```
+
+`forward` is the math; calling `model(x)` runs it. Submodules registered in `__init__` appear in `model.parameters()`.
+
+### 2. Affine layer shapes
+
+`nn.Linear(d_in, d_out)` implements $y = xW^\top + b$ with
+
+$$
+W\in\mathbb{R}^{d_{\mathrm{out}}\times d_{\mathrm{in}}},\quad
+b\in\mathbb{R}^{d_{\mathrm{out}}}.
+$$
+
+If `x` is $(B,d_{\mathrm{in}})$, output is $(B,d_{\mathrm{out}})$.
+
+### 3. Autograd in one picture
+
+1. Forward: compute $L$ from inputs and parameters.
+2. `loss.backward()`: autograd walks the graph **backward**, accumulating $\partial L/\partial\theta$ into `theta.grad`.
+3. An optimizer (next tutorial) uses those grads to update $\theta$.
+
+Enable tracking with `requires_grad=True` (parameters of `nn.Module` already have it).
+
+```python
+w = torch.tensor([2.0], requires_grad=True)
+x = torch.tensor([3.0])
+y = w * x          # y = 6
+y.backward()       # dy/dw = x = 3
+print(w.grad)      # tensor([3.])
+```
+
+### 4. Gradients accumulate
+
+`.grad` is **additive**. Before a new step, call `optimizer.zero_grad()` (or `model.zero_grad()`), otherwise you sum gradients across steps by accident.
+
+### 5. `torch.no_grad()` for inference
+
+At evaluation, wrap code in `with torch.no_grad():` (or `model.eval()` for dropout/BN behavior) so you do not build a graph you will not differentiate.
+
+---
+
+## Worked mini-example
+
+One-hidden-unit network for scalar $x$:
+
+$$
+\hat{y} = w_2\,\mathrm{ReLU}(w_1 x),\quad
+L=\tfrac12(\hat{y}-t)^2.
+$$
+
+If $x=2$, $w_1=1$, $w_2=3$, $t=4$, then $\mathrm{ReLU}(2)=2$, $\hat{y}=6$, $L=2$. Autograd yields
+
+$$
+\frac{\partial L}{\partial w_2}=(\hat{y}-t)\cdot\mathrm{ReLU}(w_1 x)=2\cdot 2=4,
+$$
+
+and similarly chains into $w_1$. You write the forward expression; PyTorch fills the grads.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Must code backprop by hand | Autograd does it from the forward ops you used. |
+| `backward()` updates weights | It only fills `.grad`; an optimizer applies the update. |
+| Data tensors need `requires_grad` | Usually only **parameters** (and sometimes inputs for saliency). |
+| Calling `forward` twice without `zero_grad` | Grads **accumulate**; clear between optimizer steps. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- [torch.nn](https://pytorch.org/docs/stable/nn.html)
+- [Autograd mechanics](https://pytorch.org/docs/stable/notes/autograd.html)
+- Goodfellow et al. — *Deep Learning* (backprop)
+
+## Self-check questions
+
+1. What does `nn.Linear(4, 2)` map a batch of shape $(B,4)$ to?
+2. When should you call `zero_grad()`?
+3. What does `loss.backward()` write into?
+4. Why wrap validation in `torch.no_grad()`?
+5. Name the two pieces every `nn.Module` subclass usually defines.
+
+*(Short answers are in `self-check-answers.qmd`.)*
