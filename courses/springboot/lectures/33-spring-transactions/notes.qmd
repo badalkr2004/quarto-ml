@@ -1,0 +1,37 @@
+---
+title: "Lecture 33 — Spring transactions"
+subtitle: "ACID, @Transactional, commit & rollback"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring transactions \| Full Course #33](https://www.youtube.com/watch?v=mpxdC8fKy1Y)  
+**Playlist index:** 33
+
+---
+## Big idea
+
+`@Transactional` on a service method: all DB work commits together or rolls back together.
+
+```text
+start transaction
+  update A
+  update B  (fails) → rollback A and B
+end
+```
+
+## Practice
+
+1. Two updates in one `@Transactional` method; throw after first; confirm rollback.
+2. Call from controller → service (proxy applies).
+
+## Reasoning
+
+Self-invocation can skip transaction proxy — same lesson as AOP.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
