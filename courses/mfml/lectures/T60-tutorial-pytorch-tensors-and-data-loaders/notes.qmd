@@ -1,0 +1,136 @@
+---
+title: "Tutorial 11 — PyTorch: Tensors and Data Loaders"
+subtitle: "Arrays with gradients, shapes, and batched data pipelines"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 11 — PyTorch: Tensors and Data Loaders](https://www.youtube.com/watch?v=vm9FYVtM5ZA)
+
+## Learning goals
+
+- Treat a **tensor** as a multidimensional array that can live on CPU/GPU and (later) track gradients.
+- Read and reshape **shapes** like `(N, C, H, W)` without guessing.
+- Build a tiny `Dataset` and wrap it in a `DataLoader` for mini-batches.
+
+## Before this clicks
+
+NumPy arrays hold numbers. A PyTorch `Tensor` is the same idea, plus: device placement, dtype control, and optional **autograd** tracking. Neural nets train on **mini-batches** — small groups of examples — so you need a pipeline that yields `(inputs, labels)` repeatedly. That pipeline is `Dataset` + `DataLoader`.
+
+---
+
+## Main ideas
+
+### 1. Creating tensors
+
+```python
+import torch
+
+x = torch.tensor([[1.0, 2.0], [3.0, 4.0]])  # shape (2, 2)
+z = torch.zeros(3, 4)                         # shape (3, 4)
+r = torch.randn(2, 3)                         # standard normal
+```
+
+Useful attributes: `x.shape`, `x.dtype`, `x.device`. Convert: `torch.from_numpy(a)` / `x.numpy()` (careful with shared memory and `requires_grad`).
+
+### 2. Shapes and indexing
+
+Think of shape left-to-right as “outer to inner.” For images, a common layout is
+
+$$
+(N, C, H, W)
+$$
+
+= batch size, channels, height, width. For a batch of feature vectors,
+
+$$
+(N, D)
+$$
+
+= $N$ examples, each with $D$ features.
+
+Operations like `view` / `reshape`, `permute`, and `unsqueeze` / `squeeze` change layout without inventing new data (when contiguous rules allow).
+
+### 3. Elementwise ops vs matmul
+
+- `+`, `*`, `torch.exp` act **elementwise** (with broadcasting).
+- Matrix multiply: `x @ W` or `torch.matmul(x, W)`.
+
+If `x` has shape $(N,D)$ and $W$ has shape $(D,H)$, then
+
+$$
+xW \in \mathbb{R}^{N\times H}.
+$$
+
+### 4. `Dataset`: one example at a time
+
+Implement `__len__` and `__getitem__(i)`:
+
+```python
+from torch.utils.data import Dataset
+
+class ToyDataset(Dataset):
+    def __init__(self, X, y):
+        self.X, self.y = X, y
+    def __len__(self):
+        return len(self.X)
+    def __getitem__(self, i):
+        return self.X[i], self.y[i]
+```
+
+### 5. `DataLoader`: batches and shuffling
+
+```python
+from torch.utils.data import DataLoader
+
+loader = DataLoader(ToyDataset(X, y), batch_size=32, shuffle=True)
+for xb, yb in loader:
+    # xb shape (B, ...), yb shape (B,) or (B, ...)
+    pass
+```
+
+`shuffle=True` for training; often `False` for validation. `num_workers` speeds I/O on large disks; start with `0` while debugging.
+
+---
+
+## Worked mini-example
+
+Four points in $\mathbb{R}^{2}$ with labels:
+
+$$
+X=\begin{bmatrix}0&0\\0&1\\1&0\\1&1\end{bmatrix},\quad
+y=\begin{bmatrix}0\\1\\1\\0\end{bmatrix}.
+$$
+
+`DataLoader(..., batch_size=2, shuffle=False)` yields two batches of shape $(2,2)$ for $X$ and $(2,)$ for $y$. With `shuffle=True`, which two rows travel together changes each epoch.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Tensor = only 2D matrix | Tensors can be 0D–nD; matrices are the 2D special case. |
+| `shape` order is optional | Order is a contract; permute wrong axes and the model sees garbage. |
+| `Dataset` must load all data into RAM | `__getitem__` can read from disk; the loader only holds the current batch. |
+| Batch dim is always last | In PyTorch vision/NLP, batch is almost always the **first** axis. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- [PyTorch tensors](https://pytorch.org/docs/stable/tensors.html)
+- [Dataset / DataLoader](https://pytorch.org/docs/stable/data.html)
+
+## Self-check questions
+
+1. What does shape $(N,D)$ mean for a batch of vectors?
+2. Why wrap a `Dataset` in a `DataLoader` instead of indexing by hand?
+3. If `x` is $(B,3,32,32)$, what are $B$, $3$, and $32$?
+4. Name one difference between elementwise `*` and `@`.
+5. Should `shuffle` usually be on for train, val, or both?
+
+*(Short answers are in `self-check-answers.qmd`.)*

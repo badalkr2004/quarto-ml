@@ -1,0 +1,10 @@
+---
+title: "Tutorial 11 — Self-check answers"
+sidebar: mfml
+---
+
+1. $N$ examples, each a $D$-dimensional feature vector (batch first).
+2. The loader builds mini-batches, can shuffle, and handles collation / workers so the train loop stays simple.
+3. Batch size $B$; $3$ channels (e.g. RGB); spatial height/width $32$.
+4. `*` multiplies matching entries; `@` / `matmul` does linear algebra matrix products.
+5. Usually **train** yes, **validation/test** no (stable metrics).
