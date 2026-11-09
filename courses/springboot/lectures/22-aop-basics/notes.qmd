@@ -1,0 +1,39 @@
+---
+title: "Lecture 22 — AOP basics"
+subtitle: "Cross-cutting concerns and proxies"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [AOP basics \| Full Course #22](https://www.youtube.com/watch?v=s4B-WbUWEFs)  
+**Playlist index:** 22
+
+---
+## Big idea
+
+Some needs touch many methods: logging, timing, transactions, security.  
+Copy-paste into every method is bad. **AOP** adds that behavior around methods using **proxies**.
+
+```text
+Caller → Spring proxy → @Before advice → real method → @After advice → back
+```
+
+## Terms
+
+| Term | Plain meaning |
+|------|----------------|
+| Cross-cutting concern | Logic needed in many places |
+| Advice | The extra code (before/after/around) |
+| Pointcut | Which methods get the advice |
+| Proxy | Wrapper object Spring injects instead of the raw bean |
+
+## Practice mindset
+
+Call a `@Service` method from another bean (not `this` inside same class) so the proxy applies.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
