@@ -1,0 +1,143 @@
+---
+title: "Tutorial 4 — Minmax Classifier"
+subtitle: "A classifier whose risk does not depend on the class prior"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 4 — Minmax Classifier](https://www.youtube.com/watch?v=ENpzs2ycXJE)
+
+---
+
+## Learning goals
+
+- Recall the two-class risk integral and how it depends on the prior.
+- Define the **minmax classifier** and see why its risk is prior-independent.
+- For 1-D Gaussian class-conditionals, find the threshold that satisfies the minmax condition.
+
+---
+
+## Before this clicks
+
+**Risk** for a classifier $h$ is the expected loss under the true joint distribution of $(X,Y)$. For two classes $Y\in\{0,1\}$ with $0\text{--}1$-style losses, risk splits into two pieces: mistakes in region $S_1(h)$ (where $h$ says $1$) when $Y=0$, and mistakes in $S_0(h)$ when $Y=1$.
+
+The **prior** $P(Y=0)$ is how often class $0$ occurs. The Bayes classifier needs the prior; if the prior is unknown or can change, we may want a different design.
+
+---
+
+## Main ideas
+
+### 1. Risk is linear in the prior (for a fixed classifier)
+
+For a two-class problem, $P(Y=0)=1-P(Y=1)$. Substituting into the risk integral and rearranging shows:
+
+> For any **fixed** hypothesis $h$, risk varies **linearly** with the prior $P(Y=0)$.
+
+Intuition: one error type is weighted by the prior, the other by $1-$prior; fix $h$ and only those weights move.
+
+### 2. Definition of the minmax classifier
+
+A classifier $h_{\mathrm{mm}}$ is called a **minmax** (or min–max) classifier when the two weighted error contributions match in the sense that the coefficient of the prior vanishes. Concretely (equal-loss case), the condition becomes
+
+$$
+\int_{S_1(h)} p(x\mid Y=0)\,dx \;=\; \int_{S_0(h)} p(x\mid Y=1)\,dx.
+$$
+
+In words: the probability of saying “$1$” when truth is $0$ equals the probability of saying “$0$” when truth is $1$ (under equal loss magnitudes).
+
+**Consequence:** risk of $h_{\mathrm{mm}}$ no longer depends on the prior.
+
+### 3. Picture: Bayes risk vs fixed $h$ vs minmax
+
+- Bayes risk (best possible for each prior) is typically a **U-shaped / quadratic-looking** curve vs prior.
+- Any fixed classifier is a **straight line** vs prior.
+- A minmax classifier is a **horizontal line** (constant risk).
+
+The minmax rule is useful when you distrust the prior or want worst-case-prior robustness.
+
+### 4. Worked case: 1-D Gaussians, equal losses
+
+Assume one feature $X\in\mathbb{R}$, class-conditionals
+
+$$
+X\mid Y=i \;\sim\; \mathcal{N}(\mu_i,\sigma_i^2),\qquad \mu_0<\mu_1,
+$$
+
+and a threshold rule: $h(x)=0$ iff $x<a$ (else $1$).
+
+The minmax condition becomes equal tail areas:
+
+$$
+\int_{a}^{\infty} p(x\mid Y=0)\,dx \;=\; \int_{-\infty}^{a} p(x\mid Y=1)\,dx.
+$$
+
+Standardizing to $\Phi$ (standard normal CDF) yields
+
+$$
+\Phi\!\left(\frac{\mu_0-a}{\sigma_0}\right) \;=\; \Phi\!\left(\frac{a-\mu_1}{\sigma_1}\right),
+$$
+
+hence
+
+$$
+\frac{\mu_0-a}{\sigma_0} \;=\; \frac{a-\mu_1}{\sigma_1},
+$$
+
+and the threshold
+
+$$
+a \;=\; \frac{\mu_0\sigma_1 + \mu_1\sigma_0}{\sigma_0+\sigma_1}.
+$$
+
+### Observations
+
+1. This minmax threshold is a **linear** rule in the means/stds; the Bayes threshold for the same Gaussians is generally **quadratic** (depends on the prior and variances).
+2. If $\sigma_0=\sigma_1=\sigma$, then $a=(\mu_0+\mu_1)/2$, which matches the Bayes threshold for equal priors and equal variances.
+
+---
+
+## Worked mini-example
+
+Suppose $\mu_0=0$, $\mu_1=4$, $\sigma_0=\sigma_1=1$. Minmax threshold:
+
+$$
+a = \frac{0\cdot 1 + 4\cdot 1}{1+1} = 2.
+$$
+
+Same as the equal-prior Bayes threshold. If instead $\sigma_0=1$, $\sigma_1=2$:
+
+$$
+a = \frac{0\cdot 2 + 4\cdot 1}{1+2} = \frac{4}{3}.
+$$
+
+The decision boundary shifts toward the tighter class-$0$ density so the two misclassification areas match.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Minmax = Bayes | No. Bayes minimizes risk for a **known** prior; minmax makes risk **insensitive** to the prior. |
+| Minmax ignores losses | Losses still matter; the equal-area form above assumes the relevant loss magnitudes are equal. |
+| Always worse than Bayes | For the true prior, Bayes is best; minmax can be better if the prior you used for Bayes is wrong. |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork, *Pattern Classification* — classical decision theory (Bayes / minimax)
+- Bishop, *Pattern Recognition and Machine Learning*, Ch.1 — decision theory overview
+
+## Self-check questions
+
+1. Why is risk linear in the prior for a fixed two-class classifier?
+2. State the integral condition that defines a minmax classifier (equal-loss case).
+3. For 1-D Gaussians with $\mu_0<\mu_1$, give the minmax threshold $a$.
+4. When does this minmax rule coincide with the Bayes rule (equal variances case)?
+5. Sketch Bayes risk, a fixed-$h$ line, and a minmax horizontal line vs prior.
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Tutorial 4 — Self-check answers"
+sidebar: mfml
+---
+
+1. After substituting $P(Y=0)=1-P(Y=1)$ into the two-class risk integral and rearranging, risk is an affine function of the prior for fixed decision regions $S_0(h),S_1(h)$.  
+2. $\int_{S_1(h)} p(x\mid Y=0)\,dx = \int_{S_0(h)} p(x\mid Y=1)\,dx$ (equal-loss specialization).  
+3. $a = (\mu_0\sigma_1 + \mu_1\sigma_0)/(\sigma_0+\sigma_1)$.  
+4. When $\sigma_0=\sigma_1$ (and equal priors / equal losses for Bayes), both thresholds sit at the midpoint $(\mu_0+\mu_1)/2$.  
+5. Bayes risk: U-shaped curve; fixed $h$: straight line; minmax: horizontal line (constant risk).
