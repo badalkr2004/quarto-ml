@@ -1,0 +1,147 @@
+---
+title: "Lecture 5 — Recap of Probability Theory Part 2"
+subtitle: "Joint, marginal, and conditional distributions for ML"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 05 — Recap of Probability Theory Part 2](https://www.youtube.com/watch?v=R69wew8RrPo)
+
+### Learning goals
+- See a **vector-valued** random variable as either one map $\Omega\to\mathbb{R}^{d}$ or $d$ scalar RVs on the same $\Omega$
+- Define **joint**, **marginal**, and **conditional** distributions in plain language
+- Connect the X-ray + disease story to $(X,Y)$ random variables
+
+### Before this clicks
+From Lectures 2–4 you need:
+- Probability triplet $(\Omega,\mathcal{F},P)$
+- Random variable $X:\Omega\to\mathbb{R}$ (or $\mathbb{R}^{d}$)
+- Distribution / CDF as the **pushforward** of $P$ through $X$
+
+If “inverse image” is fuzzy: for a set $A$ in the range, $X^{-1}(A)=\{\omega\in\Omega:X(\omega)\in A\}$.
+
+---
+
+## 1. Quick recall
+
+What we **observe** in practice are vectors living in the **range** of a random variable. Behind them sit:
+
+$$
+\text{experiment}\ \to\ \Omega\ \to\ X\ \to\ \text{data in }\mathbb{R}^{d},\quad\text{with distribution }P_{X}.
+$$
+
+---
+
+## 2. Vector-valued random variables (two equivalent views)
+
+**View A — one function**
+
+$$
+X:\Omega\to\mathbb{R}^{d}.
+$$
+
+**View B — $d$ scalar functions on the same $\Omega$**
+
+$$
+X_1:\Omega\to\mathbb{R},\quad \ldots,\quad X_d:\Omega\to\mathbb{R}.
+$$
+
+These views are the **same idea** written differently: a $d$-dimensional observation is $d$ numbers that came from one underlying experiment (or jointly modeled experiments).
+
+---
+
+## 3. Several RVs on one sample space → joints
+
+You can define **many** functions on the same $\Omega$. Example: two scalars $X_1,X_2$ on one $\Omega$.
+
+Each has its own distribution. Because inverse images land back in $\mathcal{F}$, and $\mathcal{F}$ is closed under intersections/unions, we can talk about **combined** events → **joint distribution**.
+
+### Joint CDF intuition (1D×1D)
+
+For numbers $a,b$,
+
+$$
+P_{X_1,X_2}(a,b)
+= P\bigl(\{\omega: X_1(\omega)\le a\text{ and }X_2(\omega)\le b\}\bigr).
+$$
+
+That event is the intersection of the two inverse-image events. Extend to $d$ variables with a Cartesian product of half-lines (Lecture 4).
+
+---
+
+## 4. Conditional probability → conditional distributions
+
+For events $A,B$ with $P(B)>0$,
+
+$$
+P(A\mid B)=\frac{P(A\cap B)}{P(B)}.
+$$
+
+**English:** given that $B$ happened, how likely is $A$?
+
+Push this idea through random variables to get **conditional distributions**.
+
+If $X$ and $Y$ are RVs (possibly vector-valued) on the same space, write $P_{X\mid Y}(x\mid y)$ for the distribution of $X$ when $Y$ is **fixed** to a value $y$.
+
+For continuous variables (when densities exist — next lectures),
+
+$$
+p(x\mid y)=\frac{p(x,y)}{p(y)},
+$$
+
+where $p(y)$ is the **marginal** of $Y$.
+
+### What “marginal” means
+Integrate (or sum) the joint over the variable you want to remove:
+
+$$
+p(y)=\int p(x,y)\,dx.
+$$
+
+Name origin (discrete case): write the joint as a table; summing along a **margin** of the table gives the marginal.
+
+**Important:** when we write $p(x\mid y)$, the conditioning variable is fixed; the sample space of interest is “shrunk” to that evidence.
+
+---
+
+## 5. Why ML cares (X-ray example)
+
+- $X$: image vector (range of an imaging RV)
+- $Y$: label diseased / not (another RV, possibly on a related experiment)
+
+Diagnosis asks for something like **$P(Y\mid X=x)$** — the conditional distribution of the label given the observed image.
+
+That is exactly why joints / conditionals appear before “learning algorithms.”
+
+---
+
+## 6. Common confusions
+
+| Confusion | Clear version |
+|-----------|----------------|
+| “Random variable is a random number” | It is a **function** $\Omega\to\mathbb{R}^{d}$ |
+| Joint vs conditional | Joint: both vary; conditional: one is **fixed** |
+| Marginal “throws away” info | It describes one RV after averaging out the other |
+| $X$ and $Y$ need the same dimension | Ranges can be $\mathbb{R}^{d}$ and $\mathbb{R}^{k}$ |
+
+---
+
+## 7. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Blitzstein & Hwang, *Introduction to Probability* — joints, conditionals, marginals
+- Bertsekas & Tsitsiklis, *Introduction to Probability* — clean event-based view
+- Bishop, *PRML* §1.2 — probabilistic view of ML (optional peek ahead)
+
+---
+
+## 8. Self-check
+
+1. Give two views of a vector-valued RV.
+2. Write the event whose probability is the joint CDF $P_{X_1,X_2}(a,b)$.
+3. In words: what does $P(A\mid B)$ ask?
+4. Why is a marginal called “marginal”?
+5. In the X-ray task, what are natural choices for $X$ and $Y$, and what conditional do we want?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*

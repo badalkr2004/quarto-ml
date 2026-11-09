@@ -1,0 +1,10 @@
+---
+title: "Lecture 5 — Self-check answers"
+sidebar: mfml
+---
+
+1. One map $\Omega\to\mathbb{R}^{d}$, or $d$ scalar maps $\Omega\to\mathbb{R}$ on the same $\Omega$.
+2. $\{\omega: X_1(\omega)\le a\text{ and }X_2(\omega)\le b\}$.
+3. Given that $B$ occurred, how likely is $A$?
+4. In a discrete joint table, summing along the table’s margin yields that distribution.
+5. $X$=image features, $Y$=disease label; we want $P(Y\mid X=x)$ (or a decision based on it).
