@@ -1,0 +1,19 @@
+---
+title: "Lecture 30 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. The **Student** side (`@ManyToOne` + `@JoinColumn`) owns `department_id`.
+2. “I am the inverse side; the named field on the other entity owns the FK.”
+3. Relational DBs need a link table (or equivalent) to store many↔many pairs.
+4. So the object graph matches what Hibernate persists from the owning side.
+
+## Self-check
+
+1. A join table such as `student_course` with two FK columns.
+2. **False.** `mappedBy` marks the inverse side.
+3. `@JoinColumn` (on the owning side).
+4. **Unidirectional.**

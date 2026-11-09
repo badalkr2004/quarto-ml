@@ -1,0 +1,231 @@
+---
+title: "Lecture 30 — JPA relationships"
+subtitle: "@ManyToOne, @OneToMany, @OneToOne, @ManyToMany"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [JPA Relationships \| @OneToMany, @ManyToOne, @OneToOne & @ManyToMany \| Full Course #30](https://www.youtube.com/watch?v=cMwR23y85qk)  
+**Playlist index:** 30  
+**Builds on:** [29 — Hibernate internals](../29-hibernate-internals/notes.qmd)  
+**Next:** [31 — Cascading, lazy, N+1](../31-jpa-cascading-lazy-nplus1/notes.qmd)
+
+---
+
+## Big idea in one line
+
+**Relationships are foreign keys + object references.**  
+Annotations tell Hibernate which field owns the FK and how cardinality looks in Java.
+
+```text
+Java: student.getDepartment()
+DB:   students.department_id → departments.id
+```
+
+---
+
+## Topic 1 — Cardinality map
+
+```text
+Many students → one department     @ManyToOne / @OneToMany
+One person    → one profile        @OneToOne
+Many students ↔ many courses       @ManyToMany
+```
+
+| Annotation on field | Reads as |
+|---------------------|----------|
+| `@ManyToOne` | Many of **this** entity point to one of **that** |
+| `@OneToMany` | One of **this** has many of **that** |
+| `@OneToOne` | One ↔ one |
+| `@ManyToMany` | Many ↔ many (usually join table) |
+
+---
+
+## Topic 2 — Owning side vs inverse side
+
+**Owning side** = side that owns the foreign key (or join table link). Hibernate listens to this side for FK updates.
+
+**Inverse side** = uses `mappedBy = "fieldOnOwner"`. Nice for navigation; does **not** control the FK alone.
+
+```text
+OrderItem.order   (@ManyToOne + @JoinColumn)  ← owning (has order_id)
+Order.items       (@OneToMany mappedBy=…)     ← inverse
+```
+
+Always keep **both** sides in sync in Java when bidirectional:
+
+```java
+public void addItem(OrderItem item) {
+    items.add(item);
+    item.setOrder(this);
+}
+```
+
+---
+
+## Topic 3 — Many-to-one / one-to-many (most common)
+
+### Department ← Student
+
+```java
+@Entity
+public class Department {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+
+    @OneToMany(mappedBy = "department")
+    private List<Student> students = new ArrayList<>();
+}
+
+@Entity
+public class Student {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+}
+```
+
+```text
+students
+  id | name | department_id
+---------------------------
+   1 | Ada  | 10
+```
+
+**Rule of thumb:** put `@ManyToOne` + `@JoinColumn` on the child (many side). That is usually the owning side.
+
+---
+
+## Topic 4 — One-to-one
+
+Example: `User` ↔ `Profile`.
+
+```java
+@Entity
+public class User {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(mappedBy = "user")
+    private Profile profile;
+}
+
+@Entity
+public class Profile {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+}
+```
+
+FK often lives on one table (`profile.user_id`). That side owns the relationship.
+
+---
+
+## Topic 5 — Many-to-many
+
+Students ↔ Courses → join table.
+
+```java
+@Entity
+public class Student {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToMany
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private Set<Course> courses = new HashSet<>();
+}
+
+@Entity
+public class Course {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToMany(mappedBy = "courses")
+    private Set<Student> students = new HashSet<>();
+}
+```
+
+```text
+student_course
+ student_id | course_id
+------------------------
+     1      |    5
+```
+
+Prefer `Set` to avoid duplicate join rows from bag semantics.
+
+---
+
+## Topic 6 — Uni vs bidirectional
+
+| Style | Meaning |
+|-------|---------|
+| Unidirectional | Only one side has a reference field |
+| Bidirectional | Both sides reference each other; one owns FK via `mappedBy` |
+
+Start unidirectional if you do not need the other navigation. Add inverse side when queries need it.
+
+---
+
+## Topic 7 — Lombok caution (quick)
+
+`@Data` / `@EqualsAndHashCode` / `@ToString` on entities can recurse through relationships → stack overflow or weird equality.
+
+Safer learning approach: hand-written getters/setters, or Lombok with careful excludes on relation fields.
+
+---
+
+## Practice lab (IDE)
+
+1. Entities: `Department`, `Student` with `@ManyToOne` / `@OneToMany`.  
+2. Persist a department, then students pointing to it.  
+3. Load a student; print `student.getDepartment().getName()`.  
+4. Add `Course` + `@ManyToMany` with `@JoinTable`.  
+5. Enable `show-sql` and find the FK / join table SQL.  
+6. Break owning side on purpose (only add to inverse list) and see FK **not** set.
+
+---
+
+## Short map to keep
+
+```text
+@ManyToOne + @JoinColumn     → FK column lives here (owner)
+@OneToMany(mappedBy=…)       → inverse collection
+@OneToOne                    → FK on one side
+@ManyToMany + @JoinTable     → join table
+```
+
+---
+
+## Exercises
+
+1. Which side owns the FK in Student–Department?  
+2. What does `mappedBy` mean?  
+3. Why use a join table for many-to-many?  
+4. Why sync both sides in bidirectional mappings?
+
+---
+
+## Self-check
+
+1. Default table idea for Student–Course many-to-many?  
+2. True/False: `@OneToMany(mappedBy=...)` owns the foreign key.  
+3. Which annotation usually sits next to the FK column?  
+4. Uni or bi: only `Student` has `department` field?
+
+Answers: [self-check-answers](self-check-answers.qmd)
