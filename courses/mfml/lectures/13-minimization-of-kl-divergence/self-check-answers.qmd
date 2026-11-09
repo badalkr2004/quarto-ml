@@ -1,0 +1,10 @@
+---
+title: "Lecture 13 — Self-check answers"
+sidebar: mfml
+---
+
+1. It does not depend on $\theta$, so it does not change the $\arg\min$ / $\arg\max$.
+2. $\frac{1}{N}\sum_{i=1}^{N}\log P_\theta(V_i)$ (IID samples from $P_V$).
+3. $L=\prod_i P_\theta(V_i)$, $\log L=\sum_i\log P_\theta(V_i)$.
+4. Forward KL uses expectation under $P_V$, which we approximate with data; reverse KL needs $\log P_V$ under $P_\theta$ in a way that breaks this recipe.
+5. Maximizing the IID log-likelihood is the same optimization as minimizing sample-approximated forward KL (up to constants / signs).
