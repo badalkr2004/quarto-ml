@@ -1,0 +1,107 @@
+---
+title: "Lecture 26 — Parzen Window"
+subtitle: "Nonparametric density evaluation by fixing a volume and counting"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 26 — Parzen Window](https://www.youtube.com/watch?v=boCvzXvUVMI)
+
+---
+
+## Learning goals
+
+- Contrast parametric vs nonparametric density estimation.
+- Derive the histogram-style estimate $\hat p(x)=K/(nV)$.
+- Write the Parzen-window (kernel) estimator with bandwidth $h$.
+- Know soft kernels vs hard bins.
+
+---
+
+## Before this clicks
+
+**Parametric** path: assume a family $p_\theta$, estimate $\theta$ (MLE/MAP/EM). You get a whole function.
+
+**Nonparametric** path: do **not** assume a global parametric form; only **evaluate** density at a query $x$. For a Bayes classifier, evaluating $p(x\mid y)$ at the test $x$ is often enough.
+
+---
+
+## Main ideas
+
+### 1. Primitive estimate
+
+Let $R$ be a small region of volume $V$ around $x$. Then
+
+$$
+P(X\in R) = \int_R p(u)\,du \approx p(x)\,V
+$$
+
+if $p$ is roughly constant on $R$. With $n$ i.i.d. samples, model “falls in $R$” as Bernoulli; MLE of that probability is $K/n$ ($K=\#$points in $R$). Hence
+
+$$
+\hat p(x) = \frac{K}{nV}.
+$$
+
+This **is** the histogram idea.
+
+### 2. Two nonparametric knobs
+
+1. **Fix $V$, count $K$** — Parzen window / kernel density estimate.  
+2. **Fix $K$, grow $V$** — nearest-neighbor density estimate (next lecture).
+
+### 3. Parzen window (hard cube)
+
+Center a hypercube of side $h$ at $x$; volume $V=h^d$. Define a unit-cube window $\varphi(u)=1$ if $|u_j|\le 1/2$ for all coordinates, else $0$. Then
+
+$$
+\hat p(x) = \frac{1}{n h^d}\sum_{i=1}^{n} \varphi\!\left(\frac{x-x_i}{h}\right).
+$$
+
+(The sum counts how many $x_i$ fall in the cube; divide by $nV$.)
+
+### 4. Soft kernels
+
+Replace the hard indicator by a smooth kernel, e.g. a Gaussian bump. Then each point contributes a soft weight. Looks a bit like a mixture of Gaussians centered at data, but **kernel parameters are fixed by the user**, not learned like a GMM.
+
+Bandwidth $h$ (and kernel shape) are hyperparameters; theory studies when $\hat p\to p$ as $n\to\infty$.
+
+### 5. Cost vs parametric models
+
+Parametric: fit $\theta$ once, evaluate quickly.  
+Parzen: for **every** new $x$, sum over all training points — $O(n)$ per query.
+
+---
+
+## Worked mini-example
+
+1-D data, $h=2$, query $x=0$. Hard window counts points in $[-1,1]$. If $3$ of $n=10$ fall inside, $\hat p(0)=3/(10\cdot 2)=0.15$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Parzen = GMM | Similar look with Gaussian kernels; GMM learns component parameters, Parzen does not. |
+| One fit forever | Nonparametric estimate is **query-dependent**; recompute per $x$. |
+| Scale by $h^d$ inside $\varphi$ | Scale coordinates by $h$; volume factor $h^d$ sits outside (notation corrected in class). |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Duda, Hart, Stork — Parzen windows
+- Bishop PRML §2.5 — kernel density estimation
+
+## Self-check questions
+
+1. When is nonparametric density evaluation enough for a Bayes classifier?
+2. Derive $\hat p(x)=K/(nV)$ in one line of reasoning.
+3. Write the hard-cube Parzen estimator.
+4. Fix $V$ vs fix $K$: which is Parzen?
+5. Name one computational drawback vs a fitted Gaussian.
+
+*(Short answers are in `self-check-answers.qmd`.)*

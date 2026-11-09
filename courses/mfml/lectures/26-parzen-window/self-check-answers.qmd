@@ -1,0 +1,10 @@
+---
+title: "Lecture 26 — Self-check answers"
+sidebar: mfml
+---
+
+1. When you only need $p(x\mid y)$ (and priors) at the test point, not a global formula.  
+2. $P(X\in R)\approx p(x)V$ and $\widehat{P(X\in R)}=K/n$ $\Rightarrow\hat p=K/(nV)$.  
+3. $\hat p(x)=\frac{1}{nh^d}\sum_i\varphi((x-x_i)/h)$ with $\varphi$ the unit hypercube indicator.  
+4. Fix volume $V$, count $K$.  
+5. Must sum over all training points for every new query ($O(n)$).
