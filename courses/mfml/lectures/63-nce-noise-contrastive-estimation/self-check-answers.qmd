@@ -1,0 +1,10 @@
+---
+title: "Lecture 63 — Self-check answers"
+sidebar: mfml
+---
+
+1. $Z(\theta)=\int u_\theta(x)\,dx$ is often intractable, blocking normalized likelihood.
+2. Real data samples vs samples from a known noise distribution $p_n$.
+3. Known density, easy to sample, and overlapping the data support usefully.
+4. It fits a logistic (classification) loss whose logits use $u_\theta$ and $p_n$, treating normalization as a scalar parameter instead of integrating.
+5. InfoNCE (used in SimCLR and related methods).

@@ -1,0 +1,102 @@
+---
+title: "Lecture 63 — NCE (Noise Contrastive Estimation)"
+subtitle: "Learn a density by classifying data vs noise samples"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 63 — NCE - Noise Contrastive Estimation](https://www.youtube.com/watch?v=DHBl3E0ndRA)
+
+## Learning goals
+
+- See why normalizing a flexible model $p_\theta(x)=u_\theta(x)/Z(\theta)$ is hard.
+- State **NCE**: turn density estimation into binary classification of **data vs noise**.
+- Read the logistic posterior that compares $u_\theta$ to a known noise density $p_n$.
+
+## Before this clicks
+
+A parametric density often has the form
+
+$$
+p_\theta(x)=\frac{u_\theta(x)}{Z(\theta)},\qquad Z(\theta)=\int u_\theta(x)\,dx.
+$$
+
+The unnormalized score $u_\theta$ may be easy; the partition function $Z(\theta)$ is often intractable. MLE needs $Z$ (or its gradient). NCE sidesteps this by never requiring an exact normalized likelihood alone — it contrasts real samples with samples from a **known noise** distribution $p_n$.
+
+---
+
+## Main ideas
+
+### 1. Setup
+
+- Data samples $x\sim p_d$ (unknown data distribution).
+- Noise samples $x\sim p_n$ (you choose; easy to sample, known density).
+- Mix them and ask a classifier: “did this $x$ come from data or noise?”
+
+### 2. Posterior odds
+
+Let prior odds of noise vs data be controlled by how many noise samples you draw (class balance). With equal mixture weight for intuition, Bayes says
+
+$$
+P(y=\mathrm{data}\mid x)=\frac{p_d(x)}{p_d(x)+p_n(x)}.
+$$
+
+NCE **models** $p_d$ by $p_\theta$ (or its unnormalized cousin) and fits $\theta$ so that a logistic classifier matching these odds works well on the mixed sample.
+
+### 3. Logistic form with unnormalized model
+
+Using $p_\theta(x)=u_\theta(x)/Z(\theta)$, the log-odds involve $\log u_\theta(x)-\log Z(\theta)-\log p_n(x)$. Critically, $Z(\theta)$ becomes just another parameter (or is absorbed), so you optimize a **classification** loss without integrating $u_\theta$ over all $x$.
+
+Schematic binary loss on labels $y\in\{0,1\}$ (data vs noise):
+
+$$
+\mathcal{L}(\theta)=-\mathbb{E}\big[y\log\sigma(s_\theta(x))+(1-y)\log(1-\sigma(s_\theta(x)))\big],
+$$
+
+where $s_\theta(x)$ is a logit built from $\log u_\theta(x)-\log p_n(x)$ (plus a bias for $Z$).
+
+### 4. Intuition
+
+If $p_\theta$ matches $p_d$, the optimal classifier recovers the true posterior above. If $p_\theta$ is wrong, the classifier is imperfect and the loss pushes $\theta$ to fix the density ratio $p_d/p_n$.
+
+### 5. Design choices
+
+- **Noise $p_n$:** must overlap the data support; too far away makes the task trivial and uninformative.
+- **Number of noise samples:** more noise can improve estimation but costs compute.
+- NCE is a parent of later **contrastive** losses (InfoNCE) used in representation learning.
+
+---
+
+## Worked mini-example
+
+Suppose data are 1D Gaussians concentrated near $0$, and noise is Uniform$[-10,10]$. A flexible $u_\theta$ that puts high mass near $0$ makes “data vs noise” easy in the right way; a flat $u_\theta$ cannot separate well. Fitting the logistic NCE loss raises $u_\theta$ where real points lie relative to $p_n$, shaping an estimated density without computing $Z$ by quadrature.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| NCE needs class labels of the task | Labels are only **data vs noise**, not semantic classes. |
+| Noise can be anything | Poor $p_n$ $\Rightarrow$ useless or unstable learning. |
+| NCE = GANs | Related spirit (contrast), different math (explicit $p_n$, logistic NCE). |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Gutmann & Hyvärinen — Noise-contrastive estimation
+- Murphy / Bishop — density estimation background
+
+## Self-check questions
+
+1. Why is $Z(\theta)$ a problem for MLE?
+2. What two kinds of samples does NCE classify?
+3. What must be true about the noise density $p_n$?
+4. In one sentence, how does NCE avoid computing the integral for $Z$?
+5. Name a later contrastive cousin of NCE used in representation learning.
+
+*(Short answers are in `self-check-answers.qmd`.)*
