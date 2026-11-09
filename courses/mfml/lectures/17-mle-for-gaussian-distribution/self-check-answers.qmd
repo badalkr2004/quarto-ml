@@ -1,0 +1,10 @@
+---
+title: "Lecture 17 — Self-check answers"
+sidebar: mfml
+---
+
+1. Bayes needs posteriors / class-conditionals / priors; those are distributions to estimate from data.
+2. $P_\theta(v)=(2\pi)^{-d/2}\exp(-\frac12\|v-\theta\|_2^2)$.
+3. $\hat\theta_{\mathrm{ML}}=\frac1n\sum_i v_i$.
+4. Maximize $-\sum_i\|v_i-\theta\|^2$ (equiv.); gradient w.r.t. $\theta$ yields $-2\sum_i(v_i-\theta)=0$ $\Rightarrow$ mean.
+5. Likelihood involves $\log$ of a **sum** of components; log and exp no longer cancel into a simple separated objective.

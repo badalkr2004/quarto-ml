@@ -1,0 +1,114 @@
+---
+title: "Lecture 17 — MLE for Gaussian Distribution"
+subtitle: "Sample mean as the minimum-KL / ML estimate of a Gaussian mean"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 17 — MLE for Gaussian Distribution](https://www.youtube.com/watch?v=tF-RrzUnnYA)
+
+---
+
+## Learning goals
+
+- Reconnect Bayes optimality $\Rightarrow$ “estimate densities from data”
+- Run MLE for $V\sim\mathcal{N}(\theta,I)$ and get $\hat\theta=\bar V$
+- See this as an **analytically solvable** case before mixtures / EM
+
+---
+
+## Before this clicks
+
+MLE / min KL: $\hat\theta=\arg\max_\theta\frac{1}{n}\sum_i\log P_\theta(v_i)$.  
+Bayes classifier needs posteriors / class-conditionals. Multivariate Gaussian density with mean $\theta\in\mathbb{R}^{d}$ and covariance $I$.
+
+---
+
+## Main ideas
+
+### 1. Why density estimation now?
+
+To implement the Bayes classifier you need $P(Y\mid X)$ or pieces that determine it: priors, class-conditionals $p(x\mid y)$, etc. So the algorithmic stretch of the course focuses on **estimating densities** (evaluation, not yet sampling / generation).
+
+### 2. MLE template (again)
+
+IID sample $v_1,\ldots,v_n$ from unknown $P_V$. Assume model $P_\theta$, maximize
+
+$$
+\mathcal{L}(\theta)=\frac{1}{n}\sum_{i=1}^{n}\log P_\theta(v_i).
+$$
+
+### 3. Gaussian mean model
+
+Assume
+
+$$
+P_\theta(v)=(2\pi)^{-d/2}\exp\Bigl(-\tfrac12\|v-\theta\|_{2}^{2}\Bigr),\qquad v\in\mathbb{R}^{d}
+$$
+
+(covariance fixed to $I$). Parameters: $\theta\in\mathbb{R}^{d}$.
+
+Up to additive constants independent of $\theta$,
+
+$$
+\mathcal{L}(\theta)\;\propto\; -\frac{1}{n}\sum_{i=1}^{n}\|v_i-\theta\|_{2}^{2}.
+$$
+
+Set $\nabla_\theta\mathcal{L}=0$ $\Rightarrow$
+
+$$
+\hat\theta_{\mathrm{ML}}=\frac{1}{n}\sum_{i=1}^{n}v_i.
+$$
+
+**Moral:** “take the sample average as the mean” is MLE / minimum KL under this Gaussian model — not a random habit.
+
+### 4. Analytic vs numeric
+
+Here differentiation works cleanly. Later (mixtures), $\log\sum_j(\cdots)$ blocks that cancellation; we will need iterative methods (EM).
+
+### 5. Link to class-conditionals
+
+Example story: model pixel vectors of an X-ray class as high-$d$ Gaussians; MLE mean $=$ average image in that class (under this simplified covariance).
+
+---
+
+## Worked mini-example
+
+$d=1$, data $\{0,2,4\}$, model $\mathcal{N}(\theta,1)$.
+
+$$
+\hat\theta=\frac{0+2+4}{3}=2.
+$$
+
+Same as minimizing $\sum_i (v_i-\theta)^2$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Sample mean is always “the” mean estimate | It is ML for this Gaussian mean model (covariance fixed) |
+| We estimated the full Gaussian | Covariance was fixed to $I$; estimating $\Sigma$ is a similar but matrix exercise |
+| Density estimation $=$ sampling | Here we care about evaluating $P_\theta(v)$; generative sampling is a later topic |
+| Only unsupervised | Same algebra estimates a class-conditional if you restrict to one class’s samples |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.2 — Gaussian MLE
+- Matrix Cookbook (derivatives of quadratic forms) — handy for vector calculus steps
+
+## Self-check questions
+
+1. Why does building a Bayes classifier force density estimation?
+2. Write $P_\theta(v)$ for the lecture’s isotropic Gaussian model.
+3. What is $\hat\theta_{\mathrm{ML}}$?
+4. Sketch the derivative step that produces the sample mean.
+5. Why will mixture models break this “diff and set to zero” ease?
+
+*(Short answers are in `self-check-answers.qmd`.)*
