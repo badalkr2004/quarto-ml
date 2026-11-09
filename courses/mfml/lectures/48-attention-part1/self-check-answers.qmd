@@ -1,0 +1,10 @@
+---
+title: "Lecture 48 — Self-check answers"
+sidebar: mfml
+---
+
+1. Query: what position $i$ seeks; key: what $j$ offers for matching; value: content mixed if $j$ is selected.
+2. $\alpha_{ij}=\exp(s_{ij})/\sum_{j'}\exp(s_{ij'})$.
+3. $c_i=\sum_j\alpha_{ij}v_j$.
+4. Softmax yields fractional weights, not a single hard index.
+5. No — $\alpha_{ij}$ are computed from current $q,k$; the learned parts are mainly $W_Q,W_K,W_V$ (and embeddings).

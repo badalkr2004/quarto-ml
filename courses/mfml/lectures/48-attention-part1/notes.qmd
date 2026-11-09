@@ -1,0 +1,117 @@
+---
+title: "Lecture 48 — Attention Part 1"
+subtitle: "Queries, keys, values, and weighted readout of a sequence"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 48 — Attention Part 1](https://www.youtube.com/watch?v=00DOOSYFyJA)
+
+## Learning goals
+
+- Motivate attention as **content-based addressing**: soft selection of which tokens matter.
+- Define **query**, **key**, and **value** vectors for each position.
+- Write the score $\to$ softmax $\to$ weighted sum pipeline for one query.
+
+## Before this clicks
+
+RNNs read a sequence step by step and compress history into a hidden state. That bottleneck struggles with long-range links (“the animal … was tired”). **Attention** lets every position look at every other position directly, with learned soft weights. Think of a library: the query is your question, keys are book titles, values are book contents — you score titles against the question, then mix the contents of the books that match.
+
+---
+
+## Main ideas
+
+### 1. Sequence of embeddings
+
+Input tokens $x_1,\ldots,x_n$ map to vectors $e_1,\ldots,e_n\in\mathbb{R}^{d}$. For now ignore how $e_i$ got position information (Lecture 51).
+
+### 2. Query, key, value
+
+Learned linear maps (same idea for every position):
+
+$$
+q_i = W_Q e_i,\quad
+k_i = W_K e_i,\quad
+v_i = W_V e_i.
+$$
+
+- **Query** $q_i$: “what am I looking for?”
+- **Key** $k_j$: “what do I contain / advertise?”
+- **Value** $v_j$: “what content do I contribute if selected?”
+
+### 3. Compatibility scores
+
+For a fixed query $q_i$, score every position $j$:
+
+$$
+s_{ij} = q_i^\top k_j
+$$
+
+(dot-product attention; larger $\Rightarrow$ better match). Other score functions exist (additive attention), but Transformers use scaled dots.
+
+### 4. Softmax weights
+
+$$
+\alpha_{ij} = \frac{\exp(s_{ij})}{\sum_{j'=1}^{n}\exp(s_{ij'})},\qquad
+\sum_j\alpha_{ij}=1,\quad \alpha_{ij}\ge 0.
+$$
+
+$\alpha_{i\cdot}$ is a probability distribution over the sequence for query $i$.
+
+### 5. Context vector (attended value)
+
+$$
+c_i = \sum_{j=1}^{n}\alpha_{ij}\,v_j.
+$$
+
+So $c_i$ is a **soft weighted average** of values — the new representation at position $i$.
+
+---
+
+## Worked mini-example
+
+Two tokens, $d_k=1$ for simplicity: $q_1=1$, $k_1=1$, $k_2=0$, $v_1=10$, $v_2=0$.
+
+Scores: $s_{11}=1$, $s_{12}=0$. Softmax:
+
+$$
+\alpha_{11}=\frac{e}{e+1}\approx 0.73,\quad
+\alpha_{12}=\frac{1}{e+1}\approx 0.27.
+$$
+
+$$
+c_1 \approx 0.73\cdot 10 + 0.27\cdot 0 = 7.3.
+$$
+
+Position 1 pulls mostly from value 1 because keys matched the query.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Attention = hard argmax pick | Softmax is **soft**; every position contributes a little. |
+| $q$, $k$, $v$ are different sequences | Same tokens; three **roles** via $W_Q,W_K,W_V$. |
+| Weights $\alpha_{ij}$ are parameters | They are **computed** from $q,k$ each forward pass. |
+| Must attend only leftward | Depends on masking; encoder self-attention is usually full. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Vaswani et al. (2017) — *Attention Is All You Need*
+- Goodfellow et al. — *Deep Learning* (seq models context)
+
+## Self-check questions
+
+1. In one sentence, what do $q_i$, $k_j$, and $v_j$ mean?
+2. Write $\alpha_{ij}$ from scores $s_{ij}$.
+3. Write $c_i$ from $\alpha_{ij}$ and $v_j$.
+4. Why is attention called “soft” selection?
+5. Are attention weights learned parameters stored in the model?
+
+*(Short answers are in `self-check-answers.qmd`.)*
