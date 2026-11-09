@@ -1,0 +1,244 @@
+---
+title: "Lecture 36 — DB authentication & password security"
+subtitle: "UserDetails, UserDetailsService, and BCrypt (in plain words)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Security DB Authentication & Password Security \| Full Course #36](https://www.youtube.com/watch?v=iF8KMT51QtY)  
+**Playlist index:** 36  
+**Builds on:** [Lecture 35](../35-spring-security-basics/notes.qmd)
+
+---
+
+## Big idea in one line
+
+Spring Security does **not** talk to your `User` entity directly.  
+You load users from the DB, wrap them as **`UserDetails`**, and store only **hashed** passwords (usually **BCrypt**).
+
+```text
+Your table: users (id, username, password_hash, roles, …)
+                │
+                ▼
+        UserDetailsService.loadUserByUsername(...)
+                │
+                ▼
+           UserDetails   ← what Security understands
+                │
+                ▼
+     PasswordEncoder matches raw password vs hash
+```
+
+---
+
+## Topic 1 — Why not store plain passwords?
+
+If the DB leaks and passwords are plain text → every account is stolen.
+
+Even “fast hashes” are weak against modern cracking (GPUs + rainbow tables of common passwords).
+
+**Need:**
+
+1. **One-way hash** (cannot reverse to the original password)
+2. **Slow enough** on purpose (limits guessing speed)
+3. **Salt** (same password → different hash for different users)
+
+**BCrypt** does slow hashing + salting for you.
+
+---
+
+## Topic 2 — `PasswordEncoder`
+
+Spring Security’s interface:
+
+```java
+@Bean
+PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+}
+```
+
+| Method | When you use it |
+|--------|-----------------|
+| `encode(raw)` | Register / change password → store the result |
+| `matches(raw, encoded)` | Login → compare typed password to DB hash |
+
+**Never** write your own “encrypt password with Base64.” That is encoding, not security.
+
+```text
+Register:
+  "secret123" ──encode──► "$2a$10$...."  ──save──► DB
+
+Login:
+  typed "secret123" + DB hash ──matches?──► true / false
+```
+
+---
+
+## Topic 3 — `UserDetails` (Security’s user shape)
+
+Security expects a `UserDetails` with roughly:
+
+- username
+- password (the **hash**)
+- authorities / roles
+- flags: account enabled? locked? expired? credentials expired?
+
+Your JPA entity can stay as `User`.  
+You build a bridge (wrapper / adapter) that implements `UserDetails` and reads from that entity.
+
+```text
+Entity User  ──wrap──►  CustomUserDetails implements UserDetails
+```
+
+Plain words: **map your world to Security’s world.**
+
+---
+
+## Topic 4 — `UserDetailsService`
+
+One important method:
+
+```java
+UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+```
+
+Your implementation:
+
+1. Find the user in the DB (repository)
+2. If missing → throw `UsernameNotFoundException`
+3. If found → return `UserDetails` wrapper
+
+```java
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository users;
+
+    public CustomUserDetailsService(UserRepository users) {
+        this.users = users;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        User user = users.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException(username));
+        return new CustomUserDetails(user);
+    }
+}
+```
+
+Security will call this during form/basic/login flows (details in lecture 37).
+
+---
+
+## Topic 5 — Practice lab (IDE)
+
+### Step 1 — Dependencies
+
+In Initializr / `pom.xml`:
+
+- Spring Web
+- Spring Security
+- Spring Data JPA
+- MySQL or H2 (H2 is fine for learning)
+
+### Step 2 — Entity + repository
+
+```java
+@Entity
+@Table(name = "users")
+public class User {
+    @Id @GeneratedValue
+    private Long id;
+    @Column(unique = true, nullable = false)
+    private String username;
+    @Column(nullable = false)
+    private String password; // store BCrypt hash only
+    private String role;     // e.g. ROLE_USER
+    // getters / setters
+}
+```
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+}
+```
+
+### Step 3 — `CustomUserDetails`
+
+Implement `UserDetails`: return username, password hash, and `AuthorityUtils.createAuthorityList(user.getRole())`.  
+For learning, return `true` for all “non-expired / non-locked / enabled” flags (or wire real columns later).
+
+### Step 4 — Register endpoint (encode before save)
+
+```java
+@PostMapping("/register")
+public String register(@RequestBody RegisterRequest req) {
+    User u = new User();
+    u.setUsername(req.username());
+    u.setPassword(passwordEncoder.encode(req.password()));
+    u.setRole("ROLE_USER");
+    userRepository.save(u);
+    return "registered";
+}
+```
+
+### Step 5 — Security config sketch
+
+- Permit `/register`
+- Require authentication for other APIs
+- Expose `PasswordEncoder` bean
+- Let Boot pick up your `UserDetailsService` bean
+
+### Step 6 — Prove it
+
+1. POST `/register` with username/password  
+2. Check DB: password column looks like `$2a$...` (not plain text)  
+3. Call a secured endpoint with Basic Auth using the same credentials  
+4. Wrong password → 401
+
+---
+
+## Topic 6 — Common mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Save plain password | Always `encode` on register |
+| Double-encode on login | Login uses `matches`, not `encode` again for storage |
+| Role without `ROLE_` prefix when using `hasRole` | Be consistent: `hasRole("USER")` expects `ROLE_USER` |
+| Forgetting unique username | Add DB unique constraint |
+
+---
+
+## Short map to keep
+
+```text
+Register → encode(password) → save hash
+Login    → load UserDetails → matches(raw, hash)
+UserDetailsService → bridge DB → Security
+BCrypt → slow hash + salt
+```
+
+---
+
+## Exercises
+
+1. Why is Base64 of a password not safe storage?  
+2. What does `PasswordEncoder.matches` compare?  
+3. Why does Security want `UserDetails` instead of your entity?  
+4. What single method must `UserDetailsService` implement?  
+5. After register, what should you see in the password column?
+
+---
+
+## Self-check
+
+1. True/False: Store the same BCrypt hash for every user who picks “password123” without salt.  
+2. Who calls `loadUserByUsername` during login?  
+3. Should login re-hash and overwrite the DB password every time?  
+4. Name one flag on `UserDetails` besides username/password.
+
+Answers: [self-check-answers](self-check-answers.qmd)

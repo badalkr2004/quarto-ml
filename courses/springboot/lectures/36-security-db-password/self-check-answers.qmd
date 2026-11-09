@@ -1,0 +1,20 @@
+---
+title: "Lecture 36 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+## Exercises (sample)
+
+1. Base64 is reversible encoding, not a one-way password hash; anyone can decode it.
+2. The raw password the user typed vs the encoded hash stored in the database.
+3. Security’s APIs and providers are built around `UserDetails` (username, hash, authorities, flags).
+4. `loadUserByUsername(String username)`.
+5. A BCrypt-looking hash (often starting with `$2a$` / `$2b$`), never the plain password.
+
+## Self-check
+
+1. **False.** BCrypt salts so identical passwords still produce different hashes.
+2. Spring Security’s authentication machinery (via your configured provider / login flow)—not your controller by hand in the normal path.
+3. **No.** Use `matches` only; do not replace the stored hash on every login.
+4. Examples: `isEnabled`, `isAccountNonLocked`, `isAccountNonExpired`, `isCredentialsNonExpired`, or authorities.
