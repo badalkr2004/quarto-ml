@@ -1,0 +1,10 @@
+---
+title: "Lecture 38 — Self-check answers"
+sidebar: mfml
+---
+
+1. $w=\sum_i\mu_i y_i x_i$.
+2. Otherwise $\inf_b\mathcal{L}=-\infty$ (dual function not finite).
+3. A training point with $\mu_i^\star>0$ (lies on the margin).
+4. $\sum_{i,j}\mu_i\mu_j y_i y_j\,x_i^\top x_j$ (with a $1/2$ factor in the dual objective).
+5. Use any SV on the margin: $y_k(w^{\star\top}x_k+b^\star)=1$ and solve for $b^\star$.

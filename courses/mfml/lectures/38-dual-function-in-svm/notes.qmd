@@ -1,0 +1,116 @@
+---
+title: "Lecture 38 — Dual Function in SVM"
+subtitle: "From Lagrangian to support vectors and $w^\star=\sum\mu_i y_i x_i$"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 38 — Dual Function in SVM](https://www.youtube.com/watch?v=RXzcClx44Tw)
+
+## Learning goals
+
+- Construct the **dual function** by minimizing the Lagrangian over $(w,b)$.
+- State the dual QP in the multipliers $\mu$.
+- Define **support vectors** and recover $w^\star$ from them.
+
+## Before this clicks
+
+Lagrangian for hard-margin SVM (multipliers $\mu_i\ge 0$):
+
+$$
+\mathcal{L}(w,b,\mu)
+=\frac12\|w\|^2
+-\sum_{i=1}^{n}\mu_i\Big(y_i(w^\top x_i+b)-1\Big).
+$$
+
+Dual function: $Q(\mu)=\inf_{w,b}\mathcal{L}(w,b,\mu)$. Dual problem: maximize $Q(\mu)$ over $\mu\ge 0$ (with feasibility constraints that keep $Q$ finite).
+
+---
+
+## Main ideas
+
+### 1. Stationarity in $w$ and $b$
+
+Minimizing $\mathcal{L}$ w.r.t. $w$ yields
+
+$$
+w=\sum_{i=1}^{n}\mu_i y_i x_i.
+$$
+
+Minimizing w.r.t. $b$ forces the constraint
+
+$$
+\sum_{i=1}^{n}\mu_i y_i=0
+$$
+
+(otherwise $\inf_b\mathcal{L}=-\infty$).
+
+### 2. Dual problem (schematic)
+
+Substitute $w(\mu)$ back to get a concave quadratic in $\mu$:
+
+$$
+\begin{aligned}
+\max_{\mu}\quad &
+\sum_i\mu_i
+-\frac12\sum_{i,j}\mu_i\mu_j y_i y_j\,x_i^\top x_j\\
+\text{s.t.}\quad &
+\mu_i\ge 0,\qquad
+\sum_i\mu_i y_i=0.
+\end{aligned}
+$$
+
+Solved with standard QP / SMO-style solvers $\Rightarrow\mu^\star$.
+
+### 3. Support vectors
+
+**Support vectors** are training points with $\mu_i^\star>0$. Geometrically they lie on the margin hyperplanes. Points with $\mu_i^\star=0$ can be removed without changing $w^\star$.
+
+Optimal boundary:
+
+$$
+w^\star=\sum_{i\in\mathrm{SV}}\mu_i^\star y_i x_i,
+$$
+
+a linear combination of support vectors only. Bias $b^\star$ is recovered from any margin SV using $y_i(w^{\star\top}x_i+b^\star)=1$.
+
+### 4. What’s next
+
+1. Data **not** linearly separable $\to$ slack variables (soft margin).
+2. Nonlinear boundaries $\to$ feature maps / **kernels**.
+
+---
+
+## Worked mini-example
+
+If only two opposite-label points are SVs with equal $\mu>0$ satisfying $\sum\mu_i y_i=0$, then $w$ is parallel to the difference of those two feature vectors — the boundary sits between them, as geometry demands.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Every training point is a support vector | Only those with $\mu_i>0$. |
+| Dual ignores $b$ | $b$ is recovered after $\mu^\star$; the $\sum\mu_i y_i=0$ constraint comes from optimizing $b$. |
+| Need all $x_i$ at test time | Decision uses SVs only (still may be many). |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Boyd & Vandenberghe — duality
+- Bishop / ESL — SVM dual / support vectors
+
+## Self-check questions
+
+1. Write $w$ in terms of $\mu_i,y_i,x_i$ at the Lagrangian minimum.
+2. Why require $\sum_i\mu_i y_i=0$?
+3. Define a support vector via $\mu_i$.
+4. Write the dual objective’s quadratic term involving $x_i^\top x_j$.
+5. How do you recover $b^\star$?
+
+*(Short answers are in `self-check-answers.qmd`.)*
