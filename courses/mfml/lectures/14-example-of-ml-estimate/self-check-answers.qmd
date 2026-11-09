@@ -1,0 +1,10 @@
+---
+title: "Lecture 14 — Self-check answers"
+sidebar: mfml
+---
+
+1. Choose the family $P_\theta$ (often via $h_\theta$); solve the resulting optimization (analytic or numerical).
+2. $P_\theta(y\mid x)=\mathcal{N}(y; h_\theta(x), I)$ (variance fixed in the lecture’s example).
+3. Minimize $\frac{1}{N}\sum_i (y_i-h_\theta(x_i))^2$ (least squares / MSE).
+4. Objective stays MSE/NLL of that Gaussian; solving it becomes numerical (gradients), not usually closed form.
+5. Cross-entropy corresponds to a Bernoulli (or categorical) conditional with parameter given by $h_\theta(x)$, not a Gaussian.

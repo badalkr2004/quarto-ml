@@ -1,0 +1,123 @@
+---
+title: "Lecture 14 — Example of ML Estimate"
+subtitle: "Gaussian conditional + squared error = same recipe"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 14 — Example of ML Estimate](https://www.youtube.com/watch?v=mEpXOyLwbxA)
+
+---
+
+## Learning goals
+
+- Split MLE practice into: **(A) choose $P_\theta$** and **(B) solve the optimization**
+- See NLL as the probabilistic reading of a **loss**
+- Work a supervised regression example: Gaussian $P(Y\mid X)$ with mean $h_\theta(x)$ $\Rightarrow$ least squares
+
+---
+
+## Before this clicks
+
+Lecture 13: minimizing forward KL $\Leftrightarrow$ maximizing $\sum_i\log P_\theta(V_i)$.  
+Hypothesis / model function $h_\theta$: a map from features to the parameter(s) of a conditional density.
+
+---
+
+## Main ideas
+
+### 1. Two design questions
+
+1. **How to choose $P_\theta$?** Pick a parametric family (often via a “canonical” function approximator $h_\theta$).
+2. **How to optimize?** Sometimes closed form (derivative $=0$); often numerical (e.g. neural nets).
+
+Slogan from class: vector calculus + probability + optimization cover a huge fraction of engineering ML.
+
+### 2. NLL is a loss
+
+$$
+\mathrm{NLL}(\theta)=-\frac{1}{N}\sum_{i=1}^{N}\log P_\theta(V_i).
+$$
+
+People call the summand (or average) a **loss**. Deterministic “pick a loss and minimize” stories are usually a distributional assumption in disguise.
+
+### 3. Choosing $P_\theta$ via $h_\theta$
+
+Example pattern: assume $P_\theta$ is Gaussian, and let the mean be $h_\theta(x)$ (neural net, linear map, …). Then estimating $P_\theta$ reduces to estimating the parameters of $h_\theta$.
+
+### 4. Concrete case: supervised regression
+
+Data $(x_i,y_i)$ with $x_i\in\mathbb{R}^{d}$, $y_i\in\mathbb{R}$. Goal: estimate $P(Y\mid X)$.
+
+**Model assumption:**
+
+$$
+P_\theta(y\mid x)=\mathcal{N}\bigl(y;\, h_\theta(x),\, I\bigr)
+$$
+
+(mean $=h_\theta(x)$, variance fixed to identity / $1$ in 1-D). Here $h_\theta:\mathbb{R}^{d}\to\mathbb{R}$.
+
+Log-likelihood algebra (constants dropped) yields
+
+$$
+\hat\theta \in \arg\min_\theta \frac{1}{N}\sum_{i=1}^{N}\bigl(y_i-h_\theta(x_i)\bigr)^{2}.
+$$
+
+**Mic-drop statement from class:**
+
+> Least-squares / MSE ERM is MLE under a Gaussian conditional with mean $h_\theta(x)$.
+
+### 5. Broader moral (preview)
+
+| You pick… | You are assuming… |
+|-----------|-------------------|
+| Squared error loss | Gaussian noise around $h_\theta(x)$ |
+| Cross-entropy (binary) | Bernoulli with parameter $h_\theta(x)$ (next threads) |
+| A hypothesis class $h_\theta$ | How the distribution’s parameters depend on $x$ |
+
+All of this is still “minimize KL / maximize likelihood” under those assumptions. Usefulness (generalization) is a later question — “all models are wrong…”
+
+---
+
+## Worked mini-example
+
+Heights / lifestyle features $x\in\mathbb{R}^{5}$, lifespan $y\in\mathbb{R}$, $N=100$ people. Assume $Y\mid X=x\sim\mathcal{N}(h_\theta(x),1)$ with $h_\theta(x)=\theta^{\top}x$.
+
+Then MLE for $\theta$ is ordinary least squares:
+
+$$
+\hat\theta=\arg\min_\theta\sum_{i=1}^{100}(y_i-\theta^{\top}x_i)^{2}.
+$$
+
+If instead $h_\theta$ is a neural net, the **objective** is still MSE, but optimization is numerical (gradients), not a closed-form normal equation.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| MSE is “just engineering” | Under Gaussian conditional mean $h_\theta$, it **is** MLE |
+| Fixing variance to $I$ is mandatory | Example choice; you can also learn variance / other forms |
+| $h_\theta$ must be linear | Design choice: linear, nonlinear, NN, … |
+| Useful model = true model | We ask usefulness / generalization later, not “truth” |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.1 — regression as conditional density estimation
+- Hastie, Tibshirani, Friedman *ESL* — least squares as baseline
+
+## Self-check questions
+
+1. Name the two practical questions after writing the MLE/NLL objective.
+2. Write the Gaussian conditional model used for regression in this lecture.
+3. What ERM problem does that model become?
+4. If $h_\theta$ is a deep net, what changes: the objective, the optimizer, or both?
+5. How does choosing cross-entropy instead of MSE change the distributional story (one sentence)?
+
+*(Short answers are in `self-check-answers.qmd`.)*
