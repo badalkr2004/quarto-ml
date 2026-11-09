@@ -1,0 +1,10 @@
+---
+title: "Tutorial 7B — Self-check answers"
+sidebar: mfml
+---
+
+1. Probabilities must satisfy $\sum p_j=1$ and $p_j\ge 0$; unconstrained critical points need not.  
+2. $\prod_j p_j^{v_j}$.  
+3. $\lambda\bigl(1-\sum_s p_s\bigr)$ (plus the log-likelihood).  
+4. Relative frequency: $p_j^\star=\frac1n\sum_i v^{(i)}_j$.  
+5. From enforcing $\sum_j p_j=1$ after solving $\partial L/\partial p_j=0$; each sample contributes total mass $1$, so $\lambda=n$.

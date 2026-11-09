@@ -1,0 +1,114 @@
+---
+title: "Tutorial 7B — MLE for Generalized Discrete Distribution"
+subtitle: "One-hot encoding, constraints, and Lagrange multipliers"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 7B — MLE for Generalized Discrete Distribution](https://www.youtube.com/watch?v=o5697P6KZoc)
+
+---
+
+## Learning goals
+
+- Represent a categorical random variable with a **one-hot** vector.
+- Set up constrained MLE for probabilities $p_1,\ldots,p_m$.
+- Recover the intuitive “relative frequency” estimate via a Lagrangian.
+
+---
+
+## Before this clicks
+
+A **categorical** (generalized discrete) RV $Z$ takes values $a_1,\ldots,a_m$ with probabilities $p_1,\ldots,p_m$. Constraints: $p_j\ge 0$ and $\sum_j p_j=1$. Unconstrained calculus is not enough — use a **Lagrange multiplier** for the sum-to-one constraint.
+
+---
+
+## Main ideas
+
+### 1. One-hot representation
+
+Map $Z$ to an $m$-vector $V=(V_1,\ldots,V_m)$ with exactly one $1$ and the rest $0$:
+
+$$
+\sum_{j=1}^{m} V_j = 1,\qquad V_j\in\{0,1\}.
+$$
+
+Then
+
+$$
+P(V=v) = \prod_{j=1}^{m} p_j^{v_j}.
+$$
+
+(Only the active category contributes.)
+
+### 2. Log-likelihood for i.i.d. data
+
+Data $v^{(1)},\ldots,v^{(n)}$. Log-likelihood:
+
+$$
+\ell(p) = \sum_{i=1}^{n}\sum_{j=1}^{m} v^{(i)}_j \log p_j.
+$$
+
+### 3. Constrained optimization
+
+Maximize $\ell(p)$ subject to $\sum_j p_j=1$ (nonnegativity left as a check / exercise in class). Lagrangian:
+
+$$
+L = \sum_{i,j} v^{(i)}_j\log p_j + \lambda\Bigl(1-\sum_{s=1}^{m} p_s\Bigr).
+$$
+
+$\partial L/\partial p_j=0$ gives
+
+$$
+p_j = \frac{1}{\lambda}\sum_{i=1}^{n} v^{(i)}_j.
+$$
+
+Using $\sum_j p_j=1$ shows $\lambda=n$, hence
+
+$$
+p_j^\star = \frac{1}{n}\sum_{i=1}^{n} v^{(i)}_j
+$$
+
+= **fraction of times** category $j$ appears. Matches intuition.
+
+---
+
+## Worked mini-example
+
+Three categories, data counts $(n_1,n_2,n_3)=(2,5,3)$, $n=10$:
+
+$$
+p^\star = (0.2,\,0.5,\,0.3).
+$$
+
+Same answer from the Lagrangian route.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Free $p_j\in\mathbb{R}$ | Must be a probability vector (simplex). |
+| Softmax needed here | Not for this finite categorical MLE; frequencies already live on the simplex. |
+| One-hot is optional fluff | It makes the likelihood $\prod p_j^{v_j}$ and the algebra clean. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §2.1 — discrete distributions / multinomial
+- Blitzstein & Hwang — categorical / multinomial basics
+
+## Self-check questions
+
+1. Why is unconstrained MLE of $p_j$ invalid?
+2. Write $P(V=v)$ for a one-hot $v$.
+3. What is the Lagrangian constraint term?
+4. State $p_j^\star$ in words and in math.
+5. What does $\lambda=n$ come from?
+
+*(Short answers are in `self-check-answers.qmd`.)*
