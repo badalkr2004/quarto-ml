@@ -1,0 +1,10 @@
+---
+title: "Lecture 7 — Self-check answers"
+sidebar: mfml
+---
+
+1. Events $A,B$ are independent if $P(A\cap B)=P(A)P(B)$.
+2. Each of the $n$ data RVs has the **same** distribution (same functional form of the law).
+3. No. Independence is across **data points** (different samples), not across coordinates inside one sample.
+4. (A) $n$ realizations of one RV; (B) one realization of $n$ i.i.d. RVs.
+5. Given dataset $\mathcal{D}$ sampled from an unknown law $P$, estimate $P$ (or relevant conditionals / marginals) — optionally learn to sample.

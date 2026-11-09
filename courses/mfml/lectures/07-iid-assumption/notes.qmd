@@ -1,0 +1,161 @@
+---
+title: "Lecture 7 — IID Assumption"
+subtitle: "Independence across data points, identical laws, and what ML really is"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 07 — IID Assumption](https://www.youtube.com/watch?v=C83xmx80tMo)
+
+### Learning goals
+- Unpack **i.i.d.**: identically distributed + statistically independent
+- See two equivalent views of a dataset of size $n$
+- Distinguish independence **across samples** vs across **dimensions**
+- State the course definition of ML: given $\mathcal{D}$, estimate $P$ (or conditionals / marginals)
+
+### Before this clicks
+Dataset from Lecture 6:
+
+$$
+\mathcal{D}=\bigl\{(x_i,y_i)\bigr\}_{i=1}^{n}
+\quad\text{“sampled i.i.d. from”}\quad
+P_{X,Y}.
+$$
+
+Events $A,B$ are independent if $P(A\cap B)=P(A)P(B)$. For RVs, independence means the joint factors into a product of marginals.
+
+---
+
+## 1. Identically distributed
+
+Think of the $n$ pairs as coming from $n$ random variables (each vector-valued), all with the **same** law $P_{X,Y}$.
+
+Equivalently: the experimental conditions do not change across the $n$ draws (same hospital protocol, same population story, … — intuition only; the math is “same distribution”).
+
+If you train on lung X-rays and test on brain MRI **without** rebuilding the model story, the identical-distribution assumption is broken.
+
+---
+
+## 2. Independent (statistical sense)
+
+Events $A,B$ independent $\Leftrightarrow$ $P(A\cap B)=P(A)P(B)$.
+
+For RVs: joint = product of marginals. For the dataset viewed as $n$ RVs $Z_1,\ldots,Z_n$ (each $Z_i=(X_i,Y_i)$),
+
+$$
+P_{Z_1,\ldots,Z_n} = P_{Z_1}\cdots P_{Z_n}
+$$
+
+when they are independent (and with identical laws, each factor equals the same $P_Z$).
+
+---
+
+## 3. Two viewpoints of the same dataset
+
+| View | Story | Need the words “i.i.d.”? |
+|------|-------|---------------------------|
+| A | $n$ **realizations** of **one** RV $Z$ | “i.i.d.” is almost redundant — one law, many trials |
+| B | **One** realization of **$n$** RVs $Z_1,\ldots,Z_n$ | Yes: identical laws + mutual independence |
+
+Textbooks write $\mathcal{D}\sim P$ with a tilde for “sampled from.” **Sampling** means repeating the underlying random experiment.
+
+---
+
+## 4. Critical: independence across *points*, not *pixels*
+
+**IID does *not* say** that the $D$ coordinates inside one vector $x_i$ are independent.
+
+- Image 1 independent of image 2: **yes** (the usual IID claim).
+- Pixel $(1,1)$ independent of pixel $(1,2)$ inside the same image: **not** assumed in general (nearby pixels are dependent).
+
+Some algorithms *add* a stronger assumption of independence across dimensions; that is a separate modeling choice.
+
+---
+
+## 5. What breaks when IID breaks?
+
+Algorithms we build will **use** independence and identical laws in their math. If test points come from a different experiment / different law, those algorithms are not entitled to work.
+
+Whether faces and buildings are “one experiment” or two is a **design choice**. Merge them into one giant dataset and you can call them one law; train on faces only and test on buildings and you violated the identical-distribution story you baked into training.
+
+---
+
+## 6. Supervised / unsupervised / self-supervised (nomenclature)
+
+Class view: everything is estimating laws of RVs on $\Omega$.
+
+| Name people use | Rough meaning |
+|-----------------|---------------|
+| Supervised | Some coordinates called “labels” $Y$ exist |
+| Unsupervised | Only $X$; no separate $Y$ |
+| Self-supervised | Mask / split some dimensions of $X$ and treat them as a fake $Y$ (e.g. inpainting) |
+
+Labels often come from human judgment; that is why supervised data is expensive — not because the math is different.
+
+---
+
+## 7. Formal problem statement of ML (this course)
+
+$$
+\text{Given }\mathcal{D}\text{ sampled from unknown }P,\quad
+\text{estimate }P\text{ (or conditionals / marginals)}.
+$$
+
+Often write $P_{X}$ and allow $Y$ to be folded into $X$.
+
+- Estimating $P(Y\mid X)$ with discrete $Y$: classification  
+- Estimating $P(Y\mid X)$ with continuous $Y$: regression  
+- Estimating joints / marginals and learning to **sample**: generative modeling  
+
+**Discriminative** methods in this course mostly estimate useful conditionals without insisting on a full generative sampler.
+
+> Slogan from class: *All machine learning is: given $\mathcal{D}$, estimate $P$.*
+
+---
+
+## 8. Tiny concrete example
+
+Three coin tosses recorded as $1=$heads, $0=$tails: $(1,0,1)$.
+
+- **IID view B:** three Bernoulli RVs, same $p$, independent, so
+
+$$
+P(1,0,1)=p\cdot(1-p)\cdot p.
+$$
+
+- **Not claimed:** nothing about “coordinates of a vector image” here — each toss is already a full data point.
+
+If the coin secretly changes after toss 2, identical distribution fails and that product formula is the wrong model.
+
+---
+
+## 9. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| IID = pixels independent | No — samples independent. |
+| “Independent” in English | Means the product rule for joints / events. |
+| Train and test can be any domains | Test should match the law you estimated under. |
+| Supervised ≠ unsupervised mathematically | Same distribution-estimation game; different which coordinates you name. |
+
+---
+
+## 10. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- Blitzstein & Hwang, *Introduction to Probability* — independence, i.i.d. samples
+- Murphy, *Probabilistic Machine Learning* — i.i.d. data assumptions in ML
+- Bishop, *PRML* — supervised vs unsupervised as density / conditional estimation
+
+---
+
+## 11. Self-check
+
+1. Write the event-level definition of independence.
+2. What does “identically distributed” mean for $n$ data RVs?
+3. Does IID assume independence across feature dimensions? Explain.
+4. Give the two dataset viewpoints (one RV vs $n$ RVs).
+5. State the course’s one-line definition of the ML problem.
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
