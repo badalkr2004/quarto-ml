@@ -1,0 +1,10 @@
+---
+title: "Lecture 49 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\mathrm{Attention}(Q,K,V)=\mathrm{softmax}(QK^\top/\sqrt{d_k})\,V$.
+2. $n\times m$.
+3. To keep score magnitudes from growing like $d_k$, which would sharpen softmax and hurt gradients.
+4. Apply a causal mask: set future logits to $-\infty$ before softmax.
+5. Self: same sequence as $Q$. Cross: usually encoder outputs (memory), while $Q$ comes from the decoder.

@@ -1,0 +1,101 @@
+---
+title: "Lecture 49 — Attention Part 2"
+subtitle: "Scaled dot-product attention in matrix form"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 49 — Attention Part 2](https://www.youtube.com/watch?v=TGzZ8jCX4y0)
+
+## Learning goals
+
+- Pack Q, K, V into matrices and write **scaled** attention in one formula.
+- Explain why we divide by $\sqrt{d_k}$.
+- Contrast self-attention, cross-attention, and causal (masked) attention.
+
+## Before this clicks
+
+Lecture 48 did attention one query at a time. Deep learning prefers **batched linear algebra**: stack all queries, keys, and values and compute every score with one matmul. Scaling by $\sqrt{d_k}$ keeps softmax from saturating when dimensions grow.
+
+---
+
+## Main ideas
+
+### 1. Matrix packing
+
+Let $Q\in\mathbb{R}^{n\times d_k}$, $K\in\mathbb{R}^{m\times d_k}$, $V\in\mathbb{R}^{m\times d_v}$ hold rows $q_i^\top$, $k_j^\top$, $v_j^\top$. For **self-attention**, $n=m$ and all three come from the same sequence.
+
+Score matrix:
+
+$$
+S = QK^\top \in\mathbb{R}^{n\times m},\qquad S_{ij}=q_i^\top k_j.
+$$
+
+### 2. Scaled dot-product attention
+
+$$
+\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V.
+$$
+
+Softmax is row-wise: each query’s scores become a distribution over keys, then multiply by $V$.
+
+### 3. Why $\sqrt{d_k}$?
+
+If entries of $q,k$ are roughly unit-scale independent, $q^\top k$ has variance about $d_k$. Large magnitude scores make softmax nearly one-hot and gradients tiny. Dividing by $\sqrt{d_k}$ stabilizes the scale.
+
+### 4. Self vs cross vs causal
+
+| Mode | $Q$ from | $K,V$ from | Typical use |
+|------|----------|------------|-------------|
+| Self-attention | same sequence | same sequence | encoder / decoder self layers |
+| Cross-attention | decoder | encoder memory | encoder–decoder MT |
+| Causal / masked | same sequence | same (+ mask) | language modeling |
+
+**Causal mask:** set $S_{ij}=-\infty$ for $j>i$ (future tokens) before softmax so $\alpha_{ij}=0$ for illegal positions.
+
+### 5. Complexity note
+
+Dense self-attention is $O(n^2 d)$ in sequence length $n$ — every pair interacts. That is the price of full connectivity (and the reason for later efficient-attention variants).
+
+---
+
+## Worked mini-example
+
+$n=2$, $d_k=2$, ignore scaling first. Suppose
+
+$$
+QK^\top=\begin{bmatrix}2&0\\0&2\end{bmatrix}.
+$$
+
+Row-softmax $\approx I$, so $\mathrm{Attention}\approx V$: each position almost only reads its own value. If off-diagonals dominate, mass shifts to other positions’ values. Adding $/ \sqrt{2}$ shrinks the $2$s toward milder weights.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Softmax over the whole matrix | Softmax is **per query row**, not global. |
+| Scaling changes who wins arbitrarily | It rescales; relative order of scores in a row is unchanged. |
+| Mask after softmax | Mask **logits** (set $-\infty$) before softmax so weights renormalize. |
+| Cross-attention needs equal lengths | $n$ (queries) and $m$ (keys) may differ. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Vaswani et al. (2017) — *Attention Is All You Need*
+- Goodfellow et al. — *Deep Learning*
+
+## Self-check questions
+
+1. Write the scaled attention formula.
+2. What is the shape of $QK^\top$ if $Q$ is $n\times d_k$ and $K$ is $m\times d_k$?
+3. Why divide by $\sqrt{d_k}$?
+4. How do you prevent attending to future tokens?
+5. Self-attention vs cross-attention: where do $K,V$ come from?
+
+*(Short answers are in `self-check-answers.qmd`.)*
