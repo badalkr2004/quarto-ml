@@ -4,4 +4,16 @@ sidebar: springboot
 toc: true
 ---
 
-1. Connection → statement → result.\n2. PreparedStatement.\n3. try-with-resources.
+## Exercises (sample)
+
+1. Java → JDBC API → MySQL driver → network/protocol → MySQL Server → table row inserted → status returned.
+2. Placeholders keep data separate from SQL text, so user input cannot change the command shape (helps stop SQL injection).
+3. `false`.
+4. `ResultSet`, `Statement`/`PreparedStatement`, and `Connection` (try-with-resources closes them for you).
+
+## Self-check
+
+1. **No.** You must get a connection and execute the statement.
+2. `executeQuery(...)`.
+3. Parameter placeholders filled later with `setString` / `setInt` / …
+4. **False.** Prefer `PreparedStatement` with `?`.

@@ -1,41 +1,352 @@
 ---
 title: "Lecture 26 — JDBC from scratch"
-subtitle: "Talk to MySQL with plain Java JDBC"
+subtitle: "Connect Java to MySQL and do CRUD without Spring"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [JDBC from scratch \| Full Course #26](https://www.youtube.com/watch?v=IbCHISQOMUA)  
-**Playlist index:** 26
+**Video:** [JDBC in Java from Scratch \| CRUD Operation with JDBC & MySQL \| Full Course #26](https://www.youtube.com/watch?v=IbCHISQOMUA)  
+**Playlist index:** 26  
+**Builds on:** plain Java + MySQL. Next: [27 — Spring JDBC](../27-spring-jdbc/notes.qmd)
 
 ---
-## Big idea
 
-Before Spring JDBC, learn raw JDBC:
+## Big idea in one line
+
+**JDBC is the bridge.**  
+Java talks JDBC API → driver talks MySQL protocol → MySQL runs SQL and returns rows.
 
 ```text
-DriverManager → Connection → PreparedStatement → ResultSet
+Your Java code
+      │
+      ▼
+ JDBC API (java.sql.*)
+      │
+      ▼
+ MySQL JDBC driver (JAR)
+      │
+      ▼
+ MySQL Server (tables / rows)
 ```
 
-## Steps
+A `String sql = "SELECT ..."` alone does **nothing**. You must open a connection and execute it.
 
-1. Add MySQL driver.
-2. `Connection conn = DriverManager.getConnection(url, user, pass);`
-3. `PreparedStatement` with `?` placeholders (never string-concat user input).
-4. `executeUpdate` / `executeQuery`.
-5. Close resources (try-with-resources).
+---
 
-## Practice
+## Why learn raw JDBC first?
 
-CRUD a `product` table with plain JDBC in a small main class.
+Spring JDBC / JPA sit on top of this. If you skip JDBC, those tools feel like magic.
 
-## Reasoning
+Today you will:
 
-SQL injection risk is why prepared statements matter. Spring JDBC will wrap this boilerplate next.
+1. Install / open MySQL
+2. Create a database + table
+3. Add the MySQL driver JAR
+4. Connect with `DriverManager`
+5. Run INSERT / SELECT / UPDATE / DELETE
+6. Prefer `PreparedStatement`
+7. Close resources safely
+
+---
+
+## Topic 1 — JDBC API vs driver
+
+| Piece | Plain meaning |
+|-------|----------------|
+| **JDBC API** | Interfaces you code against (`Connection`, `PreparedStatement`, `ResultSet`) |
+| **JDBC driver** | Database-specific JAR that implements those interfaces |
+
+Same Java code shape for MySQL or PostgreSQL. Only URL + driver JAR change.
+
+```java
+// MySQL
+DriverManager.getConnection(
+    "jdbc:mysql://localhost:3306/student_db",
+    "root",
+    "password"
+);
+
+// PostgreSQL (same idea, different URL)
+DriverManager.getConnection(
+    "jdbc:postgresql://localhost:5432/student_db",
+    "root",
+    "password"
+);
+```
+
+---
+
+## Topic 2 — IDE / MySQL setup (hands-on)
+
+### Step A — MySQL ready
+
+1. MySQL Server running (Workbench, DBeaver, or CLI is fine)
+2. You know **host** (`localhost`), **port** (`3306`), **user**, **password**
+
+### Step B — Create DB + table
+
+```sql
+CREATE DATABASE student_db;
+USE student_db;
+
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE,
+    age INT
+);
+```
+
+### Step C — Java project
+
+1. New Maven / plain Java project in IntelliJ
+2. Add dependency **MySQL Connector/J** (or drop the JAR on the classpath)
+3. Create a package like `com.example.jdbc`
+
+Maven snippet:
+
+```xml
+<dependency>
+  <groupId>com.mysql</groupId>
+  <artifactId>mysql-connector-j</artifactId>
+  <version><!-- stable version --></version>
+</dependency>
+```
+
+---
+
+## Topic 3 — Open a connection
+
+```java
+String url = "jdbc:mysql://localhost:3306/student_db";
+String user = "root";
+String password = "your_password";
+
+try (Connection connection = DriverManager.getConnection(url, user, password)) {
+    System.out.println("Connected: " + !connection.isClosed());
+}
+```
+
+**URL parts:**
+
+```text
+jdbc:mysql://localhost:3306/student_db
+ │     │        │         │      └─ database name
+ │     │        │         └─ port
+ │     │        └─ host
+ │     └─ product
+ └─ protocol
+```
+
+Modern drivers usually auto-register. You rarely need `Class.forName(...)` anymore.
+
+---
+
+## Topic 4 — Execute SQL
+
+| Method | Use when |
+|--------|----------|
+| `executeUpdate(...)` | INSERT, UPDATE, DELETE → returns rows affected |
+| `executeQuery(...)` | SELECT → returns `ResultSet` |
+
+### Statement (simple, less safe)
+
+```java
+Statement statement = connection.createStatement();
+int rows = statement.executeUpdate(
+    "INSERT INTO students(name, email, age) VALUES ('Ada', 'ada@mail.com', 20)"
+);
+```
+
+### PreparedStatement (preferred)
+
+```java
+String sql = "INSERT INTO students(name, email, age) VALUES (?, ?, ?)";
+try (PreparedStatement ps = connection.prepareStatement(sql)) {
+    ps.setString(1, "Ada");
+    ps.setString(2, "ada@mail.com");
+    ps.setInt(3, 20);
+    int rows = ps.executeUpdate();
+}
+```
+
+**Why `?` placeholders?**
+
+- Avoids SQL injection from user input
+- Same SQL plan can be reused
+- Types are set explicitly (`setString`, `setInt`, …)
+
+---
+
+## Topic 5 — Read rows with `ResultSet`
+
+```java
+String sql = "SELECT id, name, email, age FROM students";
+try (PreparedStatement ps = connection.prepareStatement(sql);
+     ResultSet rs = ps.executeQuery()) {
+
+    while (rs.next()) {
+        int id = rs.getInt("id");
+        String name = rs.getString("name");
+        String email = rs.getString("email");
+        int age = rs.getInt("age");
+        System.out.println(id + " | " + name + " | " + email + " | " + age);
+    }
+}
+```
+
+```text
+ResultSet cursor starts BEFORE first row
+      │
+      ▼
+ rs.next() → move to next row (false when done)
+      │
+      ▼
+ getInt / getString / getLong on current row
+```
+
+---
+
+## Topic 6 — Full CRUD (type this)
+
+Keep one connection open for the demo, or open/close per method. Pattern below uses try-with-resources.
+
+### CREATE
+
+```java
+public void insert(Connection connection, String name, String email, int age)
+        throws SQLException {
+    String sql = "INSERT INTO students(name, email, age) VALUES (?, ?, ?)";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setString(1, name);
+        ps.setString(2, email);
+        ps.setInt(3, age);
+        ps.executeUpdate();
+    }
+}
+```
+
+### READ one
+
+```java
+public void findById(Connection connection, int id) throws SQLException {
+    String sql = "SELECT id, name, email, age FROM students WHERE id = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                System.out.println(rs.getString("name") + " / " + rs.getString("email"));
+            } else {
+                System.out.println("Not found");
+            }
+        }
+    }
+}
+```
+
+### UPDATE
+
+```java
+public void updateAge(Connection connection, int id, int age) throws SQLException {
+    String sql = "UPDATE students SET age = ? WHERE id = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, age);
+        ps.setInt(2, id);
+        System.out.println("Updated rows = " + ps.executeUpdate());
+    }
+}
+```
+
+### DELETE
+
+```java
+public void delete(Connection connection, int id) throws SQLException {
+    String sql = "DELETE FROM students WHERE id = ?";
+    try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        ps.setInt(1, id);
+        System.out.println("Deleted rows = " + ps.executeUpdate());
+    }
+}
+```
+
+---
+
+## Topic 7 — Close resources
+
+Order of closing (if not using try-with-resources): **ResultSet → Statement → Connection**.
+
+Best practice: **try-with-resources** so close happens even on exceptions.
+
+```java
+try (Connection c = DriverManager.getConnection(url, user, password);
+     PreparedStatement ps = c.prepareStatement(sql);
+     ResultSet rs = ps.executeQuery()) {
+    // use rs
+} // all closed automatically
+```
+
+Leaking connections = MySQL hits max connections and new apps fail.
+
+---
+
+## Common setup problems
+
+| Symptom | Check |
+|---------|--------|
+| `Communications link failure` | MySQL running? host/port correct? |
+| `Access denied` | user/password / grants |
+| `Unknown database` | create `student_db` first |
+| `ClassNotFoundException` for driver | dependency / JAR missing |
+| Empty ResultSet | wrong table / wrong WHERE / no rows yet |
+
+---
+
+## Practice lab
+
+1. Create `student_db.students` as above.  
+2. Write a `main` that inserts 2 students.  
+3. Print all rows.  
+4. Update one age.  
+5. Delete one id.  
+6. Print again.  
+7. Replace any string-concatenated SQL with `PreparedStatement`.
+
+---
+
+## Short map to keep
+
+```text
+DriverManager.getConnection
+        │
+        ▼
+   Connection
+        │
+        ├─ prepareStatement(sql with ?)
+        │         │
+        │         ├─ setXxx(index, value)
+        │         ├─ executeUpdate  → C/U/D
+        │         └─ executeQuery   → ResultSet (R)
+        │
+        └─ close (try-with-resources)
+```
+
+---
+
+## Exercises
+
+1. Draw the path from Java code to MySQL for one INSERT.  
+2. Why is `PreparedStatement` safer than string concatenation?  
+3. What does `rs.next()` return when there are no more rows?  
+4. Name three things that must be closed after a query.
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Does creating a SQL `String` send anything to MySQL by itself?  
+2. Which method runs SELECT?  
+3. What do the `?` marks mean in a prepared SQL string?  
+4. True/False: you should usually concatenate user input into SQL.
+
+Answers: [self-check-answers](self-check-answers.qmd)
