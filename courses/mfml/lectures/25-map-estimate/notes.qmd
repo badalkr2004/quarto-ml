@@ -1,0 +1,115 @@
+---
+title: "Lecture 25 — MAP Estimate"
+subtitle: "Put a prior on parameters and take the posterior mode"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 25 — MAP Estimate](https://www.youtube.com/watch?v=HH9Xjjj7UN4)
+
+---
+
+## Learning goals
+
+- See when MLE fails with small $n$.
+- Treat $\theta$ as a random variable with a **prior**, form the **posterior**, take its **mode** (MAP).
+- Choose a **conjugate prior**; work the Bernoulli–Beta example.
+- Relate MAP $\to$ MLE as $n\to\infty$.
+
+---
+
+## Before this clicks
+
+**MLE** treats $\theta$ as an unknown constant and maximizes $p(x\mid\theta)$. With tiny data, that can be silly: four coin tosses all heads $\Rightarrow\hat\theta_{\mathrm{ML}}=1$ even if you know the coin is not two-headed.
+
+**Prior** $p(\theta)$: belief about $\theta$ **before** seeing data. **Posterior** $p(\theta\mid x)\propto p(x\mid\theta)\,p(\theta)$: updated belief.
+
+---
+
+## Main ideas
+
+### 1. Bayesian parameter estimation (idea)
+
+Assume $\theta\sim p(\theta)$. After data $x$,
+
+$$
+p(\theta\mid x) \;\propto\; p(x\mid\theta)\,p(\theta).
+$$
+
+You get a **whole distribution** over $\theta$, not a single point. For building one Bayes classifier you often need one number: take the **mode**
+
+$$
+\theta_{\mathrm{MAP}} = \arg\max_\theta\, p(\theta\mid x) = \arg\max_\theta\, p(x\mid\theta)\,p(\theta).
+$$
+
+(Equivalently maximize $\log p(x\mid\theta)+\log p(\theta)$.)
+
+### 2. Conjugate priors
+
+A prior is **conjugate** for a likelihood if the posterior stays in the **same family** as the prior. Motivation: parameter support/structure should not jump families just because you saw data (Bernoulli parameter stays on $(0,1)$; Beta$\to$Beta).
+
+### 3. Example: Bernoulli with Beta prior
+
+Likelihood (one flip): $p(x\mid\theta)=\theta^x(1-\theta)^{1-x}$.
+
+Beta prior:
+
+$$
+p(\theta) \propto \theta^{\alpha-1}(1-\theta)^{\beta-1},\qquad \theta\in(0,1).
+$$
+
+Posterior $\propto \theta^{x+\alpha-1}(1-\theta)^{\beta-x}$ — still Beta (conjugate). Mode (for suitable $\alpha,\beta$):
+
+$$
+\theta_{\mathrm{MAP}} = \frac{x+\alpha-1}{\alpha+\beta-2}
+$$
+
+(for one sample; with $n$ i.i.d. flips, replace $x$ by $\sum_i x_i$ and adjust the denominator with $n$).
+
+Compare to $\theta_{\mathrm{ML}}=\bar x$. Extra $\alpha,\beta$ “pseudo-counts” pull the estimate toward the prior. As $n\to\infty$, MAP $\to$ MLE (data washes out the prior).
+
+Uniform prior (special Beta) recovers MLE.
+
+### 4. Full Bayes vs MAP (preview)
+
+MAP collapses the posterior to one point. **Fully Bayesian** methods keep $p(\theta\mid x)$ and push uncertainty into predictions (e.g. Bayesian neural nets). Later: MAP $\leftrightarrow$ **regularization** in the ERM view.
+
+### 5. Link to nonparametric next
+
+Sometimes you only need $p(x)$ **at a query point**, not a global parametric form — Parzen / nearest-neighbor density estimates.
+
+---
+
+## Worked mini-example
+
+Fair-coin belief: Beta$(\alpha,\beta)$ peaked near $1/2$. Data: three heads, one tail. MLE $=3/4$. MAP pulls toward $1/2$ depending on $\alpha,\beta$. If all four are heads, MLE $=1$ but MAP $<1$ whenever $\beta>1$.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Prior comes from the training set | Prior is **pre-data** belief; data enters only through the likelihood. |
+| Posterior family can be anything | Prefer conjugates so support/form stay coherent. |
+| MAP uses the posterior mean | MAP = **mode**; for asymmetric posteriors mean $\neq$ mode. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop PRML §3.3–3.4 — Bayesian learning / MAP
+- Murphy PML — conjugate priors
+
+## Self-check questions
+
+1. Why can MLE be unreliable for small $n$? Give a coin example.
+2. Write the MAP objective using likelihood and prior.
+3. What is a conjugate prior?
+4. Why is Beta natural for a Bernoulli parameter?
+5. What happens to MAP vs MLE as $n\to\infty$?
+
+*(Short answers are in `self-check-answers.qmd`.)*

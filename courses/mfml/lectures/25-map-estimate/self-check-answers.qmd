@@ -1,0 +1,10 @@
+---
+title: "Lecture 25 — Self-check answers"
+sidebar: mfml
+---
+
+1. Data can “lie”; e.g. few tosses all heads $\Rightarrow\hat\theta_{\mathrm{ML}}=1$ even for a two-sided coin.  
+2. $\theta_{\mathrm{MAP}}=\arg\max_\theta p(x\mid\theta)p(\theta)$.  
+3. A prior for which the posterior stays in the same parametric family.  
+4. Support is $(0,1)$, flexible shapes, and conjugacy with Bernoulli/Binomial.  
+5. They agree — the likelihood dominates the prior.
