@@ -1,0 +1,101 @@
+---
+title: "Tutorial 15A — RNNs, LSTMs and GRUs"
+subtitle: "Sequence models with shared recurrence; gates that fight vanishing gradients"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 15 Part 1 — RNNs, LSTMs and GRUs](https://www.youtube.com/watch?v=zM5-TlrmKg8)
+
+## Learning goals
+
+- Write the basic RNN recurrence and see weight sharing across time.
+- Explain vanishing/exploding gradients as the motive for gated units.
+- Contrast LSTM and GRU at the level of **cell state** and **gates**.
+
+## Before this clicks
+
+A sequence $x_1,\ldots,x_T$ (tokens, frames, sensor readings) has order that matters. An RNN keeps a hidden state $h_t$ that summarizes “what happened so far,” updated with the **same** weights at every $t$. Training unrolls the graph in time (**BPTT**). Long unrollings multiply many Jacobians $\Rightarrow$ gradients can shrink or blow up; LSTMs/GRUs add gates so memory can pass more stably.
+
+---
+
+## Main ideas
+
+### 1. Vanilla RNN
+
+$$
+h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b),\qquad
+\hat{y}_t=\mathrm{softmax}(W_{hy}h_t+c)
+$$
+
+(or a single label from $h_T$). Parameters $(W_{xh},W_{hh},\ldots)$ do not depend on $t$.
+
+### 2. Batching sequences
+
+Minibatches pad/pack variable lengths. A batch tensor is often `(batch, time, features)`. Masks ignore pad steps in the loss. Teacher forcing (for generation) feeds the true previous token during training.
+
+### 3. Why gates?
+
+In a deep-in-time tanh RNN, $\partial h_T/\partial h_1$ is a product of many factors with singular values often $<1$ $\Rightarrow$ **vanishing** gradients; $>1$ $\Rightarrow$ **exploding** (clipping helps explosions; architecture helps vanishing).
+
+### 4. LSTM (intuition)
+
+Maintain a **cell** $c_t$ as a highway for long-range memory, plus gates in $(0,1)$:
+
+- **Forget** $f_t$: how much of $c_{t-1}$ to keep.
+- **Input** $i_t$: how much new candidate $\tilde{c}_t$ to write.
+- **Output** $o_t$: how much of $c_t$ to expose as $h_t$.
+
+Schematically:
+
+$$
+c_t=f_t\odot c_{t-1}+i_t\odot\tilde{c}_t,\qquad
+h_t=o_t\odot\tanh(c_t).
+$$
+
+### 5. GRU (intuition)
+
+Fewer tensors than LSTM: a **reset** gate and an **update** gate blend previous hidden state with a candidate — no separate cell. Often similar accuracy, cheaper.
+
+| Model | Memory path | Gate count (rough) |
+|-------|-------------|--------------------|
+| RNN | $h_t$ only | none |
+| LSTM | $c_t$ + $h_t$ | forget, input, output |
+| GRU | $h_t$ with update/reset | two |
+
+---
+
+## Worked mini-example
+
+Binary sequence: predict next bit. Tiny RNN with $h\in\mathbb{R}^{2}$. After seeing `1,0,1`, $h_3$ should differ from $h_3$ after `0,0,0` if the recurrence mixes past inputs. For a long run of identical bits, a vanilla RNN’s $\partial L/\partial W_{hh}$ may nearly vanish; an LSTM can keep $f_t\approx 1$ so $c_t$ carries the early “I saw a 1” signal forward with less attenuation.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| RNN = only language | Any ordered sequence; audio, video, time series too |
+| LSTM “solves” all long memory | Helps a lot; still finite capacity; attention/transformers go further |
+| GRU outdated vs LSTM | Often competitive; pick by validation |
+| Batch time axis is optional | Need a clear time (or pack) dimension for recurrence |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (RNNs, LSTMs)
+- Course Lec 45–46 — RNNs and vanishing gradients
+
+## Self-check questions
+
+1. Write the vanilla RNN update for $h_t$.
+2. Why share $W_{hh}$ across time?
+3. Name the vanishing-gradient issue in one sentence.
+4. What does the LSTM forget gate multiply?
+5. How does a GRU differ from an LSTM at a high level?
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Tutorial 15A — Self-check answers"
+sidebar: mfml
+---
+
+1. $h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b)$ (activation may vary).
+2. The same transition should apply at every step; sharing cuts parameters and ties the dynamics.
+3. Backprop through many time steps multiplies Jacobians, so gradients can shrink toward zero.
+4. The previous cell state $c_{t-1}$ (elementwise).
+5. GRU has no separate cell and typically two gates; LSTM has cell + three gates.
