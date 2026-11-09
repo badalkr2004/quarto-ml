@@ -1,0 +1,10 @@
+---
+title: "Tutorial 15B — Self-check answers"
+sidebar: mfml
+---
+
+1. The hidden vector from layer $\ell-1$ at the same time, $h_t^{(\ell-1)}$ (and its own previous state $h_{t-1}^{(\ell)}$).
+2. $h_t=[\overrightarrow{h}_t;\,\overleftarrow{h}_t]$.
+3. When predictions must be causal (no access to future tokens/frames).
+4. Gradient clipping; dropout between layers (also: gated cells, sensible depth).
+5. No — weights are shared over time; $T$ affects compute, not the number of weight tensors.

@@ -1,0 +1,106 @@
+---
+title: "Tutorial 15B — Deep RNNs, LSTMs and GRUs"
+subtitle: "Stacking recurrent layers, bidirectional context, and practical depth tricks"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 15 Part 2 — Deep RNNs, LSTMs and GRUs](https://www.youtube.com/watch?v=nJivfX9VY7Y)
+
+## Learning goals
+
+- Stack recurrent layers so layer $\ell$ reads the sequence of hiddens from layer $\ell-1$.
+- Use **bidirectional** RNNs when the whole sequence is available offline.
+- Apply depth practically: dropout between layers, gradient clipping, sensible widths.
+
+## Before this clicks
+
+A single recurrent layer mixes time; **depth** mixes features at each time. A deep RNN is not “more time steps” — it is several recurrent modules stacked so $h_t^{(\ell)}$ depends on $h_t^{(\ell-1)}$ and $h_{t-1}^{(\ell)}$. Bidirectional models run a forward and a backward recurrent net and concatenate states when future context is allowed (not for strict causal generation).
+
+---
+
+## Main ideas
+
+### 1. Stacked (deep) recurrence
+
+For layer $\ell=1,\ldots,L$:
+
+$$
+h_t^{(\ell)}=\mathrm{RNN}^{(\ell)}\!\bigl(h_t^{(\ell-1)},\,h_{t-1}^{(\ell)}\bigr),
+$$
+
+with $h_t^{(0)}:=x_t$. Each layer has its own weights. Top layer $h_t^{(L)}$ feeds the task head.
+
+Same stacking works with LSTM or GRU cells instead of vanilla RNN cells.
+
+### 2. Why go deep?
+
+Lower layers capture short / local patterns; higher layers compose them (analogous to deep CNNs). Empirically, 2–3 recurrent layers often help; extreme depth needs residuals or careful init.
+
+### 3. Bidirectional RNNs
+
+Forward state $\overrightarrow{h}_t$ sees $x_1,\ldots,x_t$; backward $\overleftarrow{h}_t$ sees $x_T,\ldots,x_t$. Representation:
+
+$$
+h_t=\bigl[\overrightarrow{h}_t;\,\overleftarrow{h}_t\bigr].
+$$
+
+Use for labeling, classification of full utterances, offline ASR/NLP — **not** when you must predict the next token online without peeking ahead.
+
+### 4. Regularization and training tips
+
+| Knob | Role |
+|------|------|
+| Dropout between layers / on inputs | Reduce co-adaptation |
+| Gradient clipping | Tame exploding norms |
+| Layer sizes decreasing or constant | Capacity vs compute |
+| Pack padded sequences | Correct batching of variable $T$ |
+
+Deep stacks amplify vanishing issues; prefer LSTM/GRU units when $T$ or $L$ grows.
+
+### 5. Deep + bidirectional
+
+Common pattern: 2 bidirectional LSTM layers, then a dense CRF/softmax head for sequence tagging. Output at each $t$ uses both past and future context from every layer.
+
+---
+
+## Worked mini-example
+
+Sentence of length $T=4$, embedding size $4$, two stacked GRUs with hidden size $8$, then bidirectional on the top layer only.
+
+- Layer 1: map $x_t\in\mathbb{R}^{4}\to h_t^{(1)}\in\mathbb{R}^{8}$ over time.
+- Layer 2 biGRU: forward and backward each output $\mathbb{R}^{8}$ $\Rightarrow$ $h_t\in\mathbb{R}^{16}$.
+- Token classifier: $W\in\mathbb{R}^{C\times 16}$ times $h_t$.
+
+Parameter count grows with $L$ and direction, not with $T$ (aside from compute). Batching still uses `(batch, time, dim)` with masks.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Deep RNN = longer BPTT | Depth is vertical stacking; BPTT length is the time unroll |
+| Bidirectional always better | Illegal for causal next-step prediction |
+| More layers always help | Diminishing returns + harder optimization |
+| Vanilla deep RNN is fine for long $T$ | Prefer gated cells when depth or length is large |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (deep / bidirectional RNNs)
+- Graves et al. — bidirectional LSTM sequence labeling (classic)
+
+## Self-check questions
+
+1. What is the input to recurrent layer $\ell$ at time $t$?
+2. Write the bidirectional concatenation for $h_t$.
+3. When must you avoid a bidirectional model?
+4. Name two practical stabilizers for deep recurrent training.
+5. Does stacking increase parameters with sequence length $T$?
+
+*(Short answers are in `self-check-answers.qmd`.)*
