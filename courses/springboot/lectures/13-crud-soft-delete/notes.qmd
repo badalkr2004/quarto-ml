@@ -1,0 +1,84 @@
+---
+title: "Lecture 13 — Soft delete and custom JPA methods"
+subtitle: "Mark rows deleted instead of removing them"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Soft delete and custom JPA methods \| Full Course #13](https://www.youtube.com/watch?v=1lUBVZkDANg)  
+**Playlist index:** 13
+
+---
+## Big idea
+
+**Hard delete:** row is gone.  
+**Soft delete:** row stays, but flagged as deleted (`deleted=true` or `deletedAt` set).
+
+```text
+DELETE /api/products/5
+        │
+        ▼
+  set deleted = true   (soft)
+  -- or --
+  remove row           (hard)
+```
+
+## Why soft delete?
+
+- Audit / history
+- Undo mistakes
+- Reports still see old data if needed
+
+## Entity field
+
+```java
+private boolean deleted = false;
+```
+
+## Custom query methods
+
+Spring Data can build queries from method names:
+
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    List<Product> findByDeletedFalse();
+    Optional<Product> findByIdAndDeletedFalse(Long id);
+}
+```
+
+Or write JPQL:
+
+```java
+@Query("select p from Product p where p.id = :id and p.deleted = false")
+Optional<Product> findActive(@Param("id") Long id);
+```
+
+## Service delete
+
+```java
+public void softDelete(Long id) {
+    Product p = repo.findById(id).orElseThrow();
+    p.setDeleted(true);
+    repo.save(p);
+}
+```
+
+List endpoints should call `findByDeletedFalse()`, not `findAll()`.
+
+## Practice
+
+1. Add `deleted` flag.
+2. Change delete API to soft delete.
+3. Change list/get to skip deleted rows.
+4. Optional: admin endpoint to list deleted items.
+
+## Reasoning
+
+Always decide: does “delete” mean *hide* or *erase*? Soft delete changes every read query — do not forget filters.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).
