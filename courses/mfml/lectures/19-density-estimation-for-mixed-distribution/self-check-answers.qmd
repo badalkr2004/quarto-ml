@@ -1,0 +1,10 @@
+---
+title: "Lecture 19 — Self-check answers"
+sidebar: mfml
+---
+
+1. The model family cannot match a multimodal truth closely; KL has a large floor no matter which $\theta$ you pick.
+2. $P_\theta(v)=\sum_{j=1}^M \alpha_j P_{\theta_j}(v)$ with $\alpha_j\ge 0$, $\sum_j\alpha_j=1$.
+3. Weights $\alpha_j$, means $\mu_j$, covariances $\Sigma_j$; $M$ is the number of components (hyperparameter).
+4. With enough Gaussian components you can approximate any continuous density arbitrarily well (in the KL / function-approximation sense stated in class).
+5. The log-likelihood has $\log\sum_j(\cdots)$, so log and component exponentials do not cancel into an easy closed-form critical-point equation.

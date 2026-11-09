@@ -1,0 +1,106 @@
+---
+title: "Lecture 19 — Density Estimation for Mixed Distribution"
+subtitle: "Why mixtures beat a single mode, and why MLE gets hard"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 19 — Density Estimation for Mixed Distribution](https://www.youtube.com/watch?v=3UmgTSDgG5Q)
+
+---
+
+## Learning goals
+
+- See the failure mode of **unimodal** models on **multimodal** data
+- Define a **mixture density** and the special case **GMM**
+- Treat $M$ (number of components) as a **hyperparameter**
+- Understand why GMM log-likelihood is $\log\sum$ (not analytically friendly)
+
+---
+
+## Before this clicks
+
+MLE needs a model family $P_\theta$. If the family cannot get close to $P_V$ in KL, no amount of optimizing $\theta$ saves you (same energy as choosing a too-poor hypothesis class in ERM).
+
+---
+
+## Main ideas
+
+### 1. Bad model family $\Rightarrow$ large KL floor
+
+If truth is multimodal but $P_\theta$ is a single Gaussian, you can only slide mean / inflate variance. KL stays large — analogous to fitting a line to a quadratic.
+
+**Mode:** a point where the density’s derivative vanishes; multimodal $=$ multiple such bumps (typical in practice).
+
+### 2. Mixture density
+
+For $v\in\mathbb{R}^{d}$,
+
+$$
+P_\theta(v)=\sum_{j=1}^{M}\alpha_j\, P_{\theta_j}(v),
+$$
+
+with $\alpha_j\in[0,1]$, $\sum_j\alpha_j=1$, and each $P_{\theta_j}$ a density. This is a **convex combination of densities**, not a combination of the random variable’s values.
+
+Components need not share a family; often they do (**homogeneous** mixture).
+
+### 3. Gaussian mixture model (GMM)
+
+Each $P_{\theta_j}=\mathcal{N}(\mu_j,\Sigma_j)$. Parameters: weights $\alpha_j$, means $\mu_j$, covariances $\Sigma_j$.
+
+**Hyperparameter:** $M$ (and often the component family) — chosen, not usually optimized inside the same MLE step as $\theta$.
+
+### 4. Why GMMs are popular (theorem stated in class)
+
+GMMs are **universal density approximators** for continuous densities: with enough components you can drive KL to the truth arbitrarily small *in principle*. (Linear combinations of Gaussians act like a basis for a rich function space — Fourier analogy in class.)
+
+### 5. Why not “course ends at GMM + Bayes”?
+
+In high dimension (curse of dimensionality), iterative MLE for GMMs can stick at poor local optima. Also many modern models need broader latent-variable / variational tools. Still: GMM + EM is a core algorithmic chapter.
+
+### 6. The algebraic snag
+
+For exponential-family singles, $\log P_\theta$ cancels the exp and derivatives separate. For mixtures,
+
+$$
+\log P_\theta(v_i)=\log\Bigl(\sum_{j=1}^{M}\alpha_j P_{\theta_j}(v_i)\Bigr)
+$$
+
+— **log of a sum**. Setting derivatives to zero does not yield a clean closed form $\Rightarrow$ need iterative methods (**EM**), previewed as optimizing a lower bound on the likelihood.
+
+---
+
+## Worked mini-example
+
+1-D data with two clear clumps near $-2$ and $+2$. A single $\mathcal{N}(\mu,\sigma^{2})$ MLE puts mass in the middle valley. A $2$-component GMM can place one Gaussian on each clump with weights $\approx$ clump sizes — much smaller KL to a two-mode truth.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Mixture $=$ RV is sum of RVs | Mixture combines **densities** with weights $\alpha_j$ |
+| More components always better in practice | Extra capacity helps approximation but hurts optimization / overfitting concerns |
+| Universal approximator $\Rightarrow$ solved ML | Theory vs high-$d$ optimization reality |
+| Parameter $=$ hyperparameter | $\alpha,\mu,\Sigma$ estimated; $M$ typically chosen |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.9 — mixtures of Gaussians
+- Murphy *Probabilistic ML* — mixture models overview
+
+## Self-check questions
+
+1. Why can unimodal $P_\theta$ fail even after perfect optimization of $\theta$?
+2. Write the general mixture density formula.
+3. What parameters does a GMM include, and what is $M$?
+4. State the “universal approximator” claim for GMMs in plain English.
+5. Why does MLE for mixtures resist the Gaussian-mean closed form?
+
+*(Short answers are in `self-check-answers.qmd`.)*
