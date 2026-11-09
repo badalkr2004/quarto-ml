@@ -1,0 +1,10 @@
+---
+title: "Lecture 52 — Self-check answers"
+sidebar: mfml
+---
+
+1. Parameters / features learned on a source task, reused (and often adapted) for a target task.
+2. When target data are scarce and you want to avoid overwriting useful pretrained features.
+3. Softens probabilities (flatter distribution), exposing relative similarities among classes.
+4. $L=(1-\lambda)L_{\mathrm{hard}}+\lambda T^{2} L_{\mathrm{KD}}(p_T^{(T)},p_S^{(T)})$ (KL or similar for $L_{\mathrm{KD}}$).
+5. No — the student is typically smaller/faster.

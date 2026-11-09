@@ -1,0 +1,106 @@
+---
+title: "Lecture 52 — Transfer Learning and Knowledge Distillation"
+subtitle: "Reuse big pretrained models; teach a smaller student to mimic a teacher"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 52 — Transfer Learning and Knowledge Distillation](https://www.youtube.com/watch?v=5f2_TocU_CU)
+
+## Learning goals
+
+- Define **transfer learning**: pretrain on a source task, adapt to a target task with less data.
+- Contrast freezing a backbone vs **fine-tuning**.
+- Explain **knowledge distillation**: train a student to match a teacher’s soft predictions.
+
+## Before this clicks
+
+Training a huge net from scratch needs lots of labeled data and compute. Often someone already trained a strong model on a related problem (ImageNet, large text corpora). **Transfer** reuses those features. **Distillation** compresses a strong “teacher” into a cheaper “student” by matching soft labels, not only hard one-hot targets.
+
+---
+
+## Main ideas
+
+### 1. Transfer learning pipeline
+
+1. **Pretrain** $f_{\theta}$ on source data (e.g. classify 1000 ImageNet classes).
+2. **Adapt** to target data (e.g. medical images with 5 classes): replace / retrain the head, optionally update lower layers.
+
+Intuition: early layers learn generic edges/textures/syntax; later layers are more task-specific.
+
+### 2. Freeze vs fine-tune
+
+| Strategy | What updates | When |
+|----------|--------------|------|
+| Feature extraction | Only new head | Tiny target data; avoid destroying pretrained features |
+| Partial fine-tune | Head + top blocks | Moderate data |
+| Full fine-tune | All parameters (small LR) | More target data; domain close enough |
+
+Use a **smaller learning rate** for pretrained weights than for a randomly initialized head.
+
+### 3. Domain shift caveat
+
+If source and target distributions differ wildly, transfer helps less (or needs more fine-tuning / better pretraining). Transfer is a prior, not magic.
+
+### 4. Knowledge distillation (KD)
+
+Teacher $T$ (large, frozen or slowly updated) produces soft probabilities $p_T(y\mid x)$. Student $S$ with parameters $\phi$ matches them.
+
+Temperature-softmax (Hinton et al.):
+
+$$
+p^{(T)}_c(x)=\frac{\exp(z_c/T)}{\sum_{c'}\exp(z_{c'}/T)},
+$$
+
+where $z_c$ are logits and $T>1$ softens the distribution (reveals “dark knowledge”: which wrong classes are near-misses).
+
+Student loss (schematic):
+
+$$
+L(\phi)=(1-\lambda)\,L_{\mathrm{hard}}\big(y,p_S\big)
++\lambda\,T^{2}\,L_{\mathrm{KD}}\big(p_T^{(T)},p_S^{(T)}\big),
+$$
+
+where $L_{\mathrm{KD}}$ is often KL divergence between teacher and student soft labels, and $T^{2}$ rescales gradients when temperature is used. $\lambda\in[0,1]$ balances hard labels vs teacher mimicry.
+
+### 5. Why distill?
+
+Deploy a small/fast student on-device while keeping much of the teacher’s accuracy. Same idea appears when compressing ensembles into one net.
+
+---
+
+## Worked mini-example
+
+Teacher on a 3-class problem outputs soft probs $(0.70,0.25,0.05)$ for an image whose hard label is class 0. Hard-label training only says “class 0.” Distillation also tells the student “class 1 is more plausible than class 2,” transferring similarity structure. With $T>1$ those $(0.70,0.25,0.05)$ become even flatter, emphasizing relative structure over peaky confidence.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Transfer = always freeze everything | Freezing is one mode; fine-tuning often works better with enough data. |
+| Distillation needs unlabeled data only | You can mix hard labels and soft teacher targets; setups vary. |
+| Student must share teacher architecture | Architectures may differ; student is usually smaller. |
+| Soft labels = temperature alone | Temperature reshapes logits; the teacher network produces the logits. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (representation learning / transfer)
+- Hinton, Vinyals, Dean — knowledge distillation
+- Vaswani et al. — pretrained Transformer stacks as transfer backbones (context)
+
+## Self-check questions
+
+1. What is transferred in transfer learning?
+2. When might you freeze the backbone?
+3. What does temperature $T>1$ do to softmax?
+4. Write the schematic KD loss with hard and soft terms.
+5. Must the student equal the teacher in size?
+
+*(Short answers are in `self-check-answers.qmd`.)*
