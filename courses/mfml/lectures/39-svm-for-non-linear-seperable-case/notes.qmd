@@ -1,0 +1,107 @@
+---
+title: "Lecture 39 — SVM for the Non-Linearly Separable Case"
+subtitle: "Soft-margin SVM with slack variables (still a linear discriminant)"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 39 — SVM for Non-Linear Seperable Case](https://www.youtube.com/watch?v=jQ-3gT8Mytw)
+
+## Learning goals
+
+- Distinguish “not linearly separable” from “nonlinear decision boundary.”
+- Introduce **slack variables** and the soft-margin primal with penalty $C$.
+- See how the dual gains box constraints $0\le\mu_i\le C$.
+
+## Before this clicks
+
+Hard-margin needs some $w$ with $y_i(w^\top x_i+b)\ge 1$ for all $i$. If no such $w$ exists, the feasible set is empty. Today we keep a **linear** discriminant but allow controlled violations. Nonlinear boundaries via kernels come next.
+
+---
+
+## Main ideas
+
+### 1. Naming
+
+“Non-linearly separable” here means: **no linear separator** achieves perfect margin constraints — **not** yet “use a curved decision surface.” The hypothesis class is still linear; we soften the constraints.
+
+### 2. Slack variables
+
+For each $i$, introduce $\xi_i\ge 0$ measuring how much the margin constraint is violated:
+
+$$
+y_i(w^\top x_i+b)\ge 1-\xi_i.
+$$
+
+- $\xi_i=0$: point outside/on the correct margin.
+- $0<\xi_i\le 1$: inside the margin but still correct side of the boundary.
+- $\xi_i>1$: misclassified by the linear rule.
+
+Without controlling $\xi$, a trivial solution could dump all mistakes into huge slacks.
+
+### 3. Soft-margin primal
+
+$$
+\begin{aligned}
+\min_{w,b,\xi}\quad &
+\tfrac12\|w\|_2^{2}
++C\sum_{i=1}^{n}\xi_i\\
+\text{s.t.}\quad &
+y_i(w^\top x_i+b)\ge 1-\xi_i,\qquad
+\xi_i\ge 0.
+\end{aligned}
+$$
+
+Hyperparameter $C>0$ trades margin size vs training violations (validation-tuned). Large $C$: insist on few slacks (closer to hard margin). Small $C$: allow more mistakes for a wider / stabler margin.
+
+### 4. Dual still looks familiar
+
+Forming the Lagrangian and eliminating $(w,b,\xi)$ yields a dual similar to the hard-margin QP, with the extra bound
+
+$$
+0\le\mu_i\le C.
+$$
+
+(The upper bound comes from the slack multipliers; unconstrained $\xi$ would send the dual to $-\infty$ unless that stationarity condition holds.)
+
+After solving for $\mu^\star$, recover $w^\star=\sum_i\mu_i^\star y_i x_i$ as before. You typically **never observe** the $\xi_i$ explicitly in the deployed classifier — $C$ is the knob that controlled them during training.
+
+### 5. Bridge
+
+Soft margin handles inseparable **linear** problems. For curved boundaries, map $x\mapsto\phi(x)$ (or use a **kernel**) next lecture.
+
+---
+
+## Worked mini-example
+
+One noisy point of class $+1$ deep inside the $-1$ cloud. Hard-margin: infeasible. Soft-margin: assign that point a large $\xi_i$, keep a wide margin for the rest; $C$ decides whether to shrink the margin to “save” that point.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Soft-margin = kernel SVM | Soft-margin still linear in $x$; kernels change the feature space. |
+| Slack is known at test time | Slacks are training variables; prediction uses $(w,b)$ only. |
+| $C$ is a Lagrange multiplier you solve for | $C$ is a **hyperparameter** (like $\lambda$). |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Cortes & Vapnik — soft-margin SVM
+- Bishop *PRML* — slack formulation
+
+## Self-check questions
+
+1. Does “non-linearly separable” in this lecture mean a nonlinear decision surface?
+2. Write the soft-margin inequality with slack $\xi_i$.
+3. What does the term $C\sum\xi_i$ do?
+4. What extra dual constraint appears vs hard margin?
+5. After training, do you need the $\xi_i$ to classify a new $x$?
+
+*(Short answers are in `self-check-answers.qmd`.)*

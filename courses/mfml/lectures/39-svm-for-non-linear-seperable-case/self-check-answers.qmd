@@ -1,0 +1,10 @@
+---
+title: "Lecture 39 — Self-check answers"
+sidebar: mfml
+---
+
+1. No — it means data are not separable by a linear rule; the discriminant stays linear.
+2. $y_i(w^\top x_i+b)\ge 1-\xi_i$ with $\xi_i\ge 0$.
+3. Penalizes total margin violations; $C$ sets the tradeoff vs $\|w\|^2$.
+4. Box constraints $0\le\mu_i\le C$.
+5. No — predict with $\mathrm{sign}(w^\top x+b)$ (slacks were training-only).
