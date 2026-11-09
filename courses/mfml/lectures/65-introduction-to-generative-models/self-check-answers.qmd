@@ -1,0 +1,10 @@
+---
+title: "Lecture 65 — Self-check answers"
+sidebar: mfml
+---
+
+1. $p(x)$ (or joint $p(x,y)$).
+2. No — it only models labels given $x$.
+3. Sample $z\sim p(z)$, then $x\sim p_\theta(x\mid z)$.
+4. Explicit/bound: VAE (or autoregressive); implicit: GAN.
+5. e.g. imputation, anomaly detection, data augmentation, latent features.

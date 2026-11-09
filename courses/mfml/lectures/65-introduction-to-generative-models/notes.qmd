@@ -1,0 +1,98 @@
+---
+title: "Lecture 65 — Introduction to Generative Models"
+subtitle: "Model $p(x)$ (or $p(x,y)$) so you can sample new $x$"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 65 — Introduction to Generative Models](https://www.youtube.com/watch?v=hgZ3HOMkrx0)
+
+## Learning goals
+
+- Contrast **generative** models ($p(x)$ or $p(x,y)$) with **discriminative** models ($p(y\mid x)$ or $f(x)\to y$).
+- List what “generate” means: sample new $x\sim\hat p$.
+- Preview major families: explicit density (VAE-like), implicit (GAN), and modern likelihood models (brief).
+
+## Before this clicks
+
+A classifier only needs a decision boundary or $p(y\mid x)$. A generative model aims at the **data distribution** itself: where probability mass lives in $x$-space (images, text tokens, audio). If you can sample from that model, you can create new examples that look like the training set.
+
+---
+
+## Main ideas
+
+### 1. Discriminative vs generative
+
+| Type | Models | Typical use |
+|------|--------|-------------|
+| Discriminative | $p(y\mid x)$ or score $f(x)$ | Classification / regression |
+| Generative | $p(x)$ or $p(x,y)$ | Sampling, density, imputation, …
+
+Generative $\Rightarrow$ discriminative is possible in principle via Bayes rule when $p(x\mid y)$ and $p(y)$ are modeled; the converse does not give you samples of $x$.
+
+### 2. Why generative models?
+
+- synthesize data (images, text)
+- fill missing parts / denoise
+- anomaly scoring via low $p(x)$
+- representation learning through latent $z$
+
+### 3. Modeling styles (map)
+
+1. **Explicit normalized density** — write $p_\theta(x)$ and maximize likelihood (or ELBO when exact likelihood is hard): classical mixtures, autoregressive models, VAEs (variational bound).
+2. **Implicit models** — define a sampler $x=G_\theta(z)$, $z\sim p(z)$, without a closed-form density: **GANs**.
+3. **Energy / score / diffusion** families (course may only glance): learn how to move noise toward data.
+
+### 4. Latent-variable intuition
+
+Many deep generative models use
+
+$$
+z\sim p(z),\qquad x\sim p_\theta(x\mid z).
+$$
+
+Marginal $p_\theta(x)=\int p_\theta(x\mid z)p(z)\,dz$ is often intractable — hence VAEs (bound) or GANs (avoid computing it).
+
+### 5. Evaluation (beginner caution)
+
+- Likelihood on held-out data (when available)
+- Sample quality / diversity (FID-style metrics in vision)
+- Downstream usefulness of latents
+
+Good samples $\neq$ perfect density; good likelihood $\neq$ always pretty samples.
+
+---
+
+## Worked mini-example
+
+Discriminative: given face pixels $x$, predict age $y$. Generative: learn $p(x)$ over face images and draw new faces $\tilde x\sim\hat p$. A conditional generative model $p(x\mid y)$ could draw “faces that look age-$y$.” Same pixels, different question.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Generative = always deep nets | Mixtures and PCA-Gaussian models are generative too. |
+| Classifier samples new $x$ | Discriminative models generally **cannot**. |
+| One family wins forever | Tradeoffs: likelihood vs sample quality vs training stability. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al., *Deep Learning* — generative overview
+- Bishop / Murphy — classical generative classifiers vs discriminatives
+
+## Self-check questions
+
+1. What distribution does a generative model primarily target?
+2. Can a pure discriminative $p(y\mid x)$ model draw new $x$?
+3. Write the latent-variable generative story $z\to x$.
+4. Name one explicit and one implicit deep generative family.
+5. Give one application beyond “pretty samples.”
+
+*(Short answers are in `self-check-answers.qmd`.)*
