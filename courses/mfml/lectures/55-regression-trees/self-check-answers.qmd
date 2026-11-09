@@ -1,0 +1,10 @@
+---
+title: "Lecture 55 — Self-check answers"
+sidebar: mfml
+---
+
+1. The sample mean $\bar{y}_S$.
+2. Minimize $\mathrm{SSE}(S_L)+\mathrm{SSE}(S_R)$ over candidate splits (equivalently maximize SSE reduction).
+3. $14$.
+4. Piecewise-constant functions on axis-aligned rectangular regions.
+5. Max depth, min samples in a leaf, min SSE improvement, or post-prune.

@@ -1,0 +1,117 @@
+---
+title: "Lecture 55 — Regression Trees"
+subtitle: "CART-style splits that cut squared error; leaf means as predictions"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 55 — Regression Trees](https://www.youtube.com/watch?v=1GZDVRskXGE)
+
+## Learning goals
+
+- Replace class impurity by **squared-error** cost for real-valued targets.
+- Derive that the optimal constant prediction on a region is the sample mean.
+- Split by minimizing weighted SSE of children (CART regression).
+
+## Before this clicks
+
+Classification trees purify labels. **Regression trees** partition $\mathcal{X}$ the same way, but each leaf predicts a number $\hat{c}$ for $y\in\mathbb{R}$. Under squared loss, the best constant on a fixed set of points is their average. Growing the tree means searching for a split that most reduces total squared error.
+
+---
+
+## Main ideas
+
+### 1. Leaf prediction under SSE
+
+On a node $S$ with targets $\{y_i\}_{i\in S}$,
+
+$$
+\hat{c}_S=\arg\min_{c}\sum_{i\in S}(y_i-c)^{2}=\bar{y}_S=\frac{1}{|S|}\sum_{i\in S}y_i.
+$$
+
+Node cost (sum of squares):
+
+$$
+\mathrm{SSE}(S)=\sum_{i\in S}(y_i-\bar{y}_S)^{2}.
+$$
+
+### 2. Choosing a split
+
+For a candidate split into $S_L,S_R$, score
+
+$$
+\mathrm{SSE}(S_L)+\mathrm{SSE}(S_R)
+$$
+
+and pick the feature/threshold with the **smallest** sum (largest SSE reduction vs parent). Same greedy recursion as classification CART; only the criterion changes.
+
+### 3. Piecewise-constant function
+
+The grown tree defines
+
+$$
+f(x)=\sum_{m=1}^{M}\hat{c}_m\,\mathbf{1}\{x\in R_m\},
+$$
+
+where $R_m$ are the leaf regions. Continuity is not required; jumps sit on split thresholds.
+
+### 4. Stopping and smoothing cousins
+
+Min leaf size, max depth, or cost-complexity pruning curb variance. (Ensembles of regression trees — bagging, random forests, boosting — come next lectures.)
+
+### 5. Relation to classification trees
+
+| | Classification | Regression |
+|--|----------------|------------|
+| Leaf output | class vote / $\hat{p}_k$ | mean $\bar{y}$ |
+| Split score | Gini / entropy gain | SSE reduction |
+| Geometry | same axis-aligned partitions | same |
+
+---
+
+## Worked mini-example
+
+Targets in $S$: $y=(1,2,6)$. Mean $\bar{y}=3$,
+
+$$
+\mathrm{SSE}(S)=(1-3)^{2}+(2-3)^{2}+(6-3)^{2}=4+1+9=14.
+$$
+
+Split into $\{1,2\}$ and $\{6\}$:
+
+- Left mean $1.5$, SSE $=(1-1.5)^{2}+(2-1.5)^{2}=0.5$.
+- Right mean $6$, SSE $=0$.
+- Child total $=0.5$ $\ll$ $14$ $\Rightarrow$ strong split.
+
+A worse split $\{1\}$ vs $\{2,6\}$: left SSE $0$; right mean $4$, SSE $=(2-4)^{2}+(6-4)^{2}=8$; total $8$ (still an improvement, but weaker than $0.5$).
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Leaf should fit a line | Classic CART leaf is a **constant**; piecewise linear needs other models |
+| Use Gini on $y$ | Gini needs class labels; use SSE (or MAE variants) for regression |
+| More splits always lower test MSE | Training SSE falls; test error can rise (overfit) |
+| Split on $y$ directly | Splits are on **features** $x$; $y$ only scores purity |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al. — *ESL* (CART regression)
+- Bishop *PRML* — regression trees
+
+## Self-check questions
+
+1. What constant $c$ minimizes $\sum_{i\in S}(y_i-c)^{2}$?
+2. Write the split objective for regression CART.
+3. For $y=(1,2,6)$, what is $\mathrm{SSE}(S)$?
+4. What function class does a regression tree represent?
+5. Name one stop rule that limits overfitting.
+
+*(Short answers are in `self-check-answers.qmd`.)*
