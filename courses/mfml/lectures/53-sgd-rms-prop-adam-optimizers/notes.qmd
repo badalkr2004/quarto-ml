@@ -1,0 +1,134 @@
+---
+title: "Lecture 53 — SGD, RMSProp, Adam: Optimizers"
+subtitle: "From plain steps to adaptive per-coordinate learning rates"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 53 — SGD, RMSProp, Adam: Optimizers](https://www.youtube.com/watch?v=N6F1J-wcE_E)
+
+## Learning goals
+
+- Write **SGD** and **momentum** updates.
+- Explain **RMSProp**’s running average of squared gradients.
+- Combine both ideas into **Adam** and read its bias-corrected update.
+
+## Before this clicks
+
+Training minimizes a loss $L(\theta)$ with stochastic gradients $g_t\approx\nabla L(\theta_{t-1})$ from a mini-batch. Plain SGD uses one global step size $\eta$. Adaptive methods scale steps **per coordinate** using history of gradient magnitudes — helpful when some parameters need larger updates than others.
+
+---
+
+## Main ideas
+
+### 1. SGD
+
+$$
+\theta_t = \theta_{t-1} - \eta\, g_t,\qquad
+g_t=\nabla_\theta L_{\mathrm{batch}}(\theta_{t-1}).
+$$
+
+Simple; noisy; sensitive to $\eta$.
+
+### 2. SGD with momentum
+
+Accumulate a velocity $v_t$ (heavy ball):
+
+$$
+\begin{aligned}
+v_t &= \mu\, v_{t-1} + g_t,\\
+\theta_t &= \theta_{t-1} - \eta\, v_t,
+\end{aligned}
+$$
+
+with momentum $\mu\in[0,1)$ (often $\approx 0.9$). Consistent gradient directions build speed; oscillating directions cancel.
+
+(Equivalent sign conventions exist with $v\leftarrow\mu v-\eta g$; same spirit.)
+
+### 3. RMSProp
+
+Keep an exponential moving average of squared grads:
+
+$$
+\begin{aligned}
+r_t &= \rho\, r_{t-1} + (1-\rho)\, g_t\odot g_t,\\
+\theta_t &= \theta_{t-1} - \eta\,\frac{g_t}{\sqrt{r_t}+\varepsilon}.
+\end{aligned}
+$$
+
+$\odot$ is elementwise product; division is elementwise. Coordinates with large historical $|g|$ get smaller effective steps. $\varepsilon$ (e.g. $10^{-8}$) avoids divide-by-zero. $\rho$ is often $\approx 0.9$ or $0.99$.
+
+### 4. Adam $=$ momentum + RMSProp-style scaling
+
+First moment (mean) and second moment (uncentered variance):
+
+$$
+\begin{aligned}
+m_t &= \beta_1 m_{t-1} + (1-\beta_1)\, g_t,\\
+v_t &= \beta_2 v_{t-1} + (1-\beta_2)\, g_t\odot g_t.
+\end{aligned}
+$$
+
+Bias correction (important early on, when $m,v$ start at $0$):
+
+$$
+\hat{m}_t=\frac{m_t}{1-\beta_1^t},\qquad
+\hat{v}_t=\frac{v_t}{1-\beta_2^t}.
+$$
+
+Update:
+
+$$
+\theta_t = \theta_{t-1} - \eta\,\frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\varepsilon}.
+$$
+
+Defaults people memorize: $\beta_1\approx 0.9$, $\beta_2\approx 0.999$, $\varepsilon\approx 10^{-8}$.
+
+### 5. Practical cheat sheet
+
+| Optimizer | Remembers | Good default instinct |
+|-----------|-----------|------------------------|
+| SGD | nothing | needs tuning / schedules; strong with momentum + care |
+| Momentum SGD | direction | smoother than plain SGD |
+| RMSProp | grad magnitudes | adaptive step sizes |
+| Adam | direction + magnitudes | strong default for many deep nets |
+
+No optimizer always wins; Adam is a frequent starting point in modern deep learning.
+
+---
+
+## Worked mini-example
+
+One coordinate: $g_1=g_2=1$, $\beta_1=0$, so Adam’s $m_t=g_t$. If $v$ grows because gradients stay large, $\sqrt{\hat{v}}$ grows and the effective step $\eta/\sqrt{\hat{v}}$ shrinks — automatic damping. If a rare coordinate gets a huge gradient once, RMSProp/Adam remember it briefly via $v_t$ and take smaller steps there afterward.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Adam’s $v$ is gradient velocity | In Adam, $v$ is the **second moment** (squared grads); momentum-like state is $m$. |
+| Forget bias correction | Early steps would be biased toward $0$; correction inflates $m,v$. |
+| $\eta$ disappears in Adam | Still crucial; adaptive methods rescale, they do not remove learning-rate choice. |
+| Elementwise vs matrix ops | $\odot$ and the Adam division are **per-parameter**, not matrix inverses. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Goodfellow et al. — *Deep Learning* (Ch. on optimization)
+- Kingma & Ba — Adam
+- [torch.optim](https://pytorch.org/docs/stable/optim.html)
+
+## Self-check questions
+
+1. Write the plain SGD update.
+2. What does momentum accumulate?
+3. What does RMSProp divide the gradient by?
+4. Write Adam’s bias-corrected update for $\theta_t$.
+5. Typical default $(\beta_1,\beta_2)$ for Adam?
+
+*(Short answers are in `self-check-answers.qmd`.)*

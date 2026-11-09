@@ -1,0 +1,10 @@
+---
+title: "Lecture 53 — Self-check answers"
+sidebar: mfml
+---
+
+1. $\theta_t=\theta_{t-1}-\eta g_t$.
+2. A velocity / exponentially weighted sum of past gradients (direction memory).
+3. $\sqrt{r_t}+\varepsilon$, where $r_t$ is an EMA of squared gradients (elementwise).
+4. $\theta_t=\theta_{t-1}-\eta\,\hat{m}_t/(\sqrt{\hat{v}_t}+\varepsilon)$ with $\hat{m}_t=m_t/(1-\beta_1^t)$, $\hat{v}_t=v_t/(1-\beta_2^t)$.
+5. About $(0.9,0.999)$.
