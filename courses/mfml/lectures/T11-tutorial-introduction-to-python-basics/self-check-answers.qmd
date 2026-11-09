@@ -1,0 +1,10 @@
+---
+title: "Tutorial 1 — Self-check answers"
+sidebar: mfml
+---
+
+1. Easy shared notebooks and later free GPU access without everyone owning hardware.
+2. `tuple`.
+3. `append(x)` adds at the end; `insert(i, x)` adds at index `i`.
+4. No — keys must be unique; a new assignment to the same key overwrites the value.
+5. Comfort with some programming language: loops, conditionals, functions, and a bit of OOP vocabulary.

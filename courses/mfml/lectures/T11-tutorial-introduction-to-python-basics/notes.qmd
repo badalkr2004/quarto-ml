@@ -1,0 +1,146 @@
+---
+title: "Tutorial 1 — Introduction to Python Basics"
+subtitle: "Colab, core types, and the constructs we will use all course"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Tutorial 1 — Introduction to Python Basics](https://www.youtube.com/watch?v=cF025BechXo)
+
+### Learning goals
+- Set up a place to run code (Google Colab / local Anaconda)
+- Use lists, tuples, dicts, and sets with the right mental model
+- Refresh loops, conditionals, functions, and a light touch of classes
+- Know what this course assumes you already know about programming
+
+### Before this clicks
+You should already know *some* programming language: loops, `if`, functions, and a vague idea of objects/methods. This tutorial is a Python skim, not a first programming course.
+
+---
+
+## 1. Where we run code
+
+- **Google Colab** — browser notebook (like Jupyter in the cloud); free GPU time later in the course.
+- **Local option** — Anaconda / local Jupyter if you prefer.
+
+Colab notebooks mix **code cells** and **text cells**. Run a code cell with the play button.
+
+```python
+print("Hello world")
+```
+
+No `#include` ceremony — batteries included; extra packages when needed.
+
+---
+
+## 2. Variable names
+
+Allowed: letters, digits, underscore. Must not start with a digit. Avoid Python keywords (`for`, `class`, …).
+
+---
+
+## 3. Basic vs “collection” types
+
+**Basics:** `int`, `float`, `str`, `bool` — arithmetic and comparisons work as usual; comparisons yield booleans.
+
+**Collections used heavily:**
+
+| Type | Mutable? | Ordered? | Duplicates? | Access |
+|------|----------|----------|-------------|--------|
+| `list` | yes | yes (index) | yes | `a[i]` |
+| `tuple` | no | yes | yes | `t[i]` |
+| `dict` | yes | key-ordered (Py3.7+) | unique keys | `d[key]` |
+| `set` | yes | no | no | membership |
+
+Choose by need: sequences you edit → list; fixed record → tuple; labeled lookup → dict; unique items → set.
+
+---
+
+## 4. Lists in practice
+
+```python
+v2 = [1, 2, 3, 4, 6, 7, 5, 9]
+v2.append(8)          # add at end
+v2.insert(5, 12)      # insert at index 5 (0-based)
+```
+
+Removing (three common intents from class):
+
+- last element — e.g. `pop()`
+- first occurrence of a value — e.g. `remove(value)`
+- element at an index — e.g. `pop(i)`
+
+`type(v)` tells you the type; list methods are invoked as `v.method(...)`.
+
+---
+
+## 5. Tuples, dicts, sets (one-liners)
+
+```python
+pt = (1.0, 2.0)              # immutable pair
+student = {"name": "Ada", "id": 7}
+primes = {2, 3, 5, 5}        # -> {2, 3, 5}
+```
+
+Dict: look up by **key**. Keys must be unique; values need not be.
+
+---
+
+## 6. Control flow & functions (assumed + skimmed)
+
+```python
+def square(x):
+    if x < 0:
+        return x * x
+    for i in range(3):
+        pass
+    return x * x
+```
+
+Classes / objects / methods appear when we wrap models later; treat a list as an object with methods for now.
+
+---
+
+## 7. Tiny concrete example
+
+Build a mini dataset as a list of `(x, y)` pairs (echoes Lectures 6–8):
+
+```python
+D = [([0.1, 0.2], 0), ([0.9, 0.8], 1)]
+xs = [xy[0] for xy in D]
+ys = [xy[1] for xy in D]
+print(len(D), ys)
+```
+
+---
+
+## 8. Common confusions
+
+| Confusion | Clarification |
+|-----------|----------------|
+| List vs tuple | Both ordered; only lists are mutable. |
+| Dict “ordered” | Order of **keys**; access is still by key, not by “the 3rd meaning.” |
+| Set like list | No duplicates, no positional indexing. |
+| Need GPUs on day 1 | No — Colab GPUs matter later. |
+
+---
+
+## 9. References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- [Google Colaboratory](https://colab.research.google.com/)
+- Official Python tutorial: [docs.python.org/3/tutorial](https://docs.python.org/3/tutorial/)
+- Real Python — lists/dicts quickstarts (optional)
+
+---
+
+## 10. Self-check
+
+1. Name one reason the course prefers Colab over only local installs.
+2. Which collection is immutable but ordered?
+3. How do you append vs insert into a list?
+4. Can a dict have two identical keys with different values?
+5. What programming prerequisites does the tutorial assume?
+
+*(Answers: [self-check-answers.qmd](self-check-answers.qmd).)*
