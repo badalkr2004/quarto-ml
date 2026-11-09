@@ -1,0 +1,34 @@
+---
+title: "Lecture 42 — API gateway project #2"
+subtitle: "GateKeeper-style edge service"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [API gateway project #2 \| Full Course #42](https://www.youtube.com/watch?v=ZxCcYHL96x8)  
+**Playlist index:** 42
+
+---
+## Big idea
+
+An **API gateway** is the front door: routing, auth, rate limits, cross-cutting concerns for many backends.
+
+```text
+Client → Gateway → Service A
+                 → Service B
+```
+
+## Practice focus
+
+Implement or follow GateKeeper flow from the video: route headers, auth check, forward request.
+
+## Course wrap
+
+You can now reason about: Core IoC → Boot → Web → Data → Security → Tests → production edges.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).

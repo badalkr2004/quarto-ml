@@ -1,0 +1,7 @@
+---
+title: "Lecture 42 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Edge routing/policy.\n2. Single entry.\n3. Cross-cutting at the edge.
