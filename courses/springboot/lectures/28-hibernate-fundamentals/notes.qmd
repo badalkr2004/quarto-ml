@@ -1,0 +1,31 @@
+---
+title: "Lecture 28 — Hibernate fundamentals"
+subtitle: "Entities and ORM CRUD"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Hibernate fundamentals \| Full Course #28](https://www.youtube.com/watch?v=XVQ27D8IIWU)  
+**Playlist index:** 28
+
+---
+## Big idea
+
+**ORM:** map objects ↔ tables. Hibernate is a common JPA provider.
+
+```text
+Entity class  ↔  table
+Field         ↔  column
+id            ↔  primary key
+```
+
+## Practice
+
+Use JPA annotations (`@Entity`, `@Id`) and `EntityManager` or Spring Data to save/find entities. Watch SQL with `show-sql=true`.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).

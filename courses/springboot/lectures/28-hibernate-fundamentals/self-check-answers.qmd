@@ -1,0 +1,7 @@
+---
+title: "Lecture 28 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Object-table mapping.\n2. `@Entity` + `@Id`.\n3. Provider implementing JPA.
