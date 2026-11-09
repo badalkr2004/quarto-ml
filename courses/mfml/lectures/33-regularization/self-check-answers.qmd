@@ -1,0 +1,10 @@
+---
+title: "Lecture 33 — Self-check answers"
+sidebar: mfml
+---
+
+1. Any technique that increases hypothesis bias (typically to reduce variance).
+2. $\min_\theta \widehat{R}(\theta)+\lambda\Omega(\theta)$.
+3. Ridge $\ell_2$; lasso $\ell_1$.
+4. As a hyperparameter via validation / held-out data (not usually via full dual optimization over $\lambda$).
+5. Early stopping / optimization tricks; architectural constraints (e.g. CNN structure).

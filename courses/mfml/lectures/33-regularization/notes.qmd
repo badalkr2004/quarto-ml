@@ -1,0 +1,97 @@
+---
+title: "Lecture 33 — Regularization"
+subtitle: "Anything that increases hypothesis bias to fight variance"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 33 — Regularization](https://www.youtube.com/watch?v=7F8pknXk_-o)
+
+## Learning goals
+
+- Define **regularization** as techniques that **increase bias** (to reduce variance).
+- Write **parameter-penalty** regularized ERM ($\ell_2$ / $\ell_1$).
+- See $\lambda$ as a **hyperparameter** (validation), not something you must dualize away.
+
+## Before this clicks
+
+Small samples + high capacity $\Rightarrow$ overfitting (low bias, high variance). Data often live near a thin **manifold** in a huge ambient $\mathbb{R}^{d}$; explaining every wiggle on that tiny set creates brittle decision boundaries. We need controlled bias.
+
+---
+
+## Main ideas
+
+### 1. Definition used in this course
+
+> **Regularization** = any technique that **increases the bias** of the hypothesis.
+
+Goal is still low risk: raise bias a bit to cut variance a lot when $n$ is limited.
+
+### 2. Why overfitting is easy on thin manifolds
+
+Images-as-vectors occupy a tiny subset of $\mathbb{R}^{d}$. ERM that insists on fitting that cloud tightly builds partitions that do not move with the cloud — huge variance on a shifted test sample. Underfitting refuses to explain the cloud at all. Regularization navigates between these.
+
+### 3. Parameter-penalty regularized ERM
+
+$$
+\min_\theta\;
+\widehat{R}(\theta)+\lambda\,\Omega(\theta).
+$$
+
+Common choices:
+
+| $\Omega(\theta)$ | Name (linear models) | Effect (intuition) |
+|------------------|----------------------|--------------------|
+| $\|\theta\|_2^{2}$ | **Ridge** | Shrinks weights smoothly (“low-frequency” preference) |
+| $\|\theta\|_1$ | **Lasso** | Encourages sparsity |
+| $\|\theta\|_0$ | counts nonzeros | Ideal sparsity, but not a norm / not differentiable |
+
+For polynomial regression, penalizing $\|\theta\|_2$ discourages huge high-degree coefficients that memorize points.
+
+Constrained form $\min \widehat{R}$ s.t. $\Omega(\theta)\le t$ is related by Lagrange multipliers; ML practice usually **fixes $\lambda$** on validation data rather than solving a full primal–dual search for $\lambda$.
+
+### 4. Other regularization families (preview)
+
+1. Parameter penalties (today).
+2. **Optimization** procedures (early stopping — next lectures).
+3. **Architectural** restrictions (CNNs as regularized MLPs — later).
+
+### 5. Design note
+
+Any differentiable penalty you like is allowed in principle (even exotic shapes); differentiability matters because we optimize numerically. $\ell_0$ needs subgradients / combinatorial tricks.
+
+---
+
+## Worked mini-example
+
+Degree-$10$ polynomial on $n=10$ points: unpenalized ERM can interpolate. Add $\lambda\|\theta\|_2^{2}$ with large $\lambda$: coefficients shrink, curve smooths, training error rises a bit, test error often falls — classic bias up / variance down.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Regularization always means $\ell_2$ | $\ell_2$ is one penalty; architecture and early stopping also regularize. |
+| Larger $\lambda$ always better | Too large $\Rightarrow$ underfit; tune on validation. |
+| Lasso / ridge names swapped | $\ell_1$ lasso, $\ell_2$ ridge. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Hastie et al., ESL — ridge / lasso
+- Bishop *PRML* — weight decay
+
+## Self-check questions
+
+1. Course definition of regularization?
+2. Write regularized ERM with penalty $\Omega$.
+3. Ridge vs lasso: which norms?
+4. How is $\lambda$ usually chosen in ML practice?
+5. Name two regularization styles beyond parameter penalties.
+
+*(Short answers are in `self-check-answers.qmd`.)*
