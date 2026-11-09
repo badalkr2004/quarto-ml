@@ -1,0 +1,113 @@
+---
+title: "Lecture 20 — Latent Variable Models"
+subtitle: "Hidden $Z$, marginal likelihood, and mixtures as a special case"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 20 — Latent Variable Models](https://www.youtube.com/watch?v=J9QNr4UrB2c)
+
+---
+
+## Learning goals
+
+- Recall why mixture MLE is hard ($\log\sum$) and needs a new algorithm family
+- Motivate **latent** $Z$ as compression / semantics / unobserved structure
+- Define a latent variable model via marginalization of $P_\theta(x,z)$
+- See mixtures / GMMs as latent-variable models (discrete component index)
+
+---
+
+## Before this clicks
+
+Mixture: $P_\theta(v)=\sum_j\alpha_j P_{\theta_j}(v)$.  
+Log-likelihood has $\log\sum_j$, blocking easy MLE. Joint / marginal / conditional densities for two RVs.
+
+---
+
+## Main ideas
+
+### 1. From mixtures to a broader family
+
+EM will apply to a large class: **latent variable models**. Mixtures are members; so are many deep generative models (VAEs, diffusion — previewed as future course material). Same algorithmic skeleton, different choices of $P(x,z)$.
+
+### 2. Philosophy: information via compression
+
+High-$d$ $x$ (pixels) often has lower-dimensional **semantics** (digit thickness, face attributes, …). Introducing an unobserved $Z$ is a modeling way to talk about that compressed representation. Latent directions can carry editable semantics (style change stories in class).
+
+We typically do **not** hand-label what each coordinate of $Z$ means; the model discovers structure (representation learning). Dimensionality and distributional form of $Z$ are design choices.
+
+### 3. Mathematical definition
+
+Observed data $x_1,\ldots,x_n$. Introduce unobserved $z$ (often $z\in\mathbb{R}^{k}$ with $k<d$, but not required; for mixtures $z$ is discrete).
+
+**Latent variable model:** define a joint $P_\theta(x,z)$ and set the observed model to the marginal
+
+$$
+P_\theta(x)=\sum_z P_\theta(x,z)
+\quad\text{(discrete $z$)},
+$$
+
+or
+
+$$
+P_\theta(x)=\int P_\theta(x,z)\,dz
+\quad\text{(continuous $z$)}.
+$$
+
+Once a joint exists, so do $P_\theta(z)$, $P_\theta(x\mid z)$, $P_\theta(z\mid x)$, etc.
+
+### 4. What we estimate
+
+Still care about modeling $P(x)$ (or whatever observed law). With latents we typically estimate **both** parameters $\theta$ **and** structure over $Z$ (a distribution on the latent) — because $z$ values were never observed.
+
+### 5. Mixture as latent variable model
+
+Think of discrete $Z\in\{1,\ldots,M\}$ with $P(Z=j)=\alpha_j$ and $P(x\mid Z=j)=P_{\theta_j}(x)$. Then
+
+$$
+P_\theta(x)=\sum_{j=1}^{M}\alpha_j P_{\theta_j}(x),
+$$
+
+exactly the mixture. So GMM MLE is latent-variable MLE with a discrete component indicator.
+
+### 6. Parameters for a GMM (bookkeeping)
+
+Estimate $\{\alpha_j,\mu_j,\Sigma_j\}_{j=1}^{M}$. $M$ remains a hyperparameter. Outer sum in the log-likelihood is over data points; inner sum is over components — different roles.
+
+---
+
+## Worked mini-example
+
+Handwritten digit image $x\in\mathbb{R}^{d}$. Let discrete $Z\in\{0,\ldots,9\}$ mean “which digit semantics.” Even without labels, a latent-variable model that recovers $P(Z\mid x)$ is doing unsupervised discovery of digit identity — the lecture’s MNIST-style motivation.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| Latent $Z$ is in the dataset | By definition unobserved; we infer distributions over it |
+| Must know what $Z$ “means” | Usually unsupervised; interpretation is post hoc |
+| Latent models replace density estimation | They **are** a way to parameterize $P_\theta(x)$ via a joint |
+| Continuous $Z$ only | Mixtures use discrete $Z$; transformers / VAEs often continuous |
+
+---
+
+## References
+
+- Course playlist: [Mathematical Foundations of Machine Learning](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL course page: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* Ch.9, 12 — mixtures; latent variables
+- Goodfellow et al. *Deep Learning* — deep latent-variable models (overview)
+
+## Self-check questions
+
+1. Write $P_\theta(x)$ for a latent variable model with discrete $z$.
+2. How does a mixture arise from a discrete latent component index?
+3. Name two things estimated in latent-variable MLE (beyond a plain parametric density without $Z$).
+4. Is $k=\dim(z)<d$ required mathematically?
+5. Why did mixtures push us into this framework?
+
+*(Short answers are in `self-check-answers.qmd`.)*

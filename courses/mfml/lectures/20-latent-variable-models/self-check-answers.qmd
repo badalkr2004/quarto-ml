@@ -1,0 +1,10 @@
+---
+title: "Lecture 20 — Self-check answers"
+sidebar: mfml
+---
+
+1. $P_\theta(x)=\sum_z P_\theta(x,z)$ (or integral if $z$ continuous).
+2. Set $P(Z=j)=\alpha_j$ and $P(x\mid Z=j)=P_{\theta_j}(x)$; marginalize $Z$ to get $\sum_j\alpha_j P_{\theta_j}(x)$.
+3. Model parameters $\theta$ and a distribution over the latent $Z$ (since $z$ is unobserved).
+4. No — it is a common compression choice, not a theorem requirement.
+5. Direct MLE has intractable / non-closed $\log\sum$ objectives; latent structure + EM / ELBO tools handle that class.
