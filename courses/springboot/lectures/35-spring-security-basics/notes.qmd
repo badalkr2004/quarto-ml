@@ -1,0 +1,247 @@
+---
+title: "Lecture 35 — Spring Security basics"
+subtitle: "Authentication, authorization, and SecurityContext (in plain words)"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [Spring Security \| Authentication, Authorization & SecurityContext \| Full Course #35](https://www.youtube.com/watch?v=KVJuG95JSpM)  
+**Playlist index:** 35  
+**Builds on:** Web apps, filters, and REST controllers from earlier lectures
+
+---
+
+## Big idea in one line
+
+**Never trust the client.**  
+Spring Security sits in front of your controllers, checks **who you are** (authentication) and **what you may do** (authorization), and stores that answer in a **SecurityContext**.
+
+```text
+Client (browser / Postman / mobile)
+        │
+        ▼
+   Tomcat / servlet container
+        │
+        ▼
+   Spring Security filter chain   ← decide: allow / deny / challenge
+        │
+        ▼
+   DispatcherServlet → Controllers
+```
+
+---
+
+## Why security is a server job
+
+A trust boundary is crossed when a request leaves one world and enters another (internet → your app).
+
+Front-end tricks are **not** security:
+
+- Hide an “Admin” button in HTML → a user can still call `/api/admin` with Postman or curl
+- Client-side checks are UX, not protection
+
+**Rule:** every protected action must be enforced on the **server**.
+
+---
+
+## Topic 1 — Authentication vs authorization
+
+| Word | Plain meaning | Guard analogy |
+|------|---------------|---------------|
+| **Authentication** | “Prove who you claim to be” | Show your employee ID at the gate |
+| **Authorization** | “Are you allowed to do *this*?” | ID accepted, but you still cannot sit in the CEO office |
+
+```text
+Claim: "I am Aditya"
+   │
+   ├─ proof (password, token, Google login, …)
+   ▼
+Authentication OK  →  principal known
+   │
+   ▼
+Authorization      →  roles / authorities checked for this URL or method
+```
+
+### Authentication factors (quick map)
+
+| Factor | Meaning | Example |
+|--------|---------|---------|
+| Something you know | Secret knowledge | Password, PIN |
+| Something you have | Physical / device | Phone OTP, hardware key |
+| Something you are | Biometric | Fingerprint, face |
+
+MFA = use more than one factor.
+
+---
+
+## Topic 2 — Core objects you must know
+
+```text
+SecurityContextHolder
+        │  getContext()
+        ▼
+   SecurityContext          ← “who is current for this thread?”
+        │  getAuthentication()
+        ▼
+   Authentication           ← principal + credentials + authorities + authenticated?
+```
+
+### `Authentication`
+
+Holds:
+
+- **principal** — who (often a username or user object)
+- **credentials** — proof (password / token); often cleared after success
+- **authorities** — permissions / roles (`ROLE_USER`, `ROLE_ADMIN`, …)
+- **authenticated** flag — claim verified or not yet
+
+You will see two “modes” of the same idea:
+
+1. **Request** — username/password just arrived (not verified yet)
+2. **Result** — verified principal with authorities filled in
+
+### `SecurityContext`
+
+A small container that holds the current `Authentication`.
+
+### `SecurityContextHolder`
+
+Static helper that gives you that context (usually via **ThreadLocal**, so one request thread → one user).
+
+```java
+Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+String name = auth.getName();
+```
+
+Any layer can ask “who is calling?” without passing the user through every method by hand.
+
+---
+
+## Topic 3 — Where Security runs (filters)
+
+Spring Security plugs into the **filter layer** between the servlet container and `DispatcherServlet`.
+
+```text
+Request
+  → Filter1 (e.g. CSRF / headers)
+  → Filter2 (authentication)
+  → Filter3 (authorization)
+  → …
+  → Servlet / Controller
+```
+
+If authentication fails → response stops early (401 / login redirect).  
+If authorization fails → 403 Forbidden.
+
+Boot + `spring-boot-starter-security` auto-configures a default filter chain and a default user (until you customize it).
+
+---
+
+## Topic 4 — First contact in the IDE
+
+### Step 1 — New or existing Boot Web project
+
+1. Open [start.spring.io](https://start.spring.io/) (or your existing app)
+2. Dependencies: **Spring Web** + **Spring Security**
+3. Generate → open in IDE
+
+### Step 2 — Add a simple controller
+
+```java
+@RestController
+public class HelloController {
+
+    @GetMapping("/public/hello")
+    public String helloPublic() {
+        return "hello public";
+    }
+
+    @GetMapping("/api/secure")
+    public String helloSecure() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return "hello " + auth.getName();
+    }
+}
+```
+
+### Step 3 — Run and watch the default behavior
+
+1. Run the app
+2. Open `/public/hello` and `/api/secure` in the browser
+3. With default Security, most URLs ask for login
+4. Check the **startup log** for the generated password of user `user` (default in-memory user)
+
+### Step 4 — Call with Basic Auth (Postman)
+
+1. Method GET → `http://localhost:8080/api/secure`
+2. Authorization → **Basic Auth**
+3. Username `user`, password = value from the console
+4. Send → you should see the secured greeting
+
+That proves: credentials verified → `Authentication` stored → controller can read it.
+
+---
+
+## Topic 5 — Minimal Security config (preview)
+
+You will customize this heavily in lectures 36–38. For now, know the shape:
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/public/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+}
+```
+
+Plain words:
+
+- `/public/**` → no login needed
+- everything else → must be authenticated
+- `httpBasic` → username/password in the Authorization header
+
+---
+
+## Short map to keep
+
+```text
+Trust boundary → do not trust client
+Authentication → who are you?
+Authorization  → what may you do?
+Authentication object → principal + credentials + authorities
+SecurityContext → holds Authentication
+SecurityContextHolder → gives you the context (per thread)
+Filter chain → Security runs before controllers
+```
+
+---
+
+## Exercises
+
+1. Explain authentication vs authorization with a building / office example.  
+2. Why is hiding an Admin button in HTML not enough?  
+3. What does `SecurityContextHolder.getContext().getAuthentication()` return?  
+4. Where in the request path does Spring Security sit?  
+5. What happens if authentication fails before the controller runs?
+
+---
+
+## Self-check
+
+1. True/False: Client-side UI checks are enough for API security.  
+2. Name the three objects: holder → context → …  
+3. What is an “authority” in Spring Security?  
+4. Default Boot Security: where do you find the temporary password?
+
+Answers: [self-check-answers](self-check-answers.qmd)
