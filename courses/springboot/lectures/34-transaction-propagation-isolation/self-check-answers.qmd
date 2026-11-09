@@ -4,4 +4,16 @@ sidebar: springboot
 toc: true
 ---
 
-1. REQUIRED joins.\n2. REQUIRES_NEW independent.\n3. Isolation vs concurrency anomalies.
+## Exercises (sample)
+
+1. `REQUIRED` joins (or starts) one shared TX; `REQUIRES_NEW` suspends the outer and runs a separate TX that can commit on its own.
+2. A transaction **must** already exist; otherwise Spring throws.
+3. Dirty read, non-repeatable read, or phantom read.
+4. Strong isolation reduces concurrency and can hurt throughput; use it when the use case needs it.
+
+## Self-check
+
+1. `Propagation.REQUIRED`.
+2. **False.** It suspends the existing TX and runs without one (`NEVER` throws).
+3. Reading another transaction’s **uncommitted** changes.
+4. `rollbackFor = IOException.class` (or a broader type that includes it).

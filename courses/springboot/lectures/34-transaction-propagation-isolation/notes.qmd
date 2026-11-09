@@ -1,33 +1,180 @@
 ---
-title: "Lecture 34 — Propagation and isolation"
-subtitle: "How nested transactions behave"
+title: "Lecture 34 — Propagation & isolation"
+subtitle: "@Transactional attributes that control joining and visibility"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Propagation and isolation \| Full Course #34](https://www.youtube.com/watch?v=E_Sb48BFoF0)  
-**Playlist index:** 34
+**Video:** [Spring @Transactional Propagation & Isolation Levels Explained \| Full Course #34](https://www.youtube.com/watch?v=E_Sb48BFoF0)  
+**Playlist index:** 34  
+**Builds on:** [33 — Spring transactions](../33-spring-transactions/notes.qmd)
 
 ---
-## Propagation (common)
 
-| Value | Plain meaning |
-|-------|----------------|
-| `REQUIRED` (default) | Join existing tx or create one |
-| `REQUIRES_NEW` | Suspend current; new tx |
-| `NOT_SUPPORTED` | Run without tx |
+## Big idea in one line
 
-## Isolation
+`@Transactional` is not only on/off.  
+**Propagation** = join, create, suspend, or refuse a TX.  
+**Isolation** = what concurrent transactions are allowed to see.
 
-Controls dirty reads / phantom reads tradeoffs. Higher isolation can mean more locking.
+```java
+@Transactional(
+    propagation = Propagation.REQUIRED,
+    isolation = Isolation.READ_COMMITTED,
+    timeout = 5,
+    readOnly = false,
+    rollbackFor = IOException.class
+)
+public void performOperation() { }
+```
 
-## Practice
+Still needs a **proxy call** to apply.
 
-Nest service calls with `REQUIRED` vs `REQUIRES_NEW` and log commits (or use DB rows to observe).
+---
+
+## Topic 1 — Default behaviour (refresh)
+
+Typical Boot defaults you feel in practice:
+
+- Propagation: **REQUIRED**  
+- Rollback on **runtime** exceptions  
+- Isolation: database default (often READ_COMMITTED)
+
+---
+
+## Topic 2 — Propagation cheat sheet
+
+| Mode | If TX already exists | If none |
+|------|----------------------|---------|
+| `REQUIRED` | Join it | Create one |
+| `REQUIRES_NEW` | Suspend it; start new | Create one |
+| `SUPPORTS` | Join it | Run with no TX |
+| `MANDATORY` | Join it | **Throw** |
+| `NOT_SUPPORTED` | Suspend; run without TX | Run without TX |
+| `NEVER` | **Throw** | Run without TX |
+| `NESTED` | Savepoint inside current | Create one |
+
+```text
+REQUIRED (default) — “be part of the caller’s unit of work”
+REQUIRES_NEW       — “commit/rollback myself even if outer fails later”
+NESTED             — “partial rollback via savepoint” (DB support matters)
+```
+
+### Mental pictures
+
+```text
+Outer REQUIRED
+  └─ Inner REQUIRED     → same TX
+
+Outer REQUIRED
+  └─ Inner REQUIRES_NEW → inner commits alone; outer can still roll back its own work
+```
+
+Use `REQUIRES_NEW` for things like audit logs that must persist even when the business TX fails — carefully.
+
+---
+
+## Topic 3 — Commit / rollback attributes
+
+| Attribute | Use |
+|-----------|-----|
+| `rollbackFor` | Also roll back for these exception types (e.g. checked) |
+| `noRollbackFor` | Do **not** roll back for these |
+| `readOnly` | Hint: reads only (optimizations / intent) |
+| `timeout` | Fail if TX runs too long (seconds) |
+
+```java
+@Transactional(rollbackFor = Exception.class)
+public void importFile() throws Exception {
+    // checked exceptions also roll back
+}
+```
+
+---
+
+## Topic 4 — Isolation levels (why they exist)
+
+Concurrent transactions can cause:
+
+| Phenomenon | Plain meaning |
+|------------|----------------|
+| **Dirty read** | See another TX’s **uncommitted** change |
+| **Non-repeatable read** | Re-read a row; committed data changed |
+| **Phantom read** | Re-query a range; new matching rows appear |
+
+```text
+Isolation ↑  →  fewer surprises, often more locking / less concurrency
+Isolation ↓  →  more concurrency, more anomaly risk
+```
+
+### Common levels
+
+| Level | Rough protection |
+|-------|------------------|
+| `READ_UNCOMMITTED` | Allows dirty reads |
+| `READ_COMMITTED` | No dirty reads (common default) |
+| `REPEATABLE_READ` | Same row reads stay stable (phantoms depend on DB) |
+| `SERIALIZABLE` | Strongest; transactions feel almost one-at-a-time |
+
+```java
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+public void reportBalances() { }
+```
+
+Exact behaviour is **database-specific**. Always verify with your DB docs when tuning.
+
+---
+
+## Topic 5 — Choosing attributes (practical)
+
+Ask:
+
+1. Should this method **share** the caller’s success/failure? → `REQUIRED`  
+2. Must this succeed **independently**? → `REQUIRES_NEW`  
+3. Is this read-mostly reporting? → `readOnly = true` (+ isolation if needed)  
+4. Do checked exceptions mean business failure? → `rollbackFor`  
+
+Do not crank isolation to `SERIALIZABLE` everywhere “to be safe.” Measure need vs throughput.
+
+---
+
+## Practice lab
+
+1. Outer service method `REQUIRED` calls inner `REQUIRED`; throw in outer after inner write — both roll back.  
+2. Change inner to `REQUIRES_NEW`; throw in outer after inner returns — inner changes remain.  
+3. Call a `MANDATORY` method with no outer TX — expect failure.  
+4. Add `rollbackFor = Exception.class` and throw a checked exception — confirm rollback.  
+5. (Optional) Two threads: demonstrate why isolation matters with concurrent updates (keep the demo small).
+
+---
+
+## Short map to keep
+
+```text
+@Transactional
+  propagation → join / new / nested / none / reject
+  isolation   → how much concurrent visibility
+  rollbackFor → which exceptions undo work
+  readOnly / timeout → intent & limits
+```
+
+---
+
+## Exercises
+
+1. Difference between `REQUIRED` and `REQUIRES_NEW`?  
+2. What does `MANDATORY` guarantee?  
+3. Name one concurrency anomaly isolation tries to control.  
+4. Why is `SERIALIZABLE` not the default for every method?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Default propagation mode?  
+2. True/False: `NOT_SUPPORTED` always throws if a TX exists.  
+3. Dirty read means?  
+4. Which attribute rolls back on a checked `IOException`?
+
+Answers: [self-check-answers](self-check-answers.qmd)
