@@ -1,0 +1,29 @@
+---
+title: "Lecture 39 — OAuth 2.0 and OIDC"
+subtitle: "Google login, PKCE basics"
+author: "Practice notes based on Aditya Tandon (Coder Army)"
+sidebar: springboot
+toc: true
+---
+
+**Video:** [OAuth 2.0 and OIDC \| Full Course #39](https://www.youtube.com/watch?v=t9kRN4wMVk0)  
+**Playlist index:** 39
+
+---
+## Big idea
+
+Let Google (or other IdP) prove who the user is. Your app receives identity tokens / codes.
+
+## Practice
+
+Configure OAuth2 client for Google login in Boot. Complete redirect login. Read principal name.
+
+## Reasoning
+
+You delegate password storage to the IdP. Still authorize *your* APIs yourself.
+
+---
+
+## Self-check
+
+See [self-check-answers](self-check-answers.qmd).

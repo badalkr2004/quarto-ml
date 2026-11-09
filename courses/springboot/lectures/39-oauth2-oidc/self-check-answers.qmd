@@ -1,0 +1,7 @@
+---
+title: "Lecture 39 — Self-check answers"
+sidebar: springboot
+toc: true
+---
+
+1. Delegated login.\n2. Redirect + code/token.\n3. Still authorize local APIs.
