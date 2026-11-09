@@ -1,0 +1,102 @@
+---
+title: "Lecture 61 — $k$-Means Clustering"
+subtitle: "Lloyd iteration: assign points to nearest centers, then move centers"
+author: "Notes based on Prof. Prathosh A.P. (NPTEL / IISc)"
+sidebar: mfml
+toc: true
+---
+
+**Video:** [Lec 61 — K-Means Clustering](https://www.youtube.com/watch?v=oFr4JX75MCc)
+
+## Learning goals
+
+- State the **$k$-means** objective (sum of squared distances to cluster centers).
+- Run **Lloyd’s algorithm**: assign $\to$ update centers $\to$ repeat.
+- Recognize **local minima** and dependence on initialization / choice of $k$.
+
+## Before this clicks
+
+You are given points $x_1,\ldots,x_n\in\mathbb{R}^{d}$ and an integer $k$. You want $k$ groups. A **center** $\mu_j\in\mathbb{R}^{d}$ represents cluster $j$. Similarity here means Euclidean distance $\|x-\mu\|^2$. Soft / probabilistic cousins (mixtures, EM) appear elsewhere in the course; $k$-means is the hard-assignment workhorse.
+
+---
+
+## Main ideas
+
+### 1. Objective
+
+Let $z_i\in\{1,\ldots,k\}$ be the cluster index of $x_i$, and $\mu_1,\ldots,\mu_k$ the centers. Minimize
+
+$$
+J(\{z_i\},\{\mu_j\})=\sum_{i=1}^{n}\|x_i-\mu_{z_i}\|^2.
+$$
+
+Equivalently, with assignment indicators $r_{ij}\in\{0,1\}$ and $\sum_j r_{ij}=1$,
+
+$$
+J=\sum_{i=1}^{n}\sum_{j=1}^{k} r_{ij}\,\|x_i-\mu_j\|^2.
+$$
+
+### 2. Lloyd iteration
+
+Alternate two cheap steps from an initial $\{\mu_j\}$:
+
+1. **Assign:** for each $i$, set
+   $$
+   z_i=\arg\min_{j}\|x_i-\mu_j\|^2.
+   $$
+2. **Update:** for each $j$, set $\mu_j$ to the mean of points with $z_i=j$:
+   $$
+   \mu_j=\frac{1}{|C_j|}\sum_{i:z_i=j}x_i,\qquad C_j=\{i:z_i=j\}
+   $$
+   (skip empty clusters carefully in practice).
+
+Each step does not increase $J$; the algorithm stops when assignments stabilize (or after a max iteration count).
+
+### 3. Why means?
+
+For fixed assignments, the $\mu_j$ that minimizes squared error for cluster $j$ is exactly the sample mean of that cluster. So the update is optimal for that half of the problem.
+
+### 4. Local minima and $k$
+
+$J$ is **nonconvex** in the joint $(z,\mu)$. Different initializations can yield different partitions and different final $J$. Common practice: multiple random restarts; keep the lowest $J$. Choosing $k$ is a modeling decision (elbow / silhouette heuristics, domain knowledge) — not magically given by the data.
+
+### 5. Limitations (honest)
+
+- Assumes roughly spherical, similar-scale clusters in Euclidean space.
+- Sensitive to outliers and feature scaling.
+- Soft memberships need mixtures / fuzzy variants.
+
+---
+
+## Worked mini-example
+
+Four points: $(0,0)$, $(0,1)$, $(10,0)$, $(10,1)$, and $k=2$. Good init: centers near left and right pairs $\Rightarrow$ clusters $\{(0,0),(0,1)\}$ and $\{(10,0),(10,1)\}$ with means $(0,0.5)$ and $(10,0.5)$. A bad init that puts both centers on the left can still recover the same partition after a few assign/update rounds, but pathological inits (and harder geometries) can trap Lloyd at a poor local minimum — hence restarts.
+
+---
+
+## Common confusions
+
+| Confusion | Clarification |
+|-----------|---------------|
+| $k$-means finds the global optimum | Only a **local** minimum of $J$ in general. |
+| Centers must be data points | Means need not coincide with any $x_i$ (unlike $k$-medoids). |
+| Larger $k$ is always better | $J$ falls as $k$ grows; that alone does not mean a better model. |
+
+---
+
+## References
+
+- Course playlist: [MFML](https://www.youtube.com/playlist?list=PLgMDNELGJ1Cay-Q9Cn8KcpUcC58NDWuiu)
+- NPTEL: [106108841](https://nptel.ac.in/courses/106108841)
+- Bishop *PRML* — $k$-means and link to GMM/EM
+- Murphy — clustering chapter
+
+## Self-check questions
+
+1. Write the $k$-means objective $J$.
+2. State the two Lloyd steps.
+3. For fixed assignments, what is the optimal $\mu_j$?
+4. Why can two runs give different clusters?
+5. Does decreasing $J$ by raising $k$ prove you found the “right” number of clusters?
+
+*(Short answers are in `self-check-answers.qmd`.)*

@@ -1,0 +1,10 @@
+---
+title: "Lecture 61 — Self-check answers"
+sidebar: mfml
+---
+
+1. $J=\sum_{i=1}^{n}\|x_i-\mu_{z_i}\|^2$ (or the double-sum form with indicators $r_{ij}$).
+2. Assign each point to the nearest center; set each center to the mean of its assigned points.
+3. The mean of the points in cluster $j$.
+4. Nonconvex objective / different initializations $\Rightarrow$ different local minima.
+5. No: $J$ tends to fall with larger $k$ even when clusters are meaningless.
