@@ -4,4 +4,17 @@ sidebar: springboot
 toc: true
 ---
 
-1. `preHandle` → controller → `postHandle` → `afterCompletion`.\n2. Filter=servlet, Interceptor=Spring MVC.\n3. Return false.
+## Exercises (sample)
+
+1. Stop — do not invoke the controller (you should write an error response yourself).
+2. `afterCompletion` (runs after the request finishes, including error paths).
+3. **No** — if a Filter never calls `chain.doFilter`, MVC (and interceptors) never start.
+4. `excludePathPatterns("/api/health")` (or similar) on the registration.
+5. There is often no view/`ModelAndView` to tweak; JSON already written — logging/cleanup still fits `afterCompletion`.
+
+## Self-check
+
+1. `HandlerInterceptor`.
+2. **False.** Different layers; often used together.
+3. `WebMvcConfigurer.addInterceptors(...)`.
+4. **Yes** — `Exception ex` (null if no failure).

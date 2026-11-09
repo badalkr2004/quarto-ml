@@ -1,63 +1,210 @@
 ---
-title: "Lecture 21 — Spring MVC interceptors"
-subtitle: "preHandle, postHandle, afterCompletion"
+title: "Lecture 21 — Interceptors"
+subtitle: "preHandle, postHandle, afterCompletion inside Spring MVC"
 author: "Practice notes based on Aditya Tandon (Coder Army)"
 sidebar: springboot
 toc: true
 ---
 
-**Video:** [Spring MVC interceptors \| Full Course #21](https://www.youtube.com/watch?v=XE4xsgbArCQ)  
-**Playlist index:** 21
+**Video:** [Spring Boot Interceptors \| preHandle, postHandle & afterCompletion \| Spring Boot Full Course #21](https://www.youtube.com/watch?v=XE4xsgbArCQ)  
+**Playlist index:** 21  
+**Builds on:** [19–20 Filters](../19-filters-basics/notes.qmd), DispatcherServlet / MVC flow
 
 ---
-## Big idea
 
-**Interceptors** are Spring MVC hooks around controller methods (after DispatcherServlet mapping).
+## Big idea in one line
+
+An **Interceptor** is Spring MVC middleware around the **handler (controller method)**.  
+It is not a servlet Filter: it runs **inside** Spring, knows which controller method was chosen, and has three clear hooks.
 
 ```text
-Filter (servlet) → DispatcherServlet → Interceptor.preHandle
-                                      → Controller
-                                      → Interceptor.postHandle
-                                      → Interceptor.afterCompletion
+Filter(s)
+  → DispatcherServlet
+      → Interceptor.preHandle
+          → Controller
+      → Interceptor.postHandle
+      → Interceptor.afterCompletion
+  ← response
 ```
 
-## Example
+---
+
+## Filters vs Interceptors (keep this table)
+
+| | **Filter** | **Interceptor** |
+|--|------------|-----------------|
+| API | Servlet (`Filter`) | Spring MVC (`HandlerInterceptor`) |
+| Knows controller method? | No | Yes (handler argument) |
+| Runs if no handler mapped? | Can still run | Tied to MVC handler execution |
+| Typical use | Auth gate, encoding, raw logging | Audit handler name, MVC-specific checks, model tweaks |
+
+Use **both** in real apps: Filters for servlet-wide concerns; Interceptors when you need Spring MVC context.
+
+---
+
+## Topic 1 — `HandlerInterceptor` methods
 
 ```java
-public class TimingInterceptor implements HandlerInterceptor {
+public class LoggingInterceptor implements HandlerInterceptor {
+
     @Override
-    public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) {
-        req.setAttribute("start", System.currentTimeMillis());
-        return true; // false = stop
+    public boolean preHandle(HttpServletRequest request,
+                             HttpServletResponse response,
+                             Object handler) {
+        System.out.println("preHandle: " + request.getRequestURI() + " handler=" + handler);
+        return true; // continue to controller
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest req, HttpServletResponse res,
-                                Object handler, Exception ex) {
-        Long start = (Long) req.getAttribute("start");
-        System.out.println("took " + (System.currentTimeMillis() - start) + "ms");
+    public void postHandle(HttpServletRequest request,
+                           HttpServletResponse response,
+                           Object handler,
+                           ModelAndView modelAndView) {
+        System.out.println("postHandle");
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request,
+                                HttpServletResponse response,
+                                Object handler,
+                                Exception ex) {
+        System.out.println("afterCompletion status=" + response.getStatus());
     }
 }
 ```
 
-Register with `WebMvcConfigurer.addInterceptors`.
+### Meaning in plain words
 
-## Filter vs interceptor
+| Method | When | Job |
+|--------|------|-----|
+| `preHandle` | Before controller | Auth check, timing start; return `false` to abort |
+| `postHandle` | After controller, before view render | Adjust `ModelAndView` (less common for pure REST) |
+| `afterCompletion` | After request fully done (even if errors) | Cleanup, timing end, log final status |
 
-| | Filter | Interceptor |
-|--|--------|-------------|
-| Level | Servlet | Spring MVC |
-| Sees | All servlet requests | Mapped handler calls |
-| Use | Auth wrappers, encoding | Handler-specific logic |
+```text
+preHandle → returns false → controller SKIPPED
+                         → still may call afterCompletion for interceptors that already ran
+```
 
-## Practice
+---
 
-1. Add timing interceptor.
-2. Restrict it to `/api/**`.
-3. Return `false` from `preHandle` for a path prefix and observe block.
+## Topic 2 — Register with `WebMvcConfigurer`
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoggingInterceptor())
+                .addPathPatterns("/api/**")
+                .excludePathPatterns("/api/public/**");
+    }
+}
+```
+
+Path patterns give you fine control — similar spirit to filter URL patterns, but in MVC config.
+
+Prefer injecting a `@Component` interceptor bean instead of `new` if it needs other beans:
+
+```java
+registry.addInterceptor(loggingInterceptor).addPathPatterns("/**");
+```
+
+---
+
+## Topic 3 — Auth-style `preHandle` example
+
+```java
+@Override
+public boolean preHandle(HttpServletRequest request,
+                         HttpServletResponse response,
+                         Object handler) throws Exception {
+    String key = request.getHeader("X-API-KEY");
+    if (!"secret".equals(key)) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"message\":\"Unauthorized\"}");
+        return false;
+    }
+    return true;
+}
+```
+
+Same idea as a Filter auth check, but you can also inspect `handler` (e.g. cast to `HandlerMethod` and read annotations on the controller method — useful later with custom annotations).
+
+---
+
+## Topic 4 — Order of multiple interceptors
+
+```text
+registry.addInterceptor(A);
+registry.addInterceptor(B);
+
+Incoming:  A.preHandle → B.preHandle → Controller
+Outgoing:  B.postHandle → A.postHandle
+Then:      B.afterCompletion → A.afterCompletion  (reverse for completion too)
+```
+
+Registration order matters.
+
+---
+
+## Practice lab (IDE steps)
+
+### Step 1 — Create interceptor
+
+Implement `HandlerInterceptor`; log in all three methods with clear prefixes (`PRE`, `POST`, `AFTER`).
+
+### Step 2 — Register paths
+
+`WebMvcConfigurer` → apply to `/api/**`, exclude one public path.
+
+### Step 3 — Hit endpoints
+
+1. Protected `/api/hello` → see PRE → controller → POST → AFTER.  
+2. Excluded public path → interceptor should not run.  
+3. Return `false` from `preHandle` without valid header → controller log absent.
+
+### Step 4 — Compare with a Filter
+
+Keep the logging Filter from lecture 19.  
+One request should show: **Filter before → Interceptor pre → Controller → Interceptor post/after → Filter after**.
+
+### Step 5 — Read the handler
+
+In `preHandle`, if `handler instanceof HandlerMethod hm`, print `hm.getBeanType().getSimpleName()` and `hm.getMethod().getName()`.
+
+---
+
+## Short map to keep
+
+```text
+Filter     = around servlet / DispatcherServlet
+Interceptor= around controller handler inside MVC
+preHandle  = gate (boolean)
+postHandle = after controller (ModelAndView)
+afterCompletion = always-ish cleanup
+Register via WebMvcConfigurer.addInterceptors
+```
+
+---
+
+## Exercises
+
+1. What does `preHandle` returning `false` mean?  
+2. Which hook is best for “stopwatch end + log status”?  
+3. Can an Interceptor run if Filters already blocked the request?  
+4. How do you skip `/api/health` from an interceptor?  
+5. Why might `postHandle` feel unused in a `@RestController` JSON app?
 
 ---
 
 ## Self-check
 
-See [self-check-answers](self-check-answers.qmd).
+1. Which interface do Interceptors implement?  
+2. True/False: Interceptors replace Filters completely.  
+3. Where do you register interceptors in Boot?  
+4. Does `afterCompletion` receive an `Exception` parameter?
+
+Answers: [self-check-answers](self-check-answers.qmd)
